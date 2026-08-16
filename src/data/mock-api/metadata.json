@@ -1,0 +1,17 @@
+{
+  "apiVersion": "1.0.0",
+  "instansi": {
+    "name": "Badan Pendapatan Daerah",
+    "city": "Kota Pangkalpinang",
+    "province": "Kepulauan Bangka Belitung"
+  },
+  "application": {
+    "name": "Dashboard Kepatuhan Pajak Kendaraan",
+    "shortName": "SIKEPATUHAN",
+    "version": "2.4.0"
+  },
+  "currency": "IDR",
+  "locale": "id-ID",
+  "timezone": "Asia/Jakarta",
+  "generatedAt": "2026-05-20T09:15:00+07:00"
+}

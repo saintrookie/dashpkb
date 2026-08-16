@@ -1,0 +1,39 @@
+{
+  "taxYears": [2024, 2025, 2026],
+  "periods": [
+    { "id": "2026-05-20", "label": "s.d. 20 Mei 2026", "date": "2026-05-20" },
+    { "id": "2026-04-30", "label": "s.d. 30 April 2026", "date": "2026-04-30" },
+    { "id": "2026-03-31", "label": "s.d. 31 Maret 2026", "date": "2026-03-31" },
+    { "id": "2026-02-28", "label": "s.d. 28 Februari 2026", "date": "2026-02-28" },
+    { "id": "2026-01-31", "label": "s.d. 31 Januari 2026", "date": "2026-01-31" }
+  ],
+  "complianceStatuses": [
+    { "value": "very_good", "label": "Sangat Baik" },
+    { "value": "good", "label": "Baik" },
+    { "value": "fair", "label": "Cukup" },
+    { "value": "low", "label": "Rendah" },
+    { "value": "very_low", "label": "Sangat Rendah" }
+  ],
+  "reportingStatuses": [
+    { "value": "on_time", "label": "Tepat Waktu" },
+    { "value": "late", "label": "Terlambat" }
+  ],
+  "kecamatan": [
+    "Gerunggang",
+    "Rangkui",
+    "Taman Sari",
+    "Bukit Intan",
+    "Gabek",
+    "Girimaya",
+    "Pangkal Balam"
+  ],
+  "kelurahan": {
+    "Gerunggang": ["Gerunggang", "Bacang", "Air Itam", "Bukit Sari"],
+    "Rangkui": ["Sri Menanti", "Batin Tikal", "Pintu Air", "Rejosari"],
+    "Taman Sari": ["Taman Sari", "Melintang", "Bukit Baru"],
+    "Bukit Intan": ["Bukit Intan", "Semabung Lama", "Batu Intan", "Gedung Nasional"],
+    "Gabek": ["Gabek Satu", "Gabek Dua", "Selindung", "Selindung Baru"],
+    "Girimaya": ["Girimaya", "Air Salemba", "Bukit Merapin"],
+    "Pangkal Balam": ["Pangkal Balam", "Ketapang", "Keramat", "Ampui"]
+  }
+}

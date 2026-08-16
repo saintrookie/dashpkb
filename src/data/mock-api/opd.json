@@ -1,0 +1,912 @@
+[
+  {
+    "id": "opd-001",
+    "code": "SETDA",
+    "name": "Sekretariat Daerah",
+    "kecamatan": "Gerunggang",
+    "latitude": -2.090714,
+    "longitude": 106.081631,
+    "vehicleCount": 1245,
+    "paidVehicleCount": 1228,
+    "unpaidVehicleCount": 17,
+    "collectionRate": 98.6,
+    "billing": {
+      "pkb": 1307250000,
+      "opsenPkb": 862785000,
+      "swdkllj": 74700000
+    },
+    "payment": {
+      "pkb": 1288948500,
+      "opsenPkb": 850706010,
+      "swdkllj": 73654200
+    },
+    "unpaidPotential": 31426290,
+    "reportingStatus": "on_time",
+    "complianceStatus": "very_good",
+    "lastPaymentDate": "2026-05-18"
+  },
+  {
+    "id": "opd-002",
+    "code": "BAPENDA",
+    "name": "Badan Pendapatan Daerah",
+    "kecamatan": "Rangkui",
+    "latitude": -2.146455,
+    "longitude": 106.104364,
+    "vehicleCount": 612,
+    "paidVehicleCount": 594,
+    "unpaidVehicleCount": 18,
+    "collectionRate": 97.1,
+    "billing": {
+      "pkb": 642600000,
+      "opsenPkb": 424116000,
+      "swdkllj": 36720000
+    },
+    "payment": {
+      "pkb": 623964600,
+      "opsenPkb": 411816636,
+      "swdkllj": 35655120
+    },
+    "unpaidPotential": 31999644,
+    "reportingStatus": "on_time",
+    "complianceStatus": "very_good",
+    "lastPaymentDate": "2026-05-17"
+  },
+  {
+    "id": "opd-003",
+    "code": "DISDUKCAPIL",
+    "name": "Dinas Kependudukan dan Pencatatan Sipil",
+    "kecamatan": "Taman Sari",
+    "latitude": -2.118385,
+    "longitude": 106.108322,
+    "vehicleCount": 458,
+    "paidVehicleCount": 439,
+    "unpaidVehicleCount": 19,
+    "collectionRate": 95.8,
+    "billing": {
+      "pkb": 412200000,
+      "opsenPkb": 272052000,
+      "swdkllj": 20610000
+    },
+    "payment": {
+      "pkb": 394887600,
+      "opsenPkb": 260625816,
+      "swdkllj": 19744380
+    },
+    "unpaidPotential": 29604204,
+    "reportingStatus": "on_time",
+    "complianceStatus": "very_good",
+    "lastPaymentDate": "2026-05-15"
+  },
+  {
+    "id": "opd-004",
+    "code": "BKD",
+    "name": "Badan Keuangan Daerah",
+    "kecamatan": "Bukit Intan",
+    "latitude": -2.12696,
+    "longitude": 106.144825,
+    "vehicleCount": 348,
+    "paidVehicleCount": 329,
+    "unpaidVehicleCount": 19,
+    "collectionRate": 94.6,
+    "billing": {
+      "pkb": 313200000,
+      "opsenPkb": 206712000,
+      "swdkllj": 15660000
+    },
+    "payment": {
+      "pkb": 296287200,
+      "opsenPkb": 195549552,
+      "swdkllj": 14814360
+    },
+    "unpaidPotential": 28920888,
+    "reportingStatus": "on_time",
+    "complianceStatus": "very_good",
+    "lastPaymentDate": "2026-05-14"
+  },
+  {
+    "id": "opd-005",
+    "code": "ITDA",
+    "name": "Inspektorat",
+    "kecamatan": "Gabek",
+    "latitude": -2.09054,
+    "longitude": 106.103727,
+    "vehicleCount": 186,
+    "paidVehicleCount": 173,
+    "unpaidVehicleCount": 13,
+    "collectionRate": 93.2,
+    "billing": {
+      "pkb": 148800000,
+      "opsenPkb": 98208000,
+      "swdkllj": 6510000
+    },
+    "payment": {
+      "pkb": 138681600,
+      "opsenPkb": 91529856,
+      "swdkllj": 6067320
+    },
+    "unpaidPotential": 17239224,
+    "reportingStatus": "on_time",
+    "complianceStatus": "good",
+    "lastPaymentDate": "2026-05-13"
+  },
+  {
+    "id": "opd-006",
+    "code": "DISDIK",
+    "name": "Dinas Pendidikan",
+    "kecamatan": "Girimaya",
+    "latitude": -2.135002,
+    "longitude": 106.123522,
+    "vehicleCount": 3862,
+    "paidVehicleCount": 3530,
+    "unpaidVehicleCount": 332,
+    "collectionRate": 91.4,
+    "billing": {
+      "pkb": 4827500000,
+      "opsenPkb": 3186150000,
+      "swdkllj": 347580000
+    },
+    "payment": {
+      "pkb": 4412335000,
+      "opsenPkb": 2912141100,
+      "swdkllj": 317688120
+    },
+    "unpaidPotential": 719065780,
+    "reportingStatus": "on_time",
+    "complianceStatus": "good",
+    "lastPaymentDate": "2026-05-12"
+  },
+  {
+    "id": "opd-007",
+    "code": "BKPSDM",
+    "name": "Badan Kepegawaian dan Pengembangan Sumber Daya Manusia",
+    "kecamatan": "Pangkal Balam",
+    "latitude": -2.110821,
+    "longitude": 106.116102,
+    "vehicleCount": 214,
+    "paidVehicleCount": 193,
+    "unpaidVehicleCount": 21,
+    "collectionRate": 90.1,
+    "billing": {
+      "pkb": 171200000,
+      "opsenPkb": 112992000,
+      "swdkllj": 7490000
+    },
+    "payment": {
+      "pkb": 154251200,
+      "opsenPkb": 101805792,
+      "swdkllj": 6748490
+    },
+    "unpaidPotential": 28876518,
+    "reportingStatus": "on_time",
+    "complianceStatus": "good",
+    "lastPaymentDate": "2026-05-11"
+  },
+  {
+    "id": "opd-008",
+    "code": "SETWAN",
+    "name": "Sekretariat DPRD",
+    "kecamatan": "Gerunggang",
+    "latitude": -2.101893,
+    "longitude": 106.079879,
+    "vehicleCount": 265,
+    "paidVehicleCount": 235,
+    "unpaidVehicleCount": 30,
+    "collectionRate": 88.7,
+    "billing": {
+      "pkb": 238500000,
+      "opsenPkb": 157410000,
+      "swdkllj": 11925000
+    },
+    "payment": {
+      "pkb": 211549500,
+      "opsenPkb": 139622670,
+      "swdkllj": 10577475
+    },
+    "unpaidPotential": 46085355,
+    "reportingStatus": "on_time",
+    "complianceStatus": "good",
+    "lastPaymentDate": "2026-05-09"
+  },
+  {
+    "id": "opd-009",
+    "code": "DISKOMINFO",
+    "name": "Dinas Komunikasi dan Informatika",
+    "kecamatan": "Rangkui",
+    "latitude": -2.137038,
+    "longitude": 106.097878,
+    "vehicleCount": 302,
+    "paidVehicleCount": 264,
+    "unpaidVehicleCount": 38,
+    "collectionRate": 87.3,
+    "billing": {
+      "pkb": 271800000,
+      "opsenPkb": 179388000,
+      "swdkllj": 13590000
+    },
+    "payment": {
+      "pkb": 237281400,
+      "opsenPkb": 156605724,
+      "swdkllj": 11864070
+    },
+    "unpaidPotential": 59026806,
+    "reportingStatus": "on_time",
+    "complianceStatus": "good",
+    "lastPaymentDate": "2026-05-08"
+  },
+  {
+    "id": "opd-010",
+    "code": "DPMPTSP",
+    "name": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu",
+    "kecamatan": "Taman Sari",
+    "latitude": -2.133381,
+    "longitude": 106.119335,
+    "vehicleCount": 372,
+    "paidVehicleCount": 320,
+    "unpaidVehicleCount": 52,
+    "collectionRate": 85.9,
+    "billing": {
+      "pkb": 334800000,
+      "opsenPkb": 220968000,
+      "swdkllj": 16740000
+    },
+    "payment": {
+      "pkb": 287593200,
+      "opsenPkb": 189811512,
+      "swdkllj": 14379660
+    },
+    "unpaidPotential": 80723628,
+    "reportingStatus": "on_time",
+    "complianceStatus": "good",
+    "lastPaymentDate": "2026-05-07"
+  },
+  {
+    "id": "opd-011",
+    "code": "DINSOS",
+    "name": "Dinas Sosial",
+    "kecamatan": "Bukit Intan",
+    "latitude": -2.123848,
+    "longitude": 106.139269,
+    "vehicleCount": 521,
+    "paidVehicleCount": 439,
+    "unpaidVehicleCount": 82,
+    "collectionRate": 84.2,
+    "billing": {
+      "pkb": 547050000,
+      "opsenPkb": 361053000,
+      "swdkllj": 31260000
+    },
+    "payment": {
+      "pkb": 460616100,
+      "opsenPkb": 304006626,
+      "swdkllj": 26320920
+    },
+    "unpaidPotential": 148419354,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-05-06"
+  },
+  {
+    "id": "opd-012",
+    "code": "BAPPEDA",
+    "name": "Badan Perencanaan Pembangunan Daerah",
+    "kecamatan": "Gabek",
+    "latitude": -2.086866,
+    "longitude": 106.100534,
+    "vehicleCount": 456,
+    "paidVehicleCount": 377,
+    "unpaidVehicleCount": 79,
+    "collectionRate": 82.6,
+    "billing": {
+      "pkb": 410400000,
+      "opsenPkb": 270864000,
+      "swdkllj": 20520000
+    },
+    "payment": {
+      "pkb": 338990400,
+      "opsenPkb": 223733664,
+      "swdkllj": 16949520
+    },
+    "unpaidPotential": 122110416,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-05-04"
+  },
+  {
+    "id": "opd-013",
+    "code": "DISPAR",
+    "name": "Dinas Pariwisata",
+    "kecamatan": "Girimaya",
+    "latitude": -2.1464,
+    "longitude": 106.111765,
+    "vehicleCount": 298,
+    "paidVehicleCount": 241,
+    "unpaidVehicleCount": 57,
+    "collectionRate": 80.9,
+    "billing": {
+      "pkb": 268200000,
+      "opsenPkb": 177012000,
+      "swdkllj": 13410000
+    },
+    "payment": {
+      "pkb": 216973800,
+      "opsenPkb": 143202708,
+      "swdkllj": 10848690
+    },
+    "unpaidPotential": 87596802,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-05-03"
+  },
+  {
+    "id": "opd-014",
+    "code": "DISPUSIP",
+    "name": "Dinas Perpustakaan dan Kearsipan",
+    "kecamatan": "Pangkal Balam",
+    "latitude": -2.098895,
+    "longitude": 106.119564,
+    "vehicleCount": 176,
+    "paidVehicleCount": 140,
+    "unpaidVehicleCount": 36,
+    "collectionRate": 79.3,
+    "billing": {
+      "pkb": 140800000,
+      "opsenPkb": 92928000,
+      "swdkllj": 6160000
+    },
+    "payment": {
+      "pkb": 111654400,
+      "opsenPkb": 73691904,
+      "swdkllj": 4884880
+    },
+    "unpaidPotential": 49656816,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-05-01"
+  },
+  {
+    "id": "opd-015",
+    "code": "KESBANGPOL",
+    "name": "Badan Kesatuan Bangsa dan Politik",
+    "kecamatan": "Gerunggang",
+    "latitude": -2.097675,
+    "longitude": 106.069555,
+    "vehicleCount": 158,
+    "paidVehicleCount": 123,
+    "unpaidVehicleCount": 35,
+    "collectionRate": 77.8,
+    "billing": {
+      "pkb": 126400000,
+      "opsenPkb": 83424000,
+      "swdkllj": 5530000
+    },
+    "payment": {
+      "pkb": 98339200,
+      "opsenPkb": 64903872,
+      "swdkllj": 4302340
+    },
+    "unpaidPotential": 47808588,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-04-30"
+  },
+  {
+    "id": "opd-016",
+    "code": "DISKOPUKM",
+    "name": "Dinas Koperasi, Usaha Kecil dan Menengah",
+    "kecamatan": "Rangkui",
+    "latitude": -2.127283,
+    "longitude": 106.110687,
+    "vehicleCount": 334,
+    "paidVehicleCount": 254,
+    "unpaidVehicleCount": 80,
+    "collectionRate": 76.1,
+    "billing": {
+      "pkb": 300600000,
+      "opsenPkb": 198396000,
+      "swdkllj": 15030000
+    },
+    "payment": {
+      "pkb": 228756600,
+      "opsenPkb": 150979356,
+      "swdkllj": 11437830
+    },
+    "unpaidPotential": 122852214,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-04-29"
+  },
+  {
+    "id": "opd-017",
+    "code": "BALITBANGDA",
+    "name": "Badan Penelitian dan Pengembangan Daerah",
+    "kecamatan": "Taman Sari",
+    "latitude": -2.124164,
+    "longitude": 106.10291,
+    "vehicleCount": 142,
+    "paidVehicleCount": 106,
+    "unpaidVehicleCount": 36,
+    "collectionRate": 74.5,
+    "billing": {
+      "pkb": 113600000,
+      "opsenPkb": 74976000,
+      "swdkllj": 4970000
+    },
+    "payment": {
+      "pkb": 84632000,
+      "opsenPkb": 55857120,
+      "swdkllj": 3702650
+    },
+    "unpaidPotential": 49354230,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-04-27"
+  },
+  {
+    "id": "opd-018",
+    "code": "DPMD",
+    "name": "Dinas Pemberdayaan Masyarakat dan Desa",
+    "kecamatan": "Bukit Intan",
+    "latitude": -2.129799,
+    "longitude": 106.159613,
+    "vehicleCount": 289,
+    "paidVehicleCount": 211,
+    "unpaidVehicleCount": 78,
+    "collectionRate": 73,
+    "billing": {
+      "pkb": 260100000,
+      "opsenPkb": 171666000,
+      "swdkllj": 13005000
+    },
+    "payment": {
+      "pkb": 189873000,
+      "opsenPkb": 125316180,
+      "swdkllj": 9493650
+    },
+    "unpaidPotential": 120088170,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-04-26"
+  },
+  {
+    "id": "opd-019",
+    "code": "DP3A",
+    "name": "Dinas Pemberdayaan Perempuan dan Perlindungan Anak",
+    "kecamatan": "Gabek",
+    "latitude": -2.09122,
+    "longitude": 106.11235,
+    "vehicleCount": 204,
+    "paidVehicleCount": 146,
+    "unpaidVehicleCount": 58,
+    "collectionRate": 71.4,
+    "billing": {
+      "pkb": 163200000,
+      "opsenPkb": 107712000,
+      "swdkllj": 7140000
+    },
+    "payment": {
+      "pkb": 116524800,
+      "opsenPkb": 76906368,
+      "swdkllj": 5097960
+    },
+    "unpaidPotential": 79522872,
+    "reportingStatus": "on_time",
+    "complianceStatus": "fair",
+    "lastPaymentDate": "2026-04-25"
+  },
+  {
+    "id": "opd-020",
+    "code": "DINKES",
+    "name": "Dinas Kesehatan",
+    "kecamatan": "Girimaya",
+    "latitude": -2.148596,
+    "longitude": 106.12224,
+    "vehicleCount": 1856,
+    "paidVehicleCount": 1295,
+    "unpaidVehicleCount": 561,
+    "collectionRate": 69.8,
+    "billing": {
+      "pkb": 2320000000,
+      "opsenPkb": 1531200000,
+      "swdkllj": 167040000
+    },
+    "payment": {
+      "pkb": 1619360000,
+      "opsenPkb": 1068777600,
+      "swdkllj": 116593920
+    },
+    "unpaidPotential": 1213508480,
+    "reportingStatus": "on_time",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-23"
+  },
+  {
+    "id": "opd-021",
+    "code": "DISNAKER",
+    "name": "Dinas Tenaga Kerja",
+    "kecamatan": "Pangkal Balam",
+    "latitude": -2.10903,
+    "longitude": 106.131836,
+    "vehicleCount": 421,
+    "paidVehicleCount": 287,
+    "unpaidVehicleCount": 134,
+    "collectionRate": 68.2,
+    "billing": {
+      "pkb": 378900000,
+      "opsenPkb": 250074000,
+      "swdkllj": 18945000
+    },
+    "payment": {
+      "pkb": 258409800,
+      "opsenPkb": 170550468,
+      "swdkllj": 12920490
+    },
+    "unpaidPotential": 206038242,
+    "reportingStatus": "on_time",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-22"
+  },
+  {
+    "id": "opd-022",
+    "code": "DISTAN",
+    "name": "Dinas Pertanian",
+    "kecamatan": "Gerunggang",
+    "latitude": -2.112018,
+    "longitude": 106.079731,
+    "vehicleCount": 512,
+    "paidVehicleCount": 340,
+    "unpaidVehicleCount": 172,
+    "collectionRate": 66.5,
+    "billing": {
+      "pkb": 537600000,
+      "opsenPkb": 354816000,
+      "swdkllj": 30720000
+    },
+    "payment": {
+      "pkb": 357504000,
+      "opsenPkb": 235952640,
+      "swdkllj": 20428800
+    },
+    "unpaidPotential": 309250560,
+    "reportingStatus": "on_time",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-21"
+  },
+  {
+    "id": "opd-023",
+    "code": "DKP",
+    "name": "Dinas Ketahanan Pangan",
+    "kecamatan": "Rangkui",
+    "latitude": -2.148375,
+    "longitude": 106.099981,
+    "vehicleCount": 367,
+    "paidVehicleCount": 237,
+    "unpaidVehicleCount": 130,
+    "collectionRate": 64.7,
+    "billing": {
+      "pkb": 385350000,
+      "opsenPkb": 254331000,
+      "swdkllj": 22020000
+    },
+    "payment": {
+      "pkb": 249321450,
+      "opsenPkb": 164552157,
+      "swdkllj": 14246940
+    },
+    "unpaidPotential": 233580453,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-19"
+  },
+  {
+    "id": "opd-024",
+    "code": "DISLAUTKAN",
+    "name": "Dinas Kelautan dan Perikanan",
+    "kecamatan": "Taman Sari",
+    "latitude": -2.128712,
+    "longitude": 106.119997,
+    "vehicleCount": 298,
+    "paidVehicleCount": 187,
+    "unpaidVehicleCount": 111,
+    "collectionRate": 62.9,
+    "billing": {
+      "pkb": 312900000,
+      "opsenPkb": 206514000,
+      "swdkllj": 17880000
+    },
+    "payment": {
+      "pkb": 196814100,
+      "opsenPkb": 129897306,
+      "swdkllj": 11246520
+    },
+    "unpaidPotential": 199336074,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-17"
+  },
+  {
+    "id": "opd-025",
+    "code": "RSUD",
+    "name": "Rumah Sakit Umum Daerah",
+    "kecamatan": "Bukit Intan",
+    "latitude": -2.115241,
+    "longitude": 106.141002,
+    "vehicleCount": 486,
+    "paidVehicleCount": 296,
+    "unpaidVehicleCount": 190,
+    "collectionRate": 61,
+    "billing": {
+      "pkb": 607500000,
+      "opsenPkb": 400950000,
+      "swdkllj": 43740000
+    },
+    "payment": {
+      "pkb": 370575000,
+      "opsenPkb": 244579500,
+      "swdkllj": 26681400
+    },
+    "unpaidPotential": 410354100,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-16"
+  },
+  {
+    "id": "opd-026",
+    "code": "DAMKAR",
+    "name": "Dinas Pemadam Kebakaran dan Penyelamatan",
+    "kecamatan": "Gabek",
+    "latitude": -2.093899,
+    "longitude": 106.103973,
+    "vehicleCount": 218,
+    "paidVehicleCount": 129,
+    "unpaidVehicleCount": 89,
+    "collectionRate": 59.1,
+    "billing": {
+      "pkb": 272500000,
+      "opsenPkb": 179850000,
+      "swdkllj": 19620000
+    },
+    "payment": {
+      "pkb": 161047500,
+      "opsenPkb": 106291350,
+      "swdkllj": 11595420
+    },
+    "unpaidPotential": 193035730,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-14"
+  },
+  {
+    "id": "opd-027",
+    "code": "DISPORA",
+    "name": "Dinas Kepemudaan dan Olahraga",
+    "kecamatan": "Girimaya",
+    "latitude": -2.134664,
+    "longitude": 106.111195,
+    "vehicleCount": 276,
+    "paidVehicleCount": 157,
+    "unpaidVehicleCount": 119,
+    "collectionRate": 57,
+    "billing": {
+      "pkb": 248400000,
+      "opsenPkb": 163944000,
+      "swdkllj": 12420000
+    },
+    "payment": {
+      "pkb": 141588000,
+      "opsenPkb": 93448080,
+      "swdkllj": 7079400
+    },
+    "unpaidPotential": 182648520,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-12"
+  },
+  {
+    "id": "opd-028",
+    "code": "SATPOLPP",
+    "name": "Satuan Polisi Pamong Praja",
+    "kecamatan": "Pangkal Balam",
+    "latitude": -2.106126,
+    "longitude": 106.126914,
+    "vehicleCount": 392,
+    "paidVehicleCount": 215,
+    "unpaidVehicleCount": 177,
+    "collectionRate": 54.8,
+    "billing": {
+      "pkb": 490000000,
+      "opsenPkb": 323400000,
+      "swdkllj": 35280000
+    },
+    "payment": {
+      "pkb": 268520000,
+      "opsenPkb": 177223200,
+      "swdkllj": 19333440
+    },
+    "unpaidPotential": 383603360,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-11"
+  },
+  {
+    "id": "opd-029",
+    "code": "DISPERKIM",
+    "name": "Dinas Perumahan dan Kawasan Permukiman",
+    "kecamatan": "Gerunggang",
+    "latitude": -2.091779,
+    "longitude": 106.064424,
+    "vehicleCount": 645,
+    "paidVehicleCount": 338,
+    "unpaidVehicleCount": 307,
+    "collectionRate": 52.4,
+    "billing": {
+      "pkb": 677250000,
+      "opsenPkb": 446985000,
+      "swdkllj": 38700000
+    },
+    "payment": {
+      "pkb": 354879000,
+      "opsenPkb": 234220140,
+      "swdkllj": 20278800
+    },
+    "unpaidPotential": 553557060,
+    "reportingStatus": "late",
+    "complianceStatus": "low",
+    "lastPaymentDate": "2026-04-09"
+  },
+  {
+    "id": "opd-030",
+    "code": "BPBD",
+    "name": "Badan Penanggulangan Bencana Daerah",
+    "kecamatan": "Rangkui",
+    "latitude": -2.138644,
+    "longitude": 106.10073,
+    "vehicleCount": 234,
+    "paidVehicleCount": 116,
+    "unpaidVehicleCount": 118,
+    "collectionRate": 49.7,
+    "billing": {
+      "pkb": 245700000,
+      "opsenPkb": 162162000,
+      "swdkllj": 14040000
+    },
+    "payment": {
+      "pkb": 122112900,
+      "opsenPkb": 80594514,
+      "swdkllj": 6977880
+    },
+    "unpaidPotential": 212216706,
+    "reportingStatus": "late",
+    "complianceStatus": "very_low",
+    "lastPaymentDate": "2026-04-06"
+  },
+  {
+    "id": "opd-031",
+    "code": "DISPERIN",
+    "name": "Dinas Perindustrian",
+    "kecamatan": "Taman Sari",
+    "latitude": -2.122244,
+    "longitude": 106.113632,
+    "vehicleCount": 312,
+    "paidVehicleCount": 145,
+    "unpaidVehicleCount": 167,
+    "collectionRate": 46.5,
+    "billing": {
+      "pkb": 280800000,
+      "opsenPkb": 185328000,
+      "swdkllj": 14040000
+    },
+    "payment": {
+      "pkb": 130572000,
+      "opsenPkb": 86177520,
+      "swdkllj": 6528600
+    },
+    "unpaidPotential": 256889880,
+    "reportingStatus": "late",
+    "complianceStatus": "very_low",
+    "lastPaymentDate": "2026-04-04"
+  },
+  {
+    "id": "opd-032",
+    "code": "DISDAG",
+    "name": "Dinas Perdagangan",
+    "kecamatan": "Bukit Intan",
+    "latitude": -2.132572,
+    "longitude": 106.144496,
+    "vehicleCount": 445,
+    "paidVehicleCount": 190,
+    "unpaidVehicleCount": 255,
+    "collectionRate": 42.8,
+    "billing": {
+      "pkb": 400500000,
+      "opsenPkb": 264330000,
+      "swdkllj": 20025000
+    },
+    "payment": {
+      "pkb": 171414000,
+      "opsenPkb": 113133240,
+      "swdkllj": 8570700
+    },
+    "unpaidPotential": 391737060,
+    "reportingStatus": "late",
+    "complianceStatus": "very_low",
+    "lastPaymentDate": "2026-03-31"
+  },
+  {
+    "id": "opd-033",
+    "code": "DLH",
+    "name": "Dinas Lingkungan Hidup",
+    "kecamatan": "Gabek",
+    "latitude": -2.088337,
+    "longitude": 106.113738,
+    "vehicleCount": 398,
+    "paidVehicleCount": 153,
+    "unpaidVehicleCount": 245,
+    "collectionRate": 38.4,
+    "billing": {
+      "pkb": 358200000,
+      "opsenPkb": 236412000,
+      "swdkllj": 17910000
+    },
+    "payment": {
+      "pkb": 137548800,
+      "opsenPkb": 90782208,
+      "swdkllj": 6877440
+    },
+    "unpaidPotential": 377313552,
+    "reportingStatus": "late",
+    "complianceStatus": "very_low",
+    "lastPaymentDate": "2026-03-28"
+  },
+  {
+    "id": "opd-034",
+    "code": "DISHUB",
+    "name": "Dinas Perhubungan",
+    "kecamatan": "Girimaya",
+    "latitude": -2.148909,
+    "longitude": 106.118704,
+    "vehicleCount": 1420,
+    "paidVehicleCount": 470,
+    "unpaidVehicleCount": 950,
+    "collectionRate": 33.1,
+    "billing": {
+      "pkb": 1775000000,
+      "opsenPkb": 1171500000,
+      "swdkllj": 127800000
+    },
+    "payment": {
+      "pkb": 587525000,
+      "opsenPkb": 387766500,
+      "swdkllj": 42301800
+    },
+    "unpaidPotential": 2056706700,
+    "reportingStatus": "late",
+    "complianceStatus": "very_low",
+    "lastPaymentDate": "2026-03-23"
+  },
+  {
+    "id": "opd-035",
+    "code": "DPUPR",
+    "name": "Dinas Pekerjaan Umum dan Penataan Ruang",
+    "kecamatan": "Pangkal Balam",
+    "latitude": -2.112152,
+    "longitude": 106.134241,
+    "vehicleCount": 1680,
+    "paidVehicleCount": 464,
+    "unpaidVehicleCount": 1216,
+    "collectionRate": 27.6,
+    "billing": {
+      "pkb": 2100000000,
+      "opsenPkb": 1386000000,
+      "swdkllj": 151200000
+    },
+    "payment": {
+      "pkb": 579600000,
+      "opsenPkb": 382536000,
+      "swdkllj": 41731200
+    },
+    "unpaidPotential": 2633332800,
+    "reportingStatus": "late",
+    "complianceStatus": "very_low",
+    "lastPaymentDate": "2026-03-18"
+  }
+]

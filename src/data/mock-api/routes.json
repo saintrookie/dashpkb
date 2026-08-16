@@ -1,0 +1,219 @@
+[
+  {
+    "id": "ROUTE-001",
+    "name": "Rute Penagihan A - Rangkui - Taman Sari",
+    "status": "ACTIVE",
+    "type": "collection",
+    "assignedTeam": "Tim Penagihan 1",
+    "waypointIds": [
+      "col-001",
+      "col-002",
+      "col-003",
+      "col-004"
+    ],
+    "coordinates": [
+      [
+        -2.141675,
+        106.100971
+      ],
+      [
+        -2.13745,
+        106.100583
+      ],
+      [
+        -2.133317,
+        106.101731
+      ],
+      [
+        -2.129704,
+        106.10106
+      ],
+      [
+        -2.126102,
+        106.101789
+      ],
+      [
+        -2.122207,
+        106.110021
+      ],
+      [
+        -2.116719,
+        106.116634
+      ]
+    ],
+    "distance": 3.7,
+    "estimatedDuration": 20,
+    "vehiclesTargeted": 1605,
+    "lastRunDate": "2026-05-19"
+  },
+  {
+    "id": "ROUTE-002",
+    "name": "Rute Penagihan B - Bukit Intan - Gerunggang",
+    "status": "ACTIVE",
+    "type": "collection",
+    "assignedTeam": "Tim Penagihan 2",
+    "waypointIds": [
+      "col-005",
+      "col-006",
+      "col-007",
+      "col-008"
+    ],
+    "coordinates": [
+      [
+        -2.14661,
+        106.152666
+      ],
+      [
+        -2.141867,
+        106.140278
+      ],
+      [
+        -2.133366,
+        106.129294
+      ],
+      [
+        -2.120181,
+        106.111986
+      ],
+      [
+        -2.111585,
+        106.090989
+      ],
+      [
+        -2.100884,
+        106.078784
+      ],
+      [
+        -2.094141,
+        106.063683
+      ]
+    ],
+    "distance": 11.6,
+    "estimatedDuration": 39,
+    "vehiclesTargeted": 1580,
+    "lastRunDate": "2026-05-19"
+  },
+  {
+    "id": "ROUTE-003",
+    "name": "Rute Penagihan C - Gabek - Girimaya",
+    "status": "ACTIVE",
+    "type": "collection",
+    "assignedTeam": "Tim Penagihan 3",
+    "waypointIds": [
+      "col-009",
+      "col-010",
+      "col-011",
+      "col-012"
+    ],
+    "coordinates": [
+      [
+        -2.091991,
+        106.093128
+      ],
+      [
+        -2.096313,
+        106.101198
+      ],
+      [
+        -2.10293,
+        106.107018
+      ],
+      [
+        -2.12561,
+        106.113907
+      ],
+      [
+        -2.148986,
+        106.111177
+      ],
+      [
+        -2.138798,
+        106.112543
+      ],
+      [
+        -2.129429,
+        106.117062
+      ]
+    ],
+    "distance": 9.5,
+    "estimatedDuration": 32,
+    "vehiclesTargeted": 1135,
+    "lastRunDate": "2026-05-19"
+  },
+  {
+    "id": "ROUTE-004",
+    "name": "Rute Penagihan D - Pangkal Balam",
+    "status": "PLANNED",
+    "type": "collection",
+    "assignedTeam": "Tim Penagihan 4",
+    "waypointIds": [
+      "col-013",
+      "col-014"
+    ],
+    "coordinates": [
+      [
+        -2.102108,
+        106.133754
+      ],
+      [
+        -2.107429,
+        106.126419
+      ],
+      [
+        -2.110885,
+        106.117595
+      ]
+    ],
+    "distance": 2.1,
+    "estimatedDuration": 20,
+    "vehiclesTargeted": 575,
+    "lastRunDate": null
+  },
+  {
+    "id": "ROUTE-005",
+    "name": "Rute Layanan Samsat Keliling",
+    "status": "ACTIVE",
+    "type": "service",
+    "assignedTeam": "Unit Samsat Keliling",
+    "waypointIds": [
+      "col-001",
+      "col-005",
+      "col-009",
+      "col-011"
+    ],
+    "coordinates": [
+      [
+        -2.141675,
+        106.100971
+      ],
+      [
+        -2.141348,
+        106.127215
+      ],
+      [
+        -2.14661,
+        106.152666
+      ],
+      [
+        -2.113105,
+        106.126677
+      ],
+      [
+        -2.091991,
+        106.093128
+      ],
+      [
+        -2.118635,
+        106.107706
+      ],
+      [
+        -2.148986,
+        106.111177
+      ]
+    ],
+    "distance": 21.7,
+    "estimatedDuration": 74,
+    "vehiclesTargeted": 1610,
+    "lastRunDate": "2026-05-19"
+  }
+]

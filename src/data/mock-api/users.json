@@ -1,0 +1,35 @@
+[
+  {
+    "id": "user-001",
+    "name": "Administrator",
+    "username": "admin",
+    "email": "admin@pangkalpinangkota.go.id",
+    "password": "Admin123!",
+    "role": "Admin",
+    "department": "Badan Pendapatan Daerah",
+    "avatar": "/avatars/admin.png",
+    "permissions": ["view", "export", "manage-users"]
+  },
+  {
+    "id": "user-002",
+    "name": "Operator Bapenda",
+    "username": "operator",
+    "email": "operator@pangkalpinangkota.go.id",
+    "password": "Operator123!",
+    "role": "Operator Bapenda",
+    "department": "Badan Pendapatan Daerah",
+    "avatar": "/avatars/operator.png",
+    "permissions": ["view", "export"]
+  },
+  {
+    "id": "user-003",
+    "name": "Pimpinan Daerah",
+    "username": "pimpinan",
+    "email": "pimpinan@pangkalpinangkota.go.id",
+    "password": "Pimpinan123!",
+    "role": "Pimpinan",
+    "department": "Sekretariat Daerah",
+    "avatar": "/avatars/pimpinan.png",
+    "permissions": ["view"]
+  }
+]

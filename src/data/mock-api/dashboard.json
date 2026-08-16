@@ -1,0 +1,26 @@
+{
+  "taxYear": 2025,
+  "period": {
+    "id": "2026-05-20",
+    "label": "s.d. 20 Mei 2026",
+    "startDate": "2026-01-01",
+    "endDate": "2026-05-20"
+  },
+  "lastUpdatedAt": "2026-05-20T09:15:00+07:00",
+  "opsenPkbRate": 0.66,
+  "targets": {
+    "avgCollectionRatePercent": 90,
+    "totalPenerimaanPkb": 20150000000,
+    "totalOpsenPkb": 13300000000,
+    "maxPotensiBelumBayar": 3860000000,
+    "onTimeReportingTotal": 35
+  },
+  "complianceThresholds": [
+    { "status": "very_good", "label": "Sangat Baik", "min": 94 },
+    { "status": "good", "label": "Baik", "min": 85 },
+    { "status": "fair", "label": "Cukup", "min": 70 },
+    { "status": "low", "label": "Rendah", "min": 50 },
+    { "status": "very_low", "label": "Sangat Rendah", "min": 0 }
+  ],
+  "reportingOnTimeThreshold": 65
+}

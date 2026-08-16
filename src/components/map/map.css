@@ -1,0 +1,133 @@
+/* Custom chrome layered on top of Leaflet so the map reads as part of the
+   dashboard design system rather than a generic embed. */
+
+.map-marker-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+.map-marker {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--marker-color, #1668e3);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(16, 30, 70, 0.25), 0 2px 8px rgba(16, 30, 70, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.map-marker__glyph {
+  display: flex;
+  line-height: 0;
+}
+
+.map-marker.is-hovered {
+  transform: scale(1.12);
+  box-shadow: 0 2px 6px rgba(16, 30, 70, 0.3), 0 4px 14px rgba(16, 30, 70, 0.22);
+}
+
+.map-marker.is-selected {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 3px rgba(22, 104, 227, 0.35), 0 4px 14px rgba(16, 30, 70, 0.28);
+}
+
+.map-route-endpoint {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--marker-color, #0b1c4a);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(16, 30, 70, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-cluster {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #1668e3, #0e2358);
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(16, 30, 70, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Popup chrome: strip Leaflet's default card so our Tailwind Card content
+   inside <Popup> takes over completely. */
+.leaflet-popup.map-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 30, 70, 0.08), 0 8px 24px rgba(16, 30, 70, 0.16);
+  background: #ffffff;
+  overflow: hidden;
+}
+.leaflet-popup.map-popup .leaflet-popup-content {
+  margin: 0;
+  width: 260px !important;
+}
+.leaflet-popup.map-popup .leaflet-popup-tip {
+  background: #ffffff;
+}
+.leaflet-popup.map-popup .leaflet-popup-close-button {
+  z-index: 10;
+  color: #94a3b8;
+  top: 8px !important;
+  right: 8px !important;
+}
+.dark .leaflet-popup.map-popup .leaflet-popup-content-wrapper,
+.dark .leaflet-popup.map-popup .leaflet-popup-tip {
+  background: #0b1c4a;
+}
+
+.leaflet-container {
+  font-family: inherit;
+  background: #eef2f9;
+}
+.dark .leaflet-container {
+  background: #08153d;
+}
+
+.leaflet-control-attribution {
+  font-size: 9.5px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #64748b !important;
+  padding: 1px 6px !important;
+  border-radius: 6px 0 0 0;
+}
+.dark .leaflet-control-attribution {
+  background: rgba(11, 28, 74, 0.85) !important;
+  color: #94a3b8 !important;
+}
+.leaflet-control-attribution a {
+  color: inherit !important;
+}
+
+.map-region-path {
+  cursor: pointer;
+  transition: fill-opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.leaflet-tooltip.map-region-tooltip {
+  background: #0b1c4a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(16, 30, 70, 0.28);
+}
+.leaflet-tooltip.map-region-tooltip::before {
+  border-top-color: #0b1c4a;
+}
