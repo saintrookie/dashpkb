@@ -12,7 +12,7 @@ import {
 import { Info } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import WrappedTick from '../charts/WrappedTick.jsx'
-import { kecamatanList } from '../../data/kecamatan.js'
+import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
 import { formatRupiahFull } from '../../lib/format.js'
 import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
@@ -50,6 +50,7 @@ function CustomTooltip({ active, payload, label }) {
 export default function RevenueByKecamatanChart() {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
+  const { list: kecamatanList } = useKecamatanData()
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)

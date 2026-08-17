@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip } from 'recharts'
 import Card from '../ui/Card.jsx'
-import { rateRangeDistribution, kelurahanSummary } from '../../data/kelurahan.js'
+import { useKelurahanData } from '../../hooks/useYearlyLocalData.js'
 import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
 
@@ -20,6 +20,7 @@ function CustomTooltip({ active, payload, label }) {
 export default function CollectionRateRangeChart() {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
+  const { rateRangeDistribution, list } = useKelurahanData()
 
   return (
     <Card className="p-4 flex flex-col h-full">
@@ -60,7 +61,7 @@ export default function CollectionRateRangeChart() {
         </ResponsiveContainer>
       </div>
       <p className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
-        Total {kelurahanSummary.totalKelurahan} Kelurahan
+        Total {list.length} Kelurahan
       </p>
     </Card>
   )

@@ -4,6 +4,7 @@ import Select from '../ui/Select.jsx'
 import { NAV_ITEMS } from '../../data/navigation.js'
 import { useAuthStore } from '../../store/authStore.js'
 import { useFilters } from '../../hooks/useFilters.js'
+import { useDataFilters } from '../../hooks/useDataFilters.js'
 import bridgeSkyline from '../../assets/illustrations/bridge-skyline.svg'
 import logoIcon from '../../assets/logo-icon.png'
 
@@ -15,31 +16,16 @@ const KECAMATAN_FILTER_ROUTES = new Set([
   '/perbandingan-kelurahan',
 ])
 
-function buildFilterGroups(pathname, filtersData) {
-  if (!filtersData) return []
-
-  const taxYearOptions = [...filtersData.taxYears].sort((a, b) => b - a).map(String)
-  const groups = [
-    { label: 'Tahun Pajak', defaultValue: taxYearOptions[0], options: taxYearOptions },
-  ]
-
-  if (KECAMATAN_FILTER_ROUTES.has(pathname)) {
-    groups.push({
-      label: 'Kecamatan',
-      defaultValue: 'Semua',
-      options: ['Semua', ...filtersData.kecamatan],
-    })
-  } else {
-    const periodOptions = filtersData.periods.map((p) => p.label)
-    groups.push({ label: 'Periode Data', defaultValue: periodOptions[0], options: periodOptions })
-  }
-
-  return groups
+// Kecamatan is page-specific, so it stays local state (remounted per route
+// via `key`) rather than living in the shared data-filter store.
+function KecamatanFilter({ options }) {
+  const [value, setValue] = useState('Semua')
+  return <Select label="Kecamatan" value={value} onChange={setValue} options={options} />
 }
 
 function SkylineIllustration() {
   return (
-    <div className="w-full h-[140px] overflow-hidden opacity-[0.14]" aria-hidden="true">
+    <div className="w-full h-[80px] overflow-hidden opacity-[0.40]" aria-hidden="true">
       <img
         src={bridgeSkyline}
         alt=""
@@ -62,26 +48,6 @@ function SidebarFiltersSkeleton() {
   )
 }
 
-function SidebarFilters({ filters }) {
-  const [values, setValues] = useState(() =>
-    Object.fromEntries(filters.map((f) => [f.label, f.defaultValue])),
-  )
-
-  return (
-    <div className="flex flex-col gap-3.5">
-      {filters.map((filter) => (
-        <Select
-          key={filter.label}
-          label={filter.label}
-          value={values[filter.label]}
-          onChange={(v) => setValues((prev) => ({ ...prev, [filter.label]: v }))}
-          options={filter.options}
-        />
-      ))}
-    </div>
-  )
-}
-
 // `collapsed` only ever narrows the layout at the `lg` breakpoint — the
 // mobile drawer always renders the full, expanded sidebar regardless of
 // the desktop collapse preference stored for large screens.
@@ -89,7 +55,8 @@ export default function Sidebar({ collapsed = false, onClose }) {
   const location = useLocation()
   const hasPermission = useAuthStore((s) => s.hasPermission)
   const { data: filtersData, loading: filtersLoading } = useFilters()
-  const filters = buildFilterGroups(location.pathname, filtersData)
+  const dataFilters = useDataFilters()
+  const showKecamatan = KECAMATAN_FILTER_ROUTES.has(location.pathname)
   const visibleNavItems = NAV_ITEMS.filter(
     (item) => !item.permission || hasPermission(item.permission),
   )
@@ -167,10 +134,27 @@ export default function Sidebar({ collapsed = false, onClose }) {
         <div className="text-[11px] font-semibold tracking-wider text-slate-400 mb-3">
           FILTER WILAYAH
         </div>
-        {filtersLoading ? (
+        {filtersLoading || !dataFilters.ready ? (
           <SidebarFiltersSkeleton />
         ) : (
-          <SidebarFilters key={location.pathname} filters={filters} />
+          <div className="flex flex-col gap-3.5">
+            <Select
+              label="Tahun Pajak"
+              value={dataFilters.taxYearLabel}
+              onChange={dataFilters.setTaxYear}
+              options={dataFilters.taxYearOptions}
+            />
+            {showKecamatan ? (
+              <KecamatanFilter key={location.pathname} options={['Semua', ...filtersData.kecamatan]} />
+            ) : (
+              <Select
+                label="Periode Data"
+                value={dataFilters.periodLabel}
+                onChange={dataFilters.setPeriodByLabel}
+                options={dataFilters.periodOptions}
+              />
+            )}
+          </div>
         )}
       </div>
 

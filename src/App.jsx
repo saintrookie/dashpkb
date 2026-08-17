@@ -9,9 +9,11 @@ import RequirePermission from './components/auth/RequirePermission.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import TingkatKepatuhanOpdPage from './pages/TingkatKepatuhanOpdPage.jsx'
 import RingkasanKecamatanPage from './pages/RingkasanKecamatanPage.jsx'
+import RingkasanKelurahanPage from './pages/RingkasanKelurahanPage.jsx'
 import PerbandinganKelurahanPage from './pages/PerbandinganKelurahanPage.jsx'
 import DataKendaraanPage from './pages/DataKendaraanPage.jsx'
 import PotensiPenagihanPage from './pages/PotensiPenagihanPage.jsx'
+import UnduhLaporanPage from './pages/UnduhLaporanPage.jsx'
 import ComingSoonPage from './pages/ComingSoonPage.jsx'
 import MapPageSkeleton from './components/map/MapPageSkeleton.jsx'
 
@@ -63,15 +65,7 @@ function App() {
                       </Suspense>
                     }
                   />
-                  <Route
-                    path="/ringkasan-kelurahan"
-                    element={
-                      <ComingSoonPage
-                        title="Ringkasan Kelurahan"
-                        subtitle="Gambaran Kepatuhan Pembayaran PKB, Opsen PKB & SWDKLLJ per Kelurahan"
-                      />
-                    }
-                  />
+                  <Route path="/ringkasan-kelurahan" element={<RingkasanKelurahanPage />} />
                   <Route path="/perbandingan-kelurahan" element={<PerbandinganKelurahanPage />} />
                   <Route path="/data-kendaraan" element={<DataKendaraanPage />} />
                   <Route path="/potensi-penagihan" element={<PotensiPenagihanPage />} />
@@ -79,10 +73,7 @@ function App() {
                     path="/unduh-laporan"
                     element={
                       <RequirePermission permission="export">
-                        <ComingSoonPage
-                          title="Unduh Laporan"
-                          subtitle="Unduh Laporan Kepatuhan Pajak Kendaraan"
-                        />
+                        <UnduhLaporanPage />
                       </RequirePermission>
                     }
                   />

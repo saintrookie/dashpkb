@@ -9,9 +9,11 @@ import RankingTable from '../components/kecamatan/RankingTable.jsx'
 import TrendChart from '../components/kecamatan/TrendChart.jsx'
 import RevenueByKecamatanChart from '../components/kecamatan/RevenueByKecamatanChart.jsx'
 import ChartCardSkeleton from '../components/charts/ChartCardSkeleton.jsx'
+import { useDataFilters } from '../hooks/useDataFilters.js'
 
 export default function RingkasanKecamatanPage() {
   const [dataLoading, setDataLoading] = useState(true)
+  const dataFilters = useDataFilters()
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDataLoading(false), 900)
@@ -24,8 +26,24 @@ export default function RingkasanKecamatanPage() {
         title="Ringkasan Kecamatan"
         subtitle="Gambaran Kepatuhan Pembayaran PKB, Opsen PKB & SWDKLLJ per Kecamatan"
       >
-        <FilterCard icon={Calendar} label="Tahun Pajak" value="2025" />
-        <FilterCard icon={Calendar} label="Periode Data" value="s.d. 20 Mei 2026" />
+        <FilterCard
+          icon={Calendar}
+          label="Tahun Pajak"
+          value={dataFilters.taxYearLabel || '—'}
+          options={dataFilters.taxYearOptions}
+          onChange={dataFilters.setTaxYear}
+          showReset={!dataFilters.isTaxYearDefault}
+          onReset={dataFilters.resetTaxYear}
+        />
+        <FilterCard
+          icon={Calendar}
+          label="Periode Data"
+          value={dataFilters.periodLabel || '—'}
+          options={dataFilters.periodOptions}
+          onChange={dataFilters.setPeriodByLabel}
+          showReset={!dataFilters.isPeriodDefault}
+          onReset={dataFilters.resetPeriod}
+        />
       </PageHeader>
 
       {dataLoading ? <KpiRowSkeleton /> : <KecamatanKpiRow />}

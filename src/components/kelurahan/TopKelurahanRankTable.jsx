@@ -19,7 +19,7 @@ const TONE = {
   negative: 'text-status-red',
 }
 
-export default function TopKelurahanRankTable({ title, rows, tone = 'positive' }) {
+export default function TopKelurahanRankTable({ title, rows, tone = 'positive', showMoreLink = true }) {
   return (
     <Card className="p-4 flex flex-col h-full min-w-0">
       <h2 className={`text-[12.5px] font-bold tracking-wide mb-3 ${TONE[tone]}`}>{title}</h2>
@@ -102,13 +102,15 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive' }
         </table>
       </div>
 
-      <Link
-        to="/ringkasan-kelurahan"
-        className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-blue hover:underline mt-3 pt-3 border-t border-surface-border dark:border-white/10 w-fit"
-      >
-        Lihat Selengkapnya
-        <ArrowRight size={14} />
-      </Link>
+      {showMoreLink && (
+        <Link
+          to="/ringkasan-kelurahan"
+          className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-blue hover:underline mt-3 pt-3 border-t border-surface-border dark:border-white/10 w-fit"
+        >
+          Lihat Selengkapnya
+          <ArrowRight size={14} />
+        </Link>
+      )}
     </Card>
   )
 }

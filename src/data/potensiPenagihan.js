@@ -1,6 +1,11 @@
-import { kendaraanList } from './kendaraan.js'
+import { kendaraanList, getKendaraanListForYear } from './kendaraan.js'
+import { BASELINE_TAX_YEAR } from './kecamatan.js'
 
 export const potensiRows = kendaraanList.filter((row) => row.statusBayar === 'Belum Lunas')
+
+export function getPotensiRowsForYear(year = BASELINE_TAX_YEAR) {
+  return getKendaraanListForYear(year).filter((row) => row.statusBayar === 'Belum Lunas')
+}
 
 export const TUNGGAKAN_BUCKETS = [
   { key: 'y1_2', label: '1 - 2 Tahun', min: 1, max: 2, color: '#f2760c' },

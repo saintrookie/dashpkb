@@ -12,7 +12,8 @@ import CollectionRateDistributionDonut from '../components/kelurahan/CollectionR
 import CollectionRateRangeChart from '../components/kelurahan/CollectionRateRangeChart.jsx'
 import CollectionRateTrendChart from '../components/kelurahan/CollectionRateTrendChart.jsx'
 import InsightRecommendationPanel from '../components/kelurahan/InsightRecommendationPanel.jsx'
-import { kelurahanList } from '../data/kelurahan.js'
+import { useDataFilters } from '../hooks/useDataFilters.js'
+import { useKelurahanData } from '../hooks/useYearlyLocalData.js'
 
 const METRIC_KEY = {
   rate_desc: 'collectionRate',
@@ -36,6 +37,8 @@ function sortRows(rows, sort) {
 export default function PerbandinganKelurahanPage() {
   const [dataLoading, setDataLoading] = useState(true)
   const [filters, setFilters] = useState(DEFAULT_COMPARISON_FILTERS)
+  const dataFilters = useDataFilters()
+  const { list: kelurahanList } = useKelurahanData()
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDataLoading(false), 900)
@@ -50,7 +53,7 @@ export default function PerbandinganKelurahanPage() {
       return true
     })
     return sortRows(rows, filters.sort)
-  }, [filters])
+  }, [filters, kelurahanList])
 
   const highest = sortedFiltered.slice(0, 5)
   const lowest = [...sortedFiltered].reverse().slice(0, 5)
@@ -61,8 +64,24 @@ export default function PerbandinganKelurahanPage() {
         title="Perbandingan Kelurahan"
         subtitle="Perbandingan Tingkat Kepatuhan Pembayaran PKB per Kelurahan"
       >
-        <FilterCard icon={Calendar} label="Tahun Pajak" value="2025" />
-        <FilterCard icon={Calendar} label="Periode Data" value="s.d. 20 Mei 2026" />
+        <FilterCard
+          icon={Calendar}
+          label="Tahun Pajak"
+          value={dataFilters.taxYearLabel || '—'}
+          options={dataFilters.taxYearOptions}
+          onChange={dataFilters.setTaxYear}
+          showReset={!dataFilters.isTaxYearDefault}
+          onReset={dataFilters.resetTaxYear}
+        />
+        <FilterCard
+          icon={Calendar}
+          label="Periode Data"
+          value={dataFilters.periodLabel || '—'}
+          options={dataFilters.periodOptions}
+          onChange={dataFilters.setPeriodByLabel}
+          showReset={!dataFilters.isPeriodDefault}
+          onReset={dataFilters.resetPeriod}
+        />
       </PageHeader>
 
       {dataLoading ? <KpiRowSkeleton /> : <ComparisonKpiRow />}

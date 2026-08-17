@@ -11,6 +11,7 @@ import MapCollectionRateChart from '../components/map/MapCollectionRateChart.jsx
 import MapEntityTable from '../components/map/MapEntityTable.jsx'
 import { useMapEntities, useMapRegions, useMapRoutes, useMapHeatmap } from '../hooks/useMapData.js'
 import { useMapStore } from '../store/mapStore.js'
+import { useDataFilters } from '../hooks/useDataFilters.js'
 
 const ENTITY_TYPE_BY_LAYER = {
   opd: 'opd',
@@ -19,6 +20,7 @@ const ENTITY_TYPE_BY_LAYER = {
 }
 
 export default function PetaWilayahPage() {
+  const dataFilters = useDataFilters()
   const activeLayers = useMapStore((s) => s.activeLayers)
   const activeMetric = useMapStore((s) => s.activeMetric)
   const regionLevel = activeLayers.kelurahan ? 'kelurahan' : 'kecamatan'
@@ -44,8 +46,24 @@ export default function PetaWilayahPage() {
   return (
     <>
       <PageHeader title="Peta Wilayah" subtitle="Visualisasi Geografis Kepatuhan Pembayaran PKB, Opsen PKB & SWDKLLJ">
-        <FilterCard icon={Calendar} label="Tahun Pajak" value="2025" />
-        <FilterCard icon={Calendar} label="Periode Data" value="s.d. 20 Mei 2026" />
+        <FilterCard
+          icon={Calendar}
+          label="Tahun Pajak"
+          value={dataFilters.taxYearLabel || '—'}
+          options={dataFilters.taxYearOptions}
+          onChange={dataFilters.setTaxYear}
+          showReset={!dataFilters.isTaxYearDefault}
+          onReset={dataFilters.resetTaxYear}
+        />
+        <FilterCard
+          icon={Calendar}
+          label="Periode Data"
+          value={dataFilters.periodLabel || '—'}
+          options={dataFilters.periodOptions}
+          onChange={dataFilters.setPeriodByLabel}
+          showReset={!dataFilters.isPeriodDefault}
+          onReset={dataFilters.resetPeriod}
+        />
       </PageHeader>
 
       <MapKpiRow />

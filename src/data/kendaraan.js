@@ -1,26 +1,6 @@
-import { kelurahanList } from './kelurahan.js'
-
-// Deterministic PRNG (mulberry32) seeded from a string, so vehicle-level
-// records are stable across reloads without shipping a giant hand-authored table.
-function seedFromString(str) {
-  let h = 1779033703 ^ str.length
-  for (let i = 0; i < str.length; i++) {
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353)
-    h = (h << 13) | (h >>> 19)
-  }
-  return h >>> 0
-}
-
-function mulberry32(seed) {
-  let a = seed
-  return function random() {
-    a |= 0
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
+import { getKelurahanListForYear } from './kelurahan.js'
+import { BASELINE_TAX_YEAR } from './kecamatan.js'
+import { mulberry32, seedFromString } from '../lib/yearlyTrend.js'
 
 function weightedPick(rand, items, weightKey = 'weight') {
   const total = items.reduce((a, item) => a + item[weightKey], 0)
@@ -106,16 +86,21 @@ function shuffledLunasFlags(kel, rand) {
   return flags
 }
 
-function buildKendaraanList() {
+function buildKendaraanList(kelurahanList, taxYear) {
   const rows = []
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+  // Baseline year keeps its exact original (unsuffixed) seeds so the default
+  // view stays byte-identical to before this was year-aware.
+  const isBaseline = taxYear === BASELINE_TAX_YEAR
 
   for (const kel of kelurahanList) {
-    const shuffleRand = mulberry32(seedFromString(`${kel.id}:lunas-shuffle`))
+    const shuffleSeed = isBaseline ? `${kel.id}:lunas-shuffle` : `${kel.id}:lunas-shuffle:${taxYear}`
+    const shuffleRand = mulberry32(seedFromString(shuffleSeed))
     const lunasFlags = shuffledLunasFlags(kel, shuffleRand)
 
     for (let i = 0; i < kel.jumlahKendaraan; i++) {
-      const rand = mulberry32(seedFromString(`${kel.id}:${i}`))
+      const rowSeed = isBaseline ? `${kel.id}:${i}` : `${kel.id}:${i}:${taxYear}`
+      const rand = mulberry32(seedFromString(rowSeed))
       const jenis = weightedPick(rand, JENIS_KENDARAAN)
       const brand = weightedPick(rand, BRANDS)
       const yearPick = weightedPick(rand, YEAR_WEIGHTS)
@@ -157,7 +142,16 @@ function buildKendaraanList() {
   return rows
 }
 
-export const kendaraanList = buildKendaraanList()
+const kendaraanListByYear = new Map()
+
+export function getKendaraanListForYear(year = BASELINE_TAX_YEAR) {
+  if (!kendaraanListByYear.has(year)) {
+    kendaraanListByYear.set(year, buildKendaraanList(getKelurahanListForYear(year), year))
+  }
+  return kendaraanListByYear.get(year)
+}
+
+export const kendaraanList = getKendaraanListForYear(BASELINE_TAX_YEAR)
 
 export function summarizeKendaraan(rows) {
   const total = rows.length

@@ -1,11 +1,9 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import Card from '../ui/Card.jsx'
-import { rateRangeDistribution } from '../../data/kelurahan.js'
+import { useKelurahanData } from '../../hooks/useYearlyLocalData.js'
 import { formatNumberID, formatPercent } from '../../lib/format.js'
 
-const totalVehicles = rateRangeDistribution.reduce((a, d) => a + d.vehicleCount, 0)
-
-function CustomTooltip({ active, payload }) {
+function CustomTooltip({ active, payload, totalVehicles }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   return (
@@ -19,6 +17,9 @@ function CustomTooltip({ active, payload }) {
 }
 
 export default function CollectionRateDistributionDonut() {
+  const { rateRangeDistribution } = useKelurahanData()
+  const totalVehicles = rateRangeDistribution.reduce((a, d) => a + d.vehicleCount, 0)
+
   return (
     <Card className="p-4 flex flex-col h-full">
       <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide mb-3">
@@ -44,7 +45,7 @@ export default function CollectionRateDistributionDonut() {
                   <Cell key={d.key} fill={d.color} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip totalVehicles={totalVehicles} />} />
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import * as mockApi from '../services/mockApi'
 
 export function useOpd(params = {}) {
-  const { page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan } = params
+  const { page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan, taxYear } = params
   const [data, setData] = useState([])
   const [meta, setMeta] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -15,7 +15,7 @@ export function useOpd(params = {}) {
     setError(null)
 
     mockApi
-      .getOpd({ page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan })
+      .getOpd({ page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan, taxYear })
       .then((res) => {
         if (cancelled) return
         if (!res.success) {
@@ -37,7 +37,7 @@ export function useOpd(params = {}) {
     return () => {
       cancelled = true
     }
-  }, [page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan, reloadToken])
+  }, [page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan, taxYear, reloadToken])
 
   const refetch = useCallback(() => setReloadToken((t) => t + 1), [])
 

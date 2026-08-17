@@ -80,6 +80,118 @@ function paginateList(items, query) {
 
 const opdList = opdSeed
 
+// `opdSeed` is the fully hand-tuned baseline: the tax year Dashboard's own
+// config already treats as "current" (dashboardMeta.taxYear). Every other
+// requestable year (2020–2026) is derived from it deterministically below,
+// so the same query always reproduces the same numbers without needing to
+// hand-author ~250 additional yearly OPD records.
+const BASELINE_TAX_YEAR = dashboardMeta.taxYear
+
+function mulberry32(seed) {
+  let t = seed
+  return function random() {
+    t |= 0
+    t = (t + 0x6d2b79f5) | 0
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function stringToSeed(str) {
+  let h = 0
+  for (let i = 0; i < str.length; i++) {
+    h = (Math.imul(31, h) + str.charCodeAt(i)) | 0
+  }
+  return h
+}
+
+function seededRandom(key) {
+  return mulberry32(stringToSeed(key))
+}
+
+function resolveComplianceStatus(rate) {
+  const sorted = [...dashboardMeta.complianceThresholds].sort((a, b) => b.min - a.min)
+  return (sorted.find((t) => rate >= t.min) ?? sorted[sorted.length - 1]).status
+}
+
+function randomDateInYear(year, isBoundedToToday, rand) {
+  const maxMonthIndex = isBoundedToToday ? 4 : 11 // current year is only in through May
+  const month = Math.floor(rand() * (maxMonthIndex + 1))
+  const daysInMonth = month === maxMonthIndex && isBoundedToToday ? 20 : 28
+  const day = 1 + Math.floor(rand() * daysInMonth)
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+// Vehicle registrations and compliance both trend upward year over year, so
+// years further from the baseline are generated with more shrinkage /
+// lower collection rates — this reads as a coherent multi-year story rather
+// than noise, while still varying deterministically per OPD.
+function buildOpdForYear(baseOpd, year) {
+  if (year === BASELINE_TAX_YEAR) return baseOpd
+
+  const rand = seededRandom(`${baseOpd.id}-${year}`)
+  const yearsFromBaseline = year - BASELINE_TAX_YEAR
+
+  const growthPerYear = 0.055 + rand() * 0.03
+  const scale = (1 + growthPerYear) ** yearsFromBaseline
+  const vehicleCount = Math.max(5, Math.round(baseOpd.vehicleCount * scale))
+
+  const rateStepPerYear = 1.1 + rand() * 1.6
+  const noise = (rand() - 0.5) * 3
+  const collectionRate =
+    Math.round(Math.min(99.2, Math.max(18, baseOpd.collectionRate + yearsFromBaseline * rateStepPerYear + noise)) * 10) / 10
+
+  const paidVehicleCount = Math.round(vehicleCount * (collectionRate / 100))
+  const unpaidVehicleCount = vehicleCount - paidVehicleCount
+
+  const perVehicle = {
+    pkb: baseOpd.billing.pkb / baseOpd.vehicleCount,
+    opsenPkb: baseOpd.billing.opsenPkb / baseOpd.vehicleCount,
+    swdkllj: baseOpd.billing.swdkllj / baseOpd.vehicleCount,
+  }
+  const billing = {
+    pkb: Math.round(perVehicle.pkb * vehicleCount),
+    opsenPkb: Math.round(perVehicle.opsenPkb * vehicleCount),
+    swdkllj: Math.round(perVehicle.swdkllj * vehicleCount),
+  }
+  const payRatio = collectionRate / 100
+  const payment = {
+    pkb: Math.round(billing.pkb * payRatio),
+    opsenPkb: Math.round(billing.opsenPkb * payRatio),
+    swdkllj: Math.round(billing.swdkllj * payRatio),
+  }
+  const unpaidPotential =
+    billing.pkb + billing.opsenPkb + billing.swdkllj - (payment.pkb + payment.opsenPkb + payment.swdkllj)
+
+  const isCurrentYear = year === Math.max(...filtersSeed.taxYears)
+  const lateProbability = Math.min(0.85, 0.12 + Math.max(0, -yearsFromBaseline) * 0.06 + (collectionRate < 60 ? 0.2 : 0))
+
+  return {
+    ...baseOpd,
+    vehicleCount,
+    paidVehicleCount,
+    unpaidVehicleCount,
+    collectionRate,
+    billing,
+    payment,
+    unpaidPotential,
+    reportingStatus: rand() < lateProbability ? 'late' : 'on_time',
+    complianceStatus: resolveComplianceStatus(collectionRate),
+    lastPaymentDate: randomDateInYear(year, isCurrentYear, rand),
+  }
+}
+
+const opdByYear = new Map()
+
+function getOpdListForYear(year) {
+  const key = year ?? BASELINE_TAX_YEAR
+  if (!opdByYear.has(key)) {
+    opdByYear.set(key, opdList.map((opd) => buildOpdForYear(opd, key)))
+  }
+  return opdByYear.get(key)
+}
+
 function opdSortValue(opd, key) {
   if (key === 'totalBilling') return opd.billing.pkb + opd.billing.opsenPkb + opd.billing.swdkllj
   if (key === 'totalPayment') return opd.payment.pkb + opd.payment.opsenPkb + opd.payment.swdkllj
@@ -88,7 +200,8 @@ function opdSortValue(opd, key) {
 
 export async function getOpd(params = {}) {
   return request(() => {
-    const { rows, meta } = paginateList(opdList, {
+    const list = getOpdListForYear(params.taxYear)
+    const { rows, meta } = paginateList(list, {
       page: params.page,
       perPage: params.perPage,
       search: params.search,
@@ -106,9 +219,10 @@ export async function getOpd(params = {}) {
   })
 }
 
-export async function getOpdById(id) {
+export async function getOpdById(id, params = {}) {
   return request(() => {
-    const opd = opdList.find((row) => row.id === id)
+    const list = getOpdListForYear(params.taxYear)
+    const opd = list.find((row) => row.id === id)
     if (!opd) return failure('Data OPD tidak ditemukan', 'OPD_NOT_FOUND', 404)
     return success(opd, 'Data OPD berhasil diambil')
   })
@@ -196,17 +310,30 @@ function buildCharts(list) {
   return { collectionRate, revenue, unpaidPotential }
 }
 
+function resolvePeriod(taxYear, periodId) {
+  if (periodId) {
+    return filtersSeed.periods.find((p) => p.id === periodId) ?? dashboardMeta.period
+  }
+  // The baseline tax year keeps its exact original default period (it pays
+  // out into the following year, so it isn't the plain "closed at year-end"
+  // period a naive same-year lookup would find). Every other year defaults
+  // to its own most recent dated period.
+  if (taxYear === dashboardMeta.taxYear) return dashboardMeta.period
+  const inYear = filtersSeed.periods.find((p) => p.id.startsWith(String(taxYear)))
+  return inYear ?? dashboardMeta.period
+}
+
 export async function getDashboard(params = {}) {
   return request(() => {
-    const summary = computeSummary(opdList)
+    const taxYear = params.taxYear ?? dashboardMeta.taxYear
+    const list = getOpdListForYear(taxYear)
+    const summary = computeSummary(list)
     const kpi = buildKpi(summary, dashboardMeta.targets)
-    const charts = buildCharts(opdList)
-    const period = params.periodId
-      ? (filtersSeed.periods.find((p) => p.id === params.periodId) ?? dashboardMeta.period)
-      : dashboardMeta.period
+    const charts = buildCharts(list)
+    const period = resolvePeriod(taxYear, params.periodId)
 
     const data = {
-      taxYear: params.taxYear ?? dashboardMeta.taxYear,
+      taxYear,
       period,
       lastUpdatedAt: dashboardMeta.lastUpdatedAt,
       summary,
@@ -225,21 +352,21 @@ export async function getDashboardSummary(params = {}) {
 
 export async function getCollectionRate(params = {}) {
   return request(() => {
-    const points = buildCharts(opdList).collectionRate
+    const points = buildCharts(getOpdListForYear(params.taxYear)).collectionRate
     return success(params.limit ? points.slice(0, params.limit) : points, 'Data collection rate berhasil diambil')
   })
 }
 
 export async function getRevenue(params = {}) {
   return request(() => {
-    const points = buildCharts(opdList).revenue
+    const points = buildCharts(getOpdListForYear(params.taxYear)).revenue
     return success(params.limit ? points.slice(0, params.limit) : points, 'Data penerimaan berhasil diambil')
   })
 }
 
 export async function getUnpaidPotential(params = {}) {
   return request(() => {
-    const points = buildCharts(opdList).unpaidPotential
+    const points = buildCharts(getOpdListForYear(params.taxYear)).unpaidPotential
     return success(
       params.limit ? points.slice(0, params.limit) : points,
       'Data potensi belum bayar berhasil diambil',

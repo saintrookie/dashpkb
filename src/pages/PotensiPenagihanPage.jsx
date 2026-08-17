@@ -11,11 +11,15 @@ import CompositionDonut from '../components/potensi/CompositionDonut.jsx'
 import TunggakanSummaryCard from '../components/potensi/TunggakanSummaryCard.jsx'
 import PriorityDetailTable from '../components/potensi/PriorityDetailTable.jsx'
 import PotensiInsightPanel from '../components/potensi/PotensiInsightPanel.jsx'
-import { potensiRows, summarizePotensi, bucketForTunggakan } from '../data/potensiPenagihan.js'
+import { useDataFilters } from '../hooks/useDataFilters.js'
+import { usePotensiRowsForActiveYear } from '../hooks/useYearlyLocalData.js'
+import { summarizePotensi, bucketForTunggakan } from '../data/potensiPenagihan.js'
 
 export default function PotensiPenagihanPage() {
   const [dataLoading, setDataLoading] = useState(true)
   const [filters, setFilters] = useState(DEFAULT_POTENSI_FILTERS)
+  const dataFilters = useDataFilters()
+  const potensiRows = usePotensiRowsForActiveYear()
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDataLoading(false), 900)
@@ -31,7 +35,7 @@ export default function PotensiPenagihanPage() {
         return false
       return true
     })
-  }, [filters])
+  }, [filters, potensiRows])
 
   const summary = useMemo(() => summarizePotensi(filteredRows), [filteredRows])
 
@@ -41,8 +45,24 @@ export default function PotensiPenagihanPage() {
         title="Potensi Penagihan"
         subtitle="Informasi Potensi Pendapatan dari Kendaraan yang Belum Bayar"
       >
-        <FilterCard icon={Calendar} label="Tahun Pajak" value="2025" />
-        <FilterCard icon={Calendar} label="Periode Data" value="s.d. 20 Mei 2026" />
+        <FilterCard
+          icon={Calendar}
+          label="Tahun Pajak"
+          value={dataFilters.taxYearLabel || '—'}
+          options={dataFilters.taxYearOptions}
+          onChange={dataFilters.setTaxYear}
+          showReset={!dataFilters.isTaxYearDefault}
+          onReset={dataFilters.resetTaxYear}
+        />
+        <FilterCard
+          icon={Calendar}
+          label="Periode Data"
+          value={dataFilters.periodLabel || '—'}
+          options={dataFilters.periodOptions}
+          onChange={dataFilters.setPeriodByLabel}
+          showReset={!dataFilters.isPeriodDefault}
+          onReset={dataFilters.resetPeriod}
+        />
       </PageHeader>
 
       {dataLoading ? <KpiRowSkeleton /> : <PotensiKpiRow summary={summary} />}

@@ -3,11 +3,10 @@ import KpiCard from '../kpi/KpiCard.jsx'
 import KpiRowSkeleton from '../kpi/KpiRowSkeleton.jsx'
 import { useMapStore } from '../../store/mapStore.js'
 import { useMapEntityDetail } from '../../hooks/useMapData.js'
-import { kecamatanSummary } from '../../data/kecamatan.js'
+import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
 import { formatNumberID, formatPercent, formatRupiahCompact } from '../../lib/format.js'
 
-function summaryFromCityWide() {
-  const s = kecamatanSummary
+function summaryFromCityWide(s) {
   return {
     scopeLabel: 'SELURUH KOTA PANGKALPINANG',
     collectionRate: s.collectionRate,
@@ -65,10 +64,11 @@ export default function MapKpiRow() {
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectedEntityType = useMapStore((s) => s.selectedEntityType)
   const { data, loading } = useMapEntityDetail(selectedEntityId, selectedEntityType)
+  const { summary: kecamatanSummary } = useKecamatanData()
 
   if (selectedEntityId && (loading || !data)) return <KpiRowSkeleton />
 
-  const summary = selectedEntityId ? summaryFromEntity(selectedEntityType, data) : summaryFromCityWide()
+  const summary = selectedEntityId ? summaryFromEntity(selectedEntityType, data) : summaryFromCityWide(kecamatanSummary)
 
   return (
     <div className="mb-1">
