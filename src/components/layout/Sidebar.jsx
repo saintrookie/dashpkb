@@ -1,98 +1,64 @@
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import Select from '../ui/Select.jsx'
-import CityEmblem from '../brand/CityEmblem.jsx'
 import { NAV_ITEMS } from '../../data/navigation.js'
 import { useAuthStore } from '../../store/authStore.js'
+import { useFilters } from '../../hooks/useFilters.js'
+import bridgeSkyline from '../../assets/illustrations/bridge-skyline.svg'
+import logoIcon from '../../assets/logo-icon.png'
 
-const DEFAULT_FILTERS = [
-  { label: 'Tahun Pajak', defaultValue: '2025', options: ['2025', '2024', '2023'] },
-  {
-    label: 'Periode Data',
-    defaultValue: 's.d. 20 Mei 2026',
-    options: ['s.d. 20 Mei 2026', 's.d. 20 April 2026', 's.d. 20 Maret 2026'],
-  },
-]
+// Routes whose region filter drills down to Kecamatan instead of the
+// default Tahun Pajak + Periode Data pair.
+const KECAMATAN_FILTER_ROUTES = new Set([
+  '/peta-wilayah',
+  '/ringkasan-kecamatan',
+  '/perbandingan-kelurahan',
+])
 
-const FILTER_CONFIG = {
-  '/peta-wilayah': [
-    { label: 'Tahun Pajak', defaultValue: '2025', options: ['2025', '2024', '2023'] },
-    {
+function buildFilterGroups(pathname, filtersData) {
+  if (!filtersData) return []
+
+  const taxYearOptions = [...filtersData.taxYears].sort((a, b) => b - a).map(String)
+  const groups = [
+    { label: 'Tahun Pajak', defaultValue: taxYearOptions[0], options: taxYearOptions },
+  ]
+
+  if (KECAMATAN_FILTER_ROUTES.has(pathname)) {
+    groups.push({
       label: 'Kecamatan',
       defaultValue: 'Semua',
-      options: [
-        'Semua',
-        'Gerunggang',
-        'Rangkui',
-        'Taman Sari',
-        'Bukit Intan',
-        'Gabek',
-        'Girimaya',
-        'Pangkal Balam',
-      ],
-    },
-  ],
-  '/ringkasan-kecamatan': [
-    { label: 'Tahun Pajak', defaultValue: '2025', options: ['2025', '2024', '2023'] },
-    {
-      label: 'Kecamatan',
-      defaultValue: 'Semua',
-      options: [
-        'Semua',
-        'Gerunggang',
-        'Rangkui',
-        'Taman Sari',
-        'Bukit Intan',
-        'Gabek',
-        'Girimaya',
-        'Pangkal Balam',
-      ],
-    },
-  ],
-  '/perbandingan-kelurahan': [
-    { label: 'Tahun Pajak', defaultValue: '2025', options: ['2025', '2024', '2023'] },
-    {
-      label: 'Kecamatan',
-      defaultValue: 'Semua',
-      options: [
-        'Semua',
-        'Gerunggang',
-        'Rangkui',
-        'Taman Sari',
-        'Bukit Intan',
-        'Gabek',
-        'Girimaya',
-        'Pangkal Balam',
-      ],
-    },
-  ],
+      options: ['Semua', ...filtersData.kecamatan],
+    })
+  } else {
+    const periodOptions = filtersData.periods.map((p) => p.label)
+    groups.push({ label: 'Periode Data', defaultValue: periodOptions[0], options: periodOptions })
+  }
+
+  return groups
 }
 
 function SkylineIllustration() {
   return (
-    <svg
-      viewBox="0 0 238 140"
-      className="w-full h-auto opacity-[0.14]"
-      preserveAspectRatio="xMidYMax slice"
-      aria-hidden="true"
-    >
-      <rect x="0" y="70" width="18" height="70" fill="#fff" />
-      <rect x="20" y="50" width="14" height="90" fill="#fff" />
-      <rect x="36" y="85" width="16" height="55" fill="#fff" />
-      <rect x="56" y="35" width="12" height="105" fill="#fff" />
-      <polygon points="62,15 68,35 56,35" fill="#fff" />
-      <rect x="72" y="60" width="20" height="80" fill="#fff" />
-      <rect x="96" y="20" width="10" height="120" fill="#fff" />
-      <circle cx="101" cy="10" r="6" fill="#fff" />
-      <rect x="110" y="75" width="18" height="65" fill="#fff" />
-      <rect x="132" y="45" width="14" height="95" fill="#fff" />
-      <rect x="150" y="65" width="22" height="75" fill="#fff" />
-      <rect x="176" y="30" width="12" height="110" fill="#fff" />
-      <polygon points="182,10 188,30 176,30" fill="#fff" />
-      <rect x="192" y="80" width="16" height="60" fill="#fff" />
-      <rect x="212" y="55" width="14" height="85" fill="#fff" />
-      <rect x="228" y="90" width="10" height="50" fill="#fff" />
-    </svg>
+    <div className="w-full h-[140px] overflow-hidden opacity-[0.14]" aria-hidden="true">
+      <img
+        src={bridgeSkyline}
+        alt=""
+        className="w-full h-full object-cover object-bottom"
+      />
+    </div>
+  )
+}
+
+function SidebarFiltersSkeleton() {
+  return (
+    <div className="flex flex-col gap-3.5" aria-hidden="true">
+      {[0, 1].map((i) => (
+        <div key={i} className="flex flex-col gap-1.5">
+          <div className="h-2.5 w-20 rounded bg-white/10 animate-pulse" />
+          <div className="h-[42px] w-full rounded-lg bg-white/10 animate-pulse" />
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -116,10 +82,14 @@ function SidebarFilters({ filters }) {
   )
 }
 
-export default function Sidebar({ collapsed = false, onNavigate }) {
+// `collapsed` only ever narrows the layout at the `lg` breakpoint — the
+// mobile drawer always renders the full, expanded sidebar regardless of
+// the desktop collapse preference stored for large screens.
+export default function Sidebar({ collapsed = false, onClose }) {
   const location = useLocation()
   const hasPermission = useAuthStore((s) => s.hasPermission)
-  const filters = FILTER_CONFIG[location.pathname] || DEFAULT_FILTERS
+  const { data: filtersData, loading: filtersLoading } = useFilters()
+  const filters = buildFilterGroups(location.pathname, filtersData)
   const visibleNavItems = NAV_ITEMS.filter(
     (item) => !item.permission || hasPermission(item.permission),
   )
@@ -127,47 +97,59 @@ export default function Sidebar({ collapsed = false, onNavigate }) {
   return (
     <aside className="w-full h-full bg-gradient-to-b from-navy-950 to-navy-900 text-white flex flex-col overflow-hidden">
       <div
-        className={`pt-6 pb-5 flex items-center gap-3 border-b border-white/10 ${
-          collapsed ? 'px-0 justify-center' : 'px-5'
+        className={`pt-6 pb-5 flex items-center gap-3 border-b border-white/10 relative ${
+          collapsed ? 'pl-5 pr-12 lg:px-0 lg:justify-center' : 'pl-5 pr-12 lg:px-5'
         }`}
       >
-        <CityEmblem />
-        {!collapsed && (
-          <div className="leading-tight whitespace-nowrap">
-            <div className="text-[10px] font-semibold tracking-wide text-slate-300">
-              PEMERINTAH KOTA
-            </div>
-            <div className="text-[15px] font-bold tracking-wide text-white">
-              PANGKALPINANG
-            </div>
+        <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-10 h-10 object-contain shrink-0" />
+        <div className={`min-w-0 leading-tight ${collapsed ? 'lg:hidden' : ''}`}>
+          <div className="text-[10px] font-semibold tracking-wide text-slate-300 truncate">
+            PEMERINTAH KOTA
           </div>
-        )}
+          <div className="text-[15px] font-bold tracking-wide text-white truncate">
+            PANGKALPINANG
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Tutup menu navigasi"
+          className="lg:hidden absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M6 6L18 18M18 6L6 18"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
       </div>
 
-      {!collapsed && (
-        <div className="px-5 pt-5 pb-3">
-          <h1 className="text-[13px] font-bold text-white leading-tight">
-            Dashboard Kepatuhan
-          </h1>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            PKB, Opsen PKB &amp; SWDKLLJ
-          </p>
-        </div>
-      )}
+      <div className={`px-5 pt-5 pb-3 ${collapsed ? 'lg:hidden' : ''}`}>
+        <h1 className="text-[13px] font-bold text-white leading-tight">
+          Dashboard Kepatuhan
+        </h1>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          PKB, Opsen PKB &amp; SWDKLLJ
+        </p>
+      </div>
 
       <nav
-        className={`flex flex-col gap-1 ${collapsed ? 'px-2 mt-4' : 'px-3'}`}
+        className={`flex flex-col gap-1 px-3 overflow-y-auto ${collapsed ? 'lg:px-2 lg:mt-4' : ''}`}
         aria-label="Navigasi utama"
       >
         {visibleNavItems.map(({ label, icon: Icon, path }) => (
           <NavLink
             key={label}
             to={path}
-            onClick={onNavigate}
-            title={collapsed ? label : undefined}
+            onClick={onClose}
+            title={label}
             className={({ isActive }) =>
-              `flex items-center rounded-lg py-2.5 text-[13px] font-medium text-left transition-colors ${
-                collapsed ? 'justify-center px-0' : 'gap-2.5 px-3'
+              `flex items-center rounded-lg py-2.5 text-[13px] font-medium text-left transition-colors gap-2.5 px-3 ${
+                collapsed ? 'lg:justify-center lg:px-0 lg:gap-0' : ''
               } ${
                 isActive
                   ? 'bg-gradient-to-r from-brand-blue to-blue-500 text-white shadow-sidebarActive'
@@ -176,32 +158,34 @@ export default function Sidebar({ collapsed = false, onNavigate }) {
             }
           >
             <Icon size={16} strokeWidth={2} className="shrink-0" />
-            {!collapsed && <span>{label}</span>}
+            <span className={collapsed ? 'lg:hidden' : ''}>{label}</span>
           </NavLink>
         ))}
       </nav>
 
-      {!collapsed && (
-        <div className="px-5 mt-6">
-          <div className="text-[11px] font-semibold tracking-wider text-slate-400 mb-3">
-            FILTER WILAYAH
-          </div>
-          <SidebarFilters key={location.pathname} filters={filters} />
+      <div className={`px-5 mt-6 ${collapsed ? 'lg:hidden' : ''}`}>
+        <div className="text-[11px] font-semibold tracking-wider text-slate-400 mb-3">
+          FILTER WILAYAH
         </div>
-      )}
+        {filtersLoading ? (
+          <SidebarFiltersSkeleton />
+        ) : (
+          <SidebarFilters key={location.pathname} filters={filters} />
+        )}
+      </div>
 
-      <div className="mt-auto relative">
-        {!collapsed && (
-          <div className="px-5 pb-4 pt-6 text-[10.5px] leading-relaxed text-slate-400 relative z-10 border-t border-white/10">
-            <p>Data per : 20 Mei 2026</p>
-            <p>Sumber : Bapenda, Jasa Raharja</p>
-          </div>
-        )}
-        {!collapsed && (
-          <div className="pointer-events-none">
-            <SkylineIllustration />
-          </div>
-        )}
+      <div className="mt-auto relative shrink-0">
+        <div
+          className={`px-5 pb-4 pt-6 text-[10.5px] leading-relaxed text-slate-400 relative z-10 border-t border-white/10 ${
+            collapsed ? 'lg:hidden' : ''
+          }`}
+        >
+          <p>Data per : 20 Mei 2026</p>
+          <p>Sumber : Bapenda, Jasa Raharja</p>
+        </div>
+        <div className={`pointer-events-none ${collapsed ? 'lg:hidden' : ''}`}>
+          <SkylineIllustration />
+        </div>
       </div>
     </aside>
   )

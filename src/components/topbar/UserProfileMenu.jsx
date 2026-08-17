@@ -22,7 +22,13 @@ const MENU_ITEMS = [
   { label: 'Bantuan & Dukungan', icon: HelpCircle, path: '/bantuan' },
 ]
 
-export default function UserProfileMenu() {
+const TRIGGER_CLASS = {
+  default:
+    'flex items-center gap-2 rounded-lg pl-1.5 pr-2.5 py-1.5 border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-white/5',
+  dark: 'flex items-center gap-2 rounded-lg pl-1.5 pr-2 py-1 hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 data-[state=open]:bg-white/10',
+}
+
+export default function UserProfileMenu({ variant = 'default' }) {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
@@ -36,26 +42,32 @@ export default function UserProfileMenu() {
     navigate('/login', { replace: true })
   }
 
+  const isDark = variant === 'dark'
+
   return (
     <>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-lg pl-1.5 pr-2.5 py-1.5 border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-white/5"
-          >
+          <button type="button" className={TRIGGER_CLASS[variant]}>
             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-blue text-white text-[11px] font-bold shrink-0">
               {getInitials(user.name)}
             </span>
-            <span className="hidden sm:block text-left leading-tight">
-              <span className="block text-[12.5px] font-semibold text-navy-900 dark:text-white">
+            <span className={`${isDark ? 'hidden' : 'hidden sm:block'} text-left leading-tight`}>
+              <span
+                className={`block text-[12.5px] font-semibold ${isDark ? 'text-white' : 'text-navy-900 dark:text-white'}`}
+              >
                 {user.name}
               </span>
-              <span className="block text-[10.5px] text-slate-400 dark:text-slate-500">
+              <span
+                className={`block text-[10.5px] ${isDark ? 'text-slate-400' : 'text-slate-400 dark:text-slate-500'}`}
+              >
                 {user.role}
               </span>
             </span>
-            <ChevronDown size={14} className="hidden sm:block text-slate-400 dark:text-slate-500 shrink-0" />
+            <ChevronDown
+              size={14}
+              className={`${isDark ? 'hidden' : 'hidden sm:block text-slate-400 dark:text-slate-500'} shrink-0`}
+            />
           </button>
         </DropdownMenu.Trigger>
 

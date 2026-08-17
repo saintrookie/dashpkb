@@ -1,21 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import * as mockApi from '../services/mockApi'
-import type { ApiMeta, Opd, OpdQueryParams } from '../types/api'
 
-interface UseOpdResult {
-  data: Opd[]
-  meta: ApiMeta | null
-  loading: boolean
-  error: string | null
-  refetch: () => void
-}
-
-export function useOpd(params: OpdQueryParams = {}): UseOpdResult {
+export function useOpd(params = {}) {
   const { page, perPage, search, sortBy, sortDirection, status, reportingStatus, kecamatan } = params
-  const [data, setData] = useState<Opd[]>([])
-  const [meta, setMeta] = useState<ApiMeta | null>(null)
+  const [data, setData] = useState([])
+  const [meta, setMeta] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
   const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {

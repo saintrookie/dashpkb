@@ -4,25 +4,6 @@ import notificationsSeed from '../data/mock-api/notifications.json'
 import usersSeed from '../data/mock-api/users.json'
 import filtersSeed from '../data/mock-api/filters.json'
 import metadataSeed from '../data/mock-api/metadata.json'
-import type {
-  ApiMeta,
-  ApiResponse,
-  AppNotification,
-  CollectionRatePoint,
-  CurrentUser,
-  DashboardCharts,
-  DashboardData,
-  DashboardQueryParams,
-  DashboardSummary,
-  FilterPeriod,
-  FiltersData,
-  LoginParams,
-  NotificationQueryParams,
-  Opd,
-  OpdQueryParams,
-  RevenuePoint,
-  UnpaidPotentialPoint,
-} from '../types/api'
 
 /**
  * Mock API adapter. This module is the only thing in the app that knows the
@@ -37,7 +18,7 @@ export const MOCK_API_CONFIG = {
   simulateNetworkError: false,
 }
 
-function delay(ms: number) {
+function delay(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms))
 }
 
@@ -45,15 +26,15 @@ function nowIso() {
   return new Date().toISOString()
 }
 
-function success<T>(data: T, message = 'Data retrieved successfully', meta: ApiMeta | null = null): ApiResponse<T> {
+function success(data, message = 'Data retrieved successfully', meta = null) {
   return { success: true, message, data, meta, timestamp: nowIso() }
 }
 
-function failure<T>(message: string, code: string, status: number): ApiResponse<T> {
+function failure(message, code, status) {
   return { success: false, message, error: { code, status }, timestamp: nowIso() }
 }
 
-async function request<T>(handler: () => ApiResponse<T>): Promise<ApiResponse<T>> {
+async function request(handler) {
   if (MOCK_API_CONFIG.enabled) {
     await delay(MOCK_API_CONFIG.delay)
     if (MOCK_API_CONFIG.simulateNetworkError) {
@@ -66,24 +47,13 @@ async function request<T>(handler: () => ApiResponse<T>): Promise<ApiResponse<T>
   return handler()
 }
 
-interface ListQuery<T> {
-  page?: number
-  perPage?: number
-  search?: string
-  searchFields?: (keyof T)[]
-  sortBy?: string
-  sortDirection?: 'asc' | 'desc'
-  filter?: (item: T) => boolean
-  getSortValue?: (item: T, key: string) => number | string
-}
-
-function paginateList<T>(items: T[], query: ListQuery<T>): { rows: T[]; meta: ApiMeta } {
+function paginateList(items, query) {
   let result = query.filter ? items.filter(query.filter) : items
 
   const q = query.search?.trim().toLowerCase()
   if (q && query.searchFields?.length) {
     result = result.filter((item) =>
-      query.searchFields!.some((field) => String(item[field]).toLowerCase().includes(q)),
+      query.searchFields.some((field) => String(item[field]).toLowerCase().includes(q)),
     )
   }
 
@@ -91,10 +61,10 @@ function paginateList<T>(items: T[], query: ListQuery<T>): { rows: T[]; meta: Ap
     const dir = query.sortDirection === 'asc' ? 1 : -1
     const key = query.sortBy
     result = [...result].sort((a, b) => {
-      const av = query.getSortValue ? query.getSortValue(a, key) : (a as Record<string, unknown>)[key]
-      const bv = query.getSortValue ? query.getSortValue(b, key) : (b as Record<string, unknown>)[key]
+      const av = query.getSortValue ? query.getSortValue(a, key) : a[key]
+      const bv = query.getSortValue ? query.getSortValue(b, key) : b[key]
       if (av === bv) return 0
-      return (av as number) < (bv as number) ? -1 * dir : 1 * dir
+      return av < bv ? -1 * dir : 1 * dir
     })
   }
 
@@ -108,15 +78,15 @@ function paginateList<T>(items: T[], query: ListQuery<T>): { rows: T[]; meta: Ap
   return { rows, meta: { page: safePage, perPage, total, totalPages } }
 }
 
-const opdList = opdSeed as Opd[]
+const opdList = opdSeed
 
-function opdSortValue(opd: Opd, key: string): number | string {
+function opdSortValue(opd, key) {
   if (key === 'totalBilling') return opd.billing.pkb + opd.billing.opsenPkb + opd.billing.swdkllj
   if (key === 'totalPayment') return opd.payment.pkb + opd.payment.opsenPkb + opd.payment.swdkllj
-  return (opd as unknown as Record<string, number | string>)[key]
+  return opd[key]
 }
 
-export async function getOpd(params: OpdQueryParams = {}): Promise<ApiResponse<Opd[]>> {
+export async function getOpd(params = {}) {
   return request(() => {
     const { rows, meta } = paginateList(opdList, {
       page: params.page,
@@ -136,7 +106,7 @@ export async function getOpd(params: OpdQueryParams = {}): Promise<ApiResponse<O
   })
 }
 
-export async function getOpdById(id: string): Promise<ApiResponse<Opd>> {
+export async function getOpdById(id) {
   return request(() => {
     const opd = opdList.find((row) => row.id === id)
     if (!opd) return failure('Data OPD tidak ditemukan', 'OPD_NOT_FOUND', 404)
@@ -144,7 +114,7 @@ export async function getOpdById(id: string): Promise<ApiResponse<Opd>> {
   })
 }
 
-function computeSummary(list: Opd[]): DashboardSummary {
+function computeSummary(list) {
   const totalTagihan = list.reduce((a, o) => a + o.billing.pkb + o.billing.opsenPkb + o.billing.swdkllj, 0)
   const totalSudahBayar = list.reduce((a, o) => a + o.payment.pkb + o.payment.opsenPkb + o.payment.swdkllj, 0)
   const totalPenerimaanPkb = list.reduce((a, o) => a + o.payment.pkb, 0)
@@ -161,11 +131,11 @@ function computeSummary(list: Opd[]): DashboardSummary {
   }
 }
 
-function deltaPercent(value: number, target: number) {
+function deltaPercent(value, target) {
   return Math.round(((value - target) / target) * 1000) / 10
 }
 
-function buildKpi(summary: DashboardSummary, targets: typeof dashboardMeta.targets) {
+function buildKpi(summary, targets) {
   const avgCollectionRateDelta = deltaPercent(summary.avgCollectionRate, targets.avgCollectionRatePercent)
   const totalPkbDelta = deltaPercent(summary.totalPenerimaanPkb, targets.totalPenerimaanPkb)
   const totalOpsenDelta = deltaPercent(summary.totalOpsenPkb, targets.totalOpsenPkb)
@@ -207,18 +177,18 @@ function buildKpi(summary: DashboardSummary, targets: typeof dashboardMeta.targe
   }
 }
 
-function buildCharts(list: Opd[]): DashboardCharts {
-  const collectionRate: CollectionRatePoint[] = [...list]
+function buildCharts(list) {
+  const collectionRate = [...list]
     .sort((a, b) => b.collectionRate - a.collectionRate)
     .slice(0, 9)
     .map((o) => ({ opd: o.name, value: o.collectionRate, status: o.complianceStatus }))
 
-  const revenue: RevenuePoint[] = [...list]
+  const revenue = [...list]
     .sort((a, b) => b.payment.pkb + b.payment.opsenPkb - (a.payment.pkb + a.payment.opsenPkb))
     .slice(0, 5)
     .map((o) => ({ opd: o.name, pkb: o.payment.pkb, opsenPkb: o.payment.opsenPkb }))
 
-  const unpaidPotential: UnpaidPotentialPoint[] = [...list]
+  const unpaidPotential = [...list]
     .sort((a, b) => b.unpaidPotential - a.unpaidPotential)
     .slice(0, 5)
     .map((o) => ({ opd: o.name, potential: o.unpaidPotential }))
@@ -226,16 +196,16 @@ function buildCharts(list: Opd[]): DashboardCharts {
   return { collectionRate, revenue, unpaidPotential }
 }
 
-export async function getDashboard(params: DashboardQueryParams = {}): Promise<ApiResponse<DashboardData>> {
+export async function getDashboard(params = {}) {
   return request(() => {
     const summary = computeSummary(opdList)
     const kpi = buildKpi(summary, dashboardMeta.targets)
     const charts = buildCharts(opdList)
     const period = params.periodId
-      ? ((filtersSeed.periods as FilterPeriod[]).find((p) => p.id === params.periodId) ?? dashboardMeta.period)
+      ? (filtersSeed.periods.find((p) => p.id === params.periodId) ?? dashboardMeta.period)
       : dashboardMeta.period
 
-    const data: DashboardData = {
+    const data = {
       taxYear: params.taxYear ?? dashboardMeta.taxYear,
       period,
       lastUpdatedAt: dashboardMeta.lastUpdatedAt,
@@ -247,31 +217,27 @@ export async function getDashboard(params: DashboardQueryParams = {}): Promise<A
   })
 }
 
-export async function getDashboardSummary(
-  params: DashboardQueryParams = {},
-): Promise<ApiResponse<DashboardSummary>> {
+export async function getDashboardSummary(params = {}) {
   const res = await getDashboard(params)
   if (!res.success) return res
   return success(res.data.summary, 'Ringkasan dashboard berhasil diambil')
 }
 
-export async function getCollectionRate(params: { limit?: number } = {}): Promise<ApiResponse<CollectionRatePoint[]>> {
+export async function getCollectionRate(params = {}) {
   return request(() => {
     const points = buildCharts(opdList).collectionRate
     return success(params.limit ? points.slice(0, params.limit) : points, 'Data collection rate berhasil diambil')
   })
 }
 
-export async function getRevenue(params: { limit?: number } = {}): Promise<ApiResponse<RevenuePoint[]>> {
+export async function getRevenue(params = {}) {
   return request(() => {
     const points = buildCharts(opdList).revenue
     return success(params.limit ? points.slice(0, params.limit) : points, 'Data penerimaan berhasil diambil')
   })
 }
 
-export async function getUnpaidPotential(
-  params: { limit?: number } = {},
-): Promise<ApiResponse<UnpaidPotentialPoint[]>> {
+export async function getUnpaidPotential(params = {}) {
   return request(() => {
     const points = buildCharts(opdList).unpaidPotential
     return success(
@@ -281,9 +247,9 @@ export async function getUnpaidPotential(
   })
 }
 
-let notificationsStore: AppNotification[] = (notificationsSeed as AppNotification[]).map((n) => ({ ...n }))
+let notificationsStore = notificationsSeed.map((n) => ({ ...n }))
 
-export async function getNotifications(params: NotificationQueryParams = {}): Promise<ApiResponse<AppNotification[]>> {
+export async function getNotifications(params = {}) {
   return request(() => {
     const { rows, meta } = paginateList(notificationsStore, {
       page: params.page,
@@ -296,7 +262,7 @@ export async function getNotifications(params: NotificationQueryParams = {}): Pr
   })
 }
 
-export async function markNotificationAsRead(id: string): Promise<ApiResponse<AppNotification>> {
+export async function markNotificationAsRead(id) {
   return request(() => {
     const notification = notificationsStore.find((n) => n.id === id)
     if (!notification) return failure('Notifikasi tidak ditemukan', 'NOTIFICATION_NOT_FOUND', 404)
@@ -305,33 +271,28 @@ export async function markNotificationAsRead(id: string): Promise<ApiResponse<Ap
   })
 }
 
-export async function markAllNotificationsAsRead(): Promise<ApiResponse<AppNotification[]>> {
+export async function markAllNotificationsAsRead() {
   return request(() => {
     notificationsStore = notificationsStore.map((n) => ({ ...n, isRead: true }))
     return success(notificationsStore, 'Semua notifikasi ditandai sudah dibaca')
   })
 }
 
-interface UserRecord extends CurrentUser {
-  username: string
-  password: string
-}
+const usersList = usersSeed
+let sessionUserId = null
 
-const usersList = usersSeed as UserRecord[]
-let sessionUserId: string | null = null
-
-function toSafeUser(user: UserRecord): CurrentUser {
+function toSafeUser(user) {
   const { password: _password, username: _username, ...safe } = user
   void _password
   void _username
   return safe
 }
 
-export function setSession(id: string | null) {
+export function setSession(id) {
   sessionUserId = id
 }
 
-export async function login(params: LoginParams): Promise<ApiResponse<CurrentUser>> {
+export async function login(params) {
   return request(() => {
     const identifier = params.identifier.trim().toLowerCase()
     const match = usersList.find(
@@ -345,14 +306,14 @@ export async function login(params: LoginParams): Promise<ApiResponse<CurrentUse
   })
 }
 
-export async function logout(): Promise<ApiResponse<null>> {
+export async function logout() {
   return request(() => {
     sessionUserId = null
     return success(null, 'Logout berhasil')
   })
 }
 
-export async function getCurrentUser(id?: string): Promise<ApiResponse<CurrentUser>> {
+export async function getCurrentUser(id) {
   return request(() => {
     const targetId = id ?? sessionUserId
     if (!targetId) return failure('Sesi tidak ditemukan. Silakan masuk kembali.', 'UNAUTHENTICATED', 401)
@@ -362,19 +323,17 @@ export async function getCurrentUser(id?: string): Promise<ApiResponse<CurrentUs
   })
 }
 
-export async function getDemoAccounts(): Promise<
-  ApiResponse<Array<{ name: string; username: string; password: string; role: string }>>
-> {
+export async function getDemoAccounts() {
   return request(() => {
     const accounts = usersList.map((u) => ({ name: u.name, username: u.username, password: u.password, role: u.role }))
     return success(accounts, 'Daftar akun demo berhasil diambil')
   })
 }
 
-export async function getFilters(): Promise<ApiResponse<FiltersData>> {
-  return request(() => success(filtersSeed as FiltersData, 'Data filter berhasil diambil'))
+export async function getFilters() {
+  return request(() => success(filtersSeed, 'Data filter berhasil diambil'))
 }
 
-export async function getMetadata(): Promise<ApiResponse<typeof metadataSeed>> {
+export async function getMetadata() {
   return request(() => success(metadataSeed, 'Metadata aplikasi berhasil diambil'))
 }

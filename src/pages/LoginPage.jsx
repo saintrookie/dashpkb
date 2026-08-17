@@ -3,9 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { Eye, EyeOff, LogIn, AlertCircle, ShieldCheck, Loader2 } from 'lucide-react'
-import CityEmblem from '../components/brand/CityEmblem.jsx'
 import { useAuthStore } from '../store/authStore.js'
 import { useDemoAccounts } from '../hooks/useUsers'
+import bridgeSkyline from '../assets/illustrations/bridge-skyline.svg'
+import logoIcon from '../assets/logo-icon.png'
+import bgMaps from '../assets/bg-maps-transparent.webp'
 
 const validationSchema = Yup.object({
   identifier: Yup.string().trim().required('Username atau email wajib diisi'),
@@ -16,29 +18,13 @@ const validationSchema = Yup.object({
 
 function SkylineIllustration() {
   return (
-    <svg
-      viewBox="0 0 238 140"
-      className="w-full h-auto opacity-[0.16]"
-      preserveAspectRatio="xMidYMax slice"
-      aria-hidden="true"
-    >
-      <rect x="0" y="70" width="18" height="70" fill="#fff" />
-      <rect x="20" y="50" width="14" height="90" fill="#fff" />
-      <rect x="36" y="85" width="16" height="55" fill="#fff" />
-      <rect x="56" y="35" width="12" height="105" fill="#fff" />
-      <polygon points="62,15 68,35 56,35" fill="#fff" />
-      <rect x="72" y="60" width="20" height="80" fill="#fff" />
-      <rect x="96" y="20" width="10" height="120" fill="#fff" />
-      <circle cx="101" cy="10" r="6" fill="#fff" />
-      <rect x="110" y="75" width="18" height="65" fill="#fff" />
-      <rect x="132" y="45" width="14" height="95" fill="#fff" />
-      <rect x="150" y="65" width="22" height="75" fill="#fff" />
-      <rect x="176" y="30" width="12" height="110" fill="#fff" />
-      <polygon points="182,10 188,30 176,30" fill="#fff" />
-      <rect x="192" y="80" width="16" height="60" fill="#fff" />
-      <rect x="212" y="55" width="14" height="85" fill="#fff" />
-      <rect x="228" y="90" width="10" height="50" fill="#fff" />
-    </svg>
+    <div className="w-full aspect-[238/140] overflow-hidden opacity-[0.16]" aria-hidden="true">
+      <img
+        src={bridgeSkyline}
+        alt=""
+        className="w-full h-full object-cover object-bottom"
+      />
+    </div>
   )
 }
 
@@ -79,7 +65,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-[440px] shrink-0 bg-gradient-to-b from-navy-950 to-navy-900 text-white flex-col justify-between relative overflow-hidden">
         <div className="px-10 pt-12">
           <div className="flex items-center gap-3">
-            <CityEmblem size={48} />
+            <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-12 h-12 object-contain shrink-0" />
             <div className="leading-tight">
               <div className="text-[11px] font-semibold tracking-wide text-slate-300">
                 PEMERINTAH KOTA
@@ -111,10 +97,19 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10">
-        <div className="w-full max-w-[400px]">
+      <div className="flex-1 relative flex items-center justify-center px-4 sm:px-6 py-10 overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none select-none opacity-10 dark:opacity-20"
+          style={{
+            backgroundImage: `url(${bgMaps})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: '180% 80%'
+          }}
+        />
+        <div className="relative z-10 w-full max-w-[400px]">
           <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <CityEmblem size={40} />
+            <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-10 h-10 object-contain shrink-0" />
             <div className="leading-tight">
               <div className="text-[10px] font-semibold tracking-wide text-slate-500 dark:text-slate-400">
                 PEMERINTAH KOTA

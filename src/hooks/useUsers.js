@@ -1,17 +1,10 @@
 import { useEffect, useState } from 'react'
 import * as mockApi from '../services/mockApi'
-import type { CurrentUser } from '../types/api'
 
-interface UseCurrentUserResult {
-  data: CurrentUser | null
-  loading: boolean
-  error: string | null
-}
-
-export function useCurrentUser(id?: string): UseCurrentUserResult {
-  const [data, setData] = useState<CurrentUser | null>(null)
+export function useCurrentUser(id) {
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -43,20 +36,8 @@ export function useCurrentUser(id?: string): UseCurrentUserResult {
   return { data, loading, error }
 }
 
-interface DemoAccount {
-  name: string
-  username: string
-  password: string
-  role: string
-}
-
-interface UseDemoAccountsResult {
-  data: DemoAccount[]
-  loading: boolean
-}
-
-export function useDemoAccounts(): UseDemoAccountsResult {
-  const [data, setData] = useState<DemoAccount[]>([])
+export function useDemoAccounts() {
+  const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

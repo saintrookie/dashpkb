@@ -8,7 +8,13 @@ const OPTIONS = [
   { value: 'system', label: 'System', icon: Monitor },
 ]
 
-export default function ThemeSwitcher() {
+const TRIGGER_CLASS = {
+  default:
+    'flex items-center justify-center w-9 h-9 rounded-lg border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-navy-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-white/5 data-[state=open]:text-navy-900 dark:data-[state=open]:text-white',
+  dark: 'flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 data-[state=open]:bg-white/10 data-[state=open]:text-white',
+}
+
+export default function ThemeSwitcher({ variant = 'default' }) {
   const theme = useThemeStore((s) => s.theme)
   const setTheme = useThemeStore((s) => s.setTheme)
 
@@ -17,11 +23,7 @@ export default function ThemeSwitcher() {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button
-          type="button"
-          aria-label="Ubah tema tampilan"
-          className="flex items-center justify-center w-9 h-9 rounded-lg border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-navy-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-white/5 data-[state=open]:text-navy-900 dark:data-[state=open]:text-white"
-        >
+        <button type="button" aria-label="Ubah tema tampilan" className={TRIGGER_CLASS[variant]}>
           <ActiveIcon size={16} strokeWidth={2} />
         </button>
       </DropdownMenu.Trigger>

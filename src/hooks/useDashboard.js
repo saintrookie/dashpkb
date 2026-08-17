@@ -1,19 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import * as mockApi from '../services/mockApi'
-import type { DashboardData, DashboardQueryParams } from '../types/api'
 
-interface UseDashboardResult {
-  data: DashboardData | null
-  loading: boolean
-  error: string | null
-  refetch: () => void
-}
-
-export function useDashboard(params: DashboardQueryParams = {}): UseDashboardResult {
+export function useDashboard(params = {}) {
   const { taxYear, periodId } = params
-  const [data, setData] = useState<DashboardData | null>(null)
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
   const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {

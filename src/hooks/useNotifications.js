@@ -1,22 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import * as mockApi from '../services/mockApi'
-import type { AppNotification, NotificationQueryParams } from '../types/api'
 
-interface UseNotificationsResult {
-  data: AppNotification[]
-  unreadCount: number
-  loading: boolean
-  error: string | null
-  refetch: () => void
-  markAsRead: (id: string) => Promise<void>
-  markAllAsRead: () => Promise<void>
-}
-
-export function useNotifications(params: NotificationQueryParams = {}): UseNotificationsResult {
+export function useNotifications(params = {}) {
   const { page, perPage, isRead, type } = params
-  const [data, setData] = useState<AppNotification[]>([])
+  const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
   const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
@@ -48,7 +37,7 @@ export function useNotifications(params: NotificationQueryParams = {}): UseNotif
 
   const refetch = useCallback(() => setReloadToken((t) => t + 1), [])
 
-  const markAsRead = useCallback(async (id: string) => {
+  const markAsRead = useCallback(async (id) => {
     const res = await mockApi.markNotificationAsRead(id)
     if (res.success) {
       setData((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)))

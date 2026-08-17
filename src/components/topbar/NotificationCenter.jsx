@@ -98,7 +98,13 @@ function NotificationItem({ notification, onRead }) {
   )
 }
 
-export default function NotificationCenter() {
+const TRIGGER_CLASS = {
+  default:
+    'relative flex items-center justify-center w-9 h-9 rounded-lg border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-navy-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-white/5 data-[state=open]:text-navy-900 dark:data-[state=open]:text-white',
+  dark: 'relative flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 data-[state=open]:bg-white/10 data-[state=open]:text-white',
+}
+
+export default function NotificationCenter({ variant = 'default' }) {
   const notifications = useNotificationStore((s) => s.notifications)
   const loading = useNotificationStore((s) => s.loading)
   const fetchNotifications = useNotificationStore((s) => s.fetchNotifications)
@@ -116,11 +122,15 @@ export default function NotificationCenter() {
         <button
           type="button"
           aria-label={`Notifikasi${unreadCount > 0 ? `, ${unreadCount} belum dibaca` : ''}`}
-          className="relative flex items-center justify-center w-9 h-9 rounded-lg border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-navy-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40 data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-white/5 data-[state=open]:text-navy-900 dark:data-[state=open]:text-white"
+          className={TRIGGER_CLASS[variant]}
         >
           <Bell size={16} strokeWidth={2} />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-status-red text-white text-[9.5px] font-bold leading-none ring-2 ring-white dark:ring-navy-950">
+            <span
+              className={`absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-status-red text-white text-[9.5px] font-bold leading-none ring-2 ${
+                variant === 'dark' ? 'ring-navy-950' : 'ring-white dark:ring-navy-950'
+              }`}
+            >
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}

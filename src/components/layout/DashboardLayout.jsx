@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Menu, ChevronLeft, ChevronRight } from 'lucide-react'
 import Sidebar from './Sidebar.jsx'
-import { NAV_ITEMS } from '../../data/navigation.js'
+import TopBarActions from '../topbar/TopBarActions.jsx'
+import { usePageTitleStore } from '../../store/pageTitleStore.js'
+import bgMaps from '../../assets/bg-maps-transparent.webp'
 
 function useCollapsedState() {
   const [collapsed, setCollapsed] = useState(() => {
@@ -27,30 +28,28 @@ function useCollapsedState() {
 export default function DashboardLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [collapsed, setCollapsed] = useCollapsedState()
-  const location = useLocation()
-  const currentTitle =
-    NAV_ITEMS.find((item) => item.path === location.pathname)?.label ??
-    'Tingkat Kepatuhan OPD'
+  const currentTitle = usePageTitleStore((s) => s.title)
 
   return (
     <div className="min-h-screen bg-surface-canvas dark:bg-navy-950">
-      <div className="lg:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between bg-navy-950 text-white px-4 py-3">
-        <span className="text-sm font-bold tracking-wide uppercase truncate pr-3">
-          {currentTitle}
-        </span>
+      <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center gap-2 bg-navy-950 text-white pl-2 pr-3">
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
           aria-label="Buka menu navigasi"
-          className="p-1.5 rounded-md hover:bg-white/10"
+          className="shrink-0 p-2 rounded-lg hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
         >
           <Menu size={20} />
         </button>
+        <span className="min-w-0 flex-1 text-[13px] font-bold tracking-wide uppercase truncate">
+          {currentTitle || 'Dashboard Kepatuhan'}
+        </span>
+        <TopBarActions variant="dark" />
       </div>
 
       {drawerOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-navy-950/60"
+          className="lg:hidden fixed inset-0 z-40 bg-navy-950/60 backdrop-blur-[1px]"
           onClick={() => setDrawerOpen(false)}
           aria-hidden="true"
         />
@@ -61,34 +60,36 @@ export default function DashboardLayout({ children }) {
           collapsed ? 'lg:w-[76px]' : 'lg:w-[238px]'
         } ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(false)}
-          aria-label="Tutup menu navigasi"
-          className="lg:hidden absolute top-3 right-3 z-10 p-1.5 rounded-md bg-white/10 text-white hover:bg-white/20"
-        >
-          <X size={16} />
-        </button>
-
+        {/* Straddles the sidebar's edge, so it must stay outside the aside's
+            own overflow-hidden box or it would get clipped. */}
         <button
           type="button"
           onClick={() => setCollapsed((c) => !c)}
           aria-label={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
           aria-pressed={collapsed}
-          className="hidden lg:flex absolute top-20 -right-3 z-10 items-center justify-center w-6 h-6 rounded-full bg-white dark:bg-navy-800 border border-surface-border dark:border-white/10 shadow-card dark:shadow-none text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-blue-400 transition-colors"
+          className="hidden lg:flex absolute top-8 -right-3 z-10 items-center justify-center w-6 h-6 rounded-full bg-white dark:bg-navy-800 border border-surface-border dark:border-white/10 shadow-card dark:shadow-none text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/50 transition-colors"
         >
           {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
         </button>
 
-        <Sidebar collapsed={collapsed} onNavigate={() => setDrawerOpen(false)} />
+        <Sidebar collapsed={collapsed} onClose={() => setDrawerOpen(false)} />
       </div>
 
       <main
-        className={`pt-14 lg:pt-0 transition-[padding] duration-200 ${
+        className={`relative pt-14 lg:pt-0 transition-[padding] duration-200 ${
           collapsed ? 'lg:pl-[76px]' : 'lg:pl-[238px]'
         }`}
       >
-        <div className="px-4 sm:px-6 lg:px-7 py-4 max-w-[1440px] mx-auto">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none select-none opacity-10 dark:opacity-20"
+          style={{
+            backgroundImage: `url(${bgMaps})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: '180% 80%',
+          }}
+        />
+        <div className="relative z-10 px-4 sm:px-6 lg:px-7 py-4 max-w-[1440px] mx-auto">
           {children}
         </div>
       </main>
