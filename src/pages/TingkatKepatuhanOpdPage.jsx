@@ -6,10 +6,15 @@ import ChartsRow from '../components/charts/ChartsRow.jsx'
 import ComplianceTable from '../components/table/ComplianceTable.jsx'
 import InfoPanel from '../components/footer/InfoPanel.jsx'
 import { useDashboard } from '../hooks/useDashboard'
+import { useDataFilters } from '../hooks/useDataFilters.js'
 import { formatDateLongID } from '../lib/format.js'
 
 export default function TingkatKepatuhanOpdPage() {
-  const { data, loading, error, refetch } = useDashboard()
+  const filters = useDataFilters()
+  const { data, loading, error, refetch } = useDashboard({
+    taxYear: filters.taxYear ?? undefined,
+    periodId: filters.periodId ?? undefined,
+  })
 
   return (
     <>
@@ -17,8 +22,24 @@ export default function TingkatKepatuhanOpdPage() {
         title="Tingkat Kepatuhan OPD"
         subtitle="Monitoring Kepatuhan Pembayaran PKB, Opsen PKB & SWDKLLJ Per OPD"
       >
-        <FilterCard icon={Calendar} label="Tahun Pajak" value={data ? String(data.taxYear) : '—'} />
-        <FilterCard icon={Calendar} label="Periode Data" value={data?.period.label ?? '—'} />
+        <FilterCard
+          icon={Calendar}
+          label="Tahun Pajak"
+          value={data ? String(data.taxYear) : '—'}
+          options={filters.taxYearOptions}
+          onChange={filters.setTaxYear}
+          showReset={!filters.isTaxYearDefault}
+          onReset={filters.resetTaxYear}
+        />
+        <FilterCard
+          icon={Calendar}
+          label="Periode Data"
+          value={data?.period.label ?? '—'}
+          options={filters.periodOptions}
+          onChange={filters.setPeriodByLabel}
+          showReset={!filters.isPeriodDefault}
+          onReset={filters.resetPeriod}
+        />
         <FilterCard
           icon={({ className = '', ...rest }) => (
             <RefreshCw
@@ -34,7 +55,7 @@ export default function TingkatKepatuhanOpdPage() {
 
       <KpiRow data={data} loading={loading} error={error} />
       <ChartsRow data={data} loading={loading} error={error} />
-      <ComplianceTable />
+      <ComplianceTable taxYear={filters.taxYear ?? undefined} />
       <InfoPanel />
     </>
   )

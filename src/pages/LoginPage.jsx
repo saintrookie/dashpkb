@@ -2,12 +2,11 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { Eye, EyeOff, LogIn, AlertCircle, ShieldCheck, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, LogIn, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore.js'
 import { useDemoAccounts } from '../hooks/useUsers'
 import bridgeSkyline from '../assets/illustrations/bridge-skyline.svg'
 import logoIcon from '../assets/logo-icon.png'
-import bgMaps from '../assets/bg-maps-transparent.webp'
 
 const validationSchema = Yup.object({
   identifier: Yup.string().trim().required('Username atau email wajib diisi'),
@@ -18,7 +17,7 @@ const validationSchema = Yup.object({
 
 function SkylineIllustration() {
   return (
-    <div className="w-full aspect-[238/140] overflow-hidden opacity-[0.16]" aria-hidden="true">
+    <div className="w-full h-full overflow-hidden opacity-[0.40]" aria-hidden="true">
       <img
         src={bridgeSkyline}
         alt=""
@@ -86,10 +85,10 @@ export default function LoginPage() {
             terpusat untuk optimalisasi Pendapatan Asli Daerah.
           </p>
 
-          <div className="flex items-center gap-2 mt-8 text-[12px] text-slate-300">
+          {/* <div className="flex items-center gap-2 mt-8 text-[12px] text-slate-300">
             <ShieldCheck size={16} className="text-brand-blue" />
             Akses aman &mdash; khusus pengguna terverifikasi
-          </div>
+          </div> */}
         </div>
 
         <div className="relative">
@@ -97,17 +96,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="flex-1 relative flex items-center justify-center px-4 sm:px-6 py-10 overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none select-none opacity-10 dark:opacity-20"
-          style={{
-            backgroundImage: `url(${bgMaps})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: '180% 80%'
-          }}
-        />
-        <div className="relative z-10 w-full max-w-[400px]">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10">
+        <div className="w-full max-w-[480px]">
           <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
             <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-10 h-10 object-contain shrink-0" />
             <div className="leading-tight">

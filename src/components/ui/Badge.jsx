@@ -6,6 +6,8 @@ const VARIANTS = {
   'Sangat Rendah': 'bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-400',
   Lunas: 'bg-status-greenBg text-status-green dark:bg-status-green/15 dark:text-green-400',
   'Belum Lunas': 'bg-status-redBg text-status-red dark:bg-status-red/15 dark:text-red-400',
+  Berhasil: 'bg-status-greenBg text-status-green dark:bg-status-green/15 dark:text-green-400',
+  Gagal: 'bg-status-redBg text-status-red dark:bg-status-red/15 dark:text-red-400',
 }
 
 export default function Badge({ children }) {

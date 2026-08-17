@@ -22,45 +22,48 @@ export default function KpiCard({
   footer,
 }) {
   const isUp = delta?.trim().startsWith('+')
+  // The arrow icon already conveys direction, so drop the redundant +/- sign
+  // from the printed number.
+  const deltaDisplay = delta?.trim().replace(/^[+-]/, '')
   return (
-    <Card className="p-3 flex flex-col gap-2 min-w-0">
-      <div className="flex items-center gap-3">
-        <span
-          className={`flex items-center justify-center w-10 h-10 rounded-full text-white shrink-0 ${ICON_BG[color]}`}
-        >
-          <Icon size={18} strokeWidth={2} />
-        </span>
+    <Card className="p-3 flex gap-3 min-w-0">
+      <span
+        className={`flex items-center justify-center w-10 h-10 rounded-full text-white shrink-0 ${ICON_BG[color]}`}
+      >
+        <Icon size={18} strokeWidth={2} />
+      </span>
+      <div className="flex-1 min-w-0 flex flex-col gap-2">
         <span className="text-[10.5px] font-semibold tracking-wide text-slate-400 dark:text-slate-400 leading-tight">
           {label}
         </span>
-      </div>
-      <div>
-        <div className="text-[22px] font-extrabold text-navy-900 dark:text-white leading-none">
-          {value}
-        </div>
-        {target && <div className="text-[11.5px] text-slate-400 dark:text-slate-500 mt-1.5">{target}</div>}
-        {progress !== undefined && (
-          <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden mt-1.5">
-            <div
-              className={`h-full rounded-full ${ICON_BG[color]}`}
-              style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-            />
+        <div>
+          <div className="text-[22px] font-extrabold text-navy-900 dark:text-white leading-none">
+            {value}
           </div>
-        )}
-      </div>
-      {footer !== undefined ? (
-        footer
-      ) : delta ? (
-        <div
-          className={`flex items-center gap-1 text-[11.5px] font-semibold ${
-            negative ? 'text-status-red' : 'text-status-green'
-          }`}
-        >
-          {isUp ? <ArrowUp size={13} /> : <ArrowDown size={13} />}
-          <span>{delta}</span>
-          <span className="text-slate-400 font-normal">{deltaLabel}</span>
+          {target && <div className="text-[11.5px] text-slate-400 dark:text-slate-500 mt-1.5">{target}</div>}
+          {progress !== undefined && (
+            <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden mt-1.5">
+              <div
+                className={`h-full rounded-full ${ICON_BG[color]}`}
+                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+              />
+            </div>
+          )}
         </div>
-      ) : null}
+        {footer !== undefined ? (
+          footer
+        ) : delta ? (
+          <div
+            className={`flex items-center gap-1 text-[11.5px] font-semibold ${
+              negative ? 'text-status-red' : 'text-status-green'
+            }`}
+          >
+            {isUp ? <ArrowUp size={13} /> : <ArrowDown size={13} />}
+            <span>{deltaDisplay}</span>
+            <span className="text-slate-400 font-normal">{deltaLabel}</span>
+          </div>
+        ) : null}
+      </div>
     </Card>
   )
 }

@@ -1,3 +1,6 @@
+import { seededRandom, scaleCountForYear, shiftRateForYear } from '../lib/yearlyTrend.js'
+import dashboardMeta from './mock-api/dashboard.json'
+
 const BASE = [
   {
     kecamatan: 'Gerunggang',
@@ -58,8 +61,12 @@ const BASE = [
 ]
 
 const SWDKLLJ_PER_VEHICLE = 35_000
+// Single source of truth shared with mockApi.js — whichever tax year the
+// dashboard treats as "current" is also the exact, hand-tuned year here;
+// every other year is generated relative to it.
+export const BASELINE_TAX_YEAR = dashboardMeta.taxYear
 
-export const kecamatanList = BASE.map((row, index) => {
+function deriveRow(row, index) {
   const sudahBayar = Math.round((row.jumlahKendaraan * row.collectionRate) / 100)
   const belumBayar = row.jumlahKendaraan - sudahBayar
   const penerimaanSwdkllj = sudahBayar * SWDKLLJ_PER_VEHICLE
@@ -71,32 +78,86 @@ export const kecamatanList = BASE.map((row, index) => {
     belumBayar,
     penerimaanSwdkllj,
   }
-}).sort((a, b) => b.collectionRate - a.collectionRate)
-  .map((row, index) => ({ ...row, no: index + 1 }))
-
-function sum(key) {
-  return kecamatanList.reduce((acc, row) => acc + row[key], 0)
 }
 
-const totalKendaraan = sum('jumlahKendaraan')
-const totalSudahBayar = sum('sudahBayar')
-const totalBelumBayar = sum('belumBayar')
-
-export const kecamatanSummary = {
-  collectionRate: Math.round((totalSudahBayar / totalKendaraan) * 1000) / 10,
-  collectionRateTarget: 90,
-  totalKendaraan,
-  totalSudahBayar,
-  totalBelumBayar,
-  penerimaanPkb: sum('penerimaanPkb'),
-  penerimaanPkbTarget: 23_250_000_000,
-  opsenPkb: sum('opsenPkb'),
-  opsenPkbTarget: 14_250_000_000,
-  potensiBelumBayar: sum('potensiBelumBayar'),
-  penerimaanSwdkllj: sum('penerimaanSwdkllj'),
+function finalizeList(rows) {
+  return rows
+    .sort((a, b) => b.collectionRate - a.collectionRate)
+    .map((row, index) => ({ ...row, no: index + 1 }))
 }
 
-export const trendCollectionRate = [
+const baselineRows = BASE.map(deriveRow)
+
+function buildKecamatanListForYear(year) {
+  if (year === BASELINE_TAX_YEAR) return finalizeList(baselineRows)
+
+  const yearsFromBaseline = year - BASELINE_TAX_YEAR
+  const rows = baselineRows.map((base) => {
+    const rand = seededRandom(`${base.kecamatan}-${year}`)
+    const jumlahKendaraan = scaleCountForYear(base.jumlahKendaraan, yearsFromBaseline, rand)
+    const collectionRate = shiftRateForYear(base.collectionRate, yearsFromBaseline, rand)
+    const sudahBayar = Math.round((jumlahKendaraan * collectionRate) / 100)
+    const belumBayar = jumlahKendaraan - sudahBayar
+
+    // Per-unit rates derived from the baseline keep money figures internally
+    // consistent as the underlying vehicle/payment counts scale per year.
+    const pkbPerPaid = base.penerimaanPkb / base.sudahBayar
+    const opsenPerPaid = base.opsenPkb / base.sudahBayar
+    const potensiPerUnpaid = base.belumBayar > 0 ? base.potensiBelumBayar / base.belumBayar : 0
+
+    return {
+      kecamatan: base.kecamatan,
+      jumlahKendaraan,
+      collectionRate,
+      sudahBayar,
+      belumBayar,
+      penerimaanPkb: Math.round(pkbPerPaid * sudahBayar),
+      opsenPkb: Math.round(opsenPerPaid * sudahBayar),
+      potensiBelumBayar: Math.round(potensiPerUnpaid * belumBayar),
+      penerimaanSwdkllj: sudahBayar * SWDKLLJ_PER_VEHICLE,
+    }
+  })
+
+  return finalizeList(rows)
+}
+
+const kecamatanListByYear = new Map()
+
+export function getKecamatanListForYear(year = BASELINE_TAX_YEAR) {
+  if (!kecamatanListByYear.has(year)) {
+    kecamatanListByYear.set(year, buildKecamatanListForYear(year))
+  }
+  return kecamatanListByYear.get(year)
+}
+
+function sum(list, key) {
+  return list.reduce((acc, row) => acc + row[key], 0)
+}
+
+export function getKecamatanSummaryForYear(year = BASELINE_TAX_YEAR) {
+  const list = getKecamatanListForYear(year)
+  const totalKendaraan = sum(list, 'jumlahKendaraan')
+  const totalSudahBayar = sum(list, 'sudahBayar')
+  const totalBelumBayar = sum(list, 'belumBayar')
+
+  return {
+    collectionRate: Math.round((totalSudahBayar / totalKendaraan) * 1000) / 10,
+    collectionRateTarget: 90,
+    totalKendaraan,
+    totalSudahBayar,
+    totalBelumBayar,
+    penerimaanPkb: sum(list, 'penerimaanPkb'),
+    penerimaanPkbTarget: 23_250_000_000,
+    opsenPkb: sum(list, 'opsenPkb'),
+    opsenPkbTarget: 14_250_000_000,
+    potensiBelumBayar: sum(list, 'potensiBelumBayar'),
+    penerimaanSwdkllj: sum(list, 'penerimaanSwdkllj'),
+  }
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+
+const BASELINE_TREND = [
   { bulan: 'Jan', rate: 64.13 },
   { bulan: 'Feb', rate: 65.48 },
   { bulan: 'Mar', rate: 67.45 },
@@ -109,5 +170,29 @@ export const trendCollectionRate = [
   { bulan: 'Okt', rate: 81.2 },
   { bulan: 'Nov', rate: 82.4 },
   { bulan: 'Des', rate: 83.5 },
-  { bulan: 'Mei (YTD)', rate: kecamatanSummary.collectionRate },
 ]
+
+export function getTrendCollectionRateForYear(year = BASELINE_TAX_YEAR) {
+  const ytdRate = getKecamatanSummaryForYear(year).collectionRate
+
+  if (year === BASELINE_TAX_YEAR) {
+    return [...BASELINE_TREND, { bulan: 'Mei (YTD)', rate: ytdRate }]
+  }
+
+  // Walk backward from the year's current rate so the trend line still ends
+  // exactly on that year's computed collection rate.
+  const rand = seededRandom(`trend-${year}`)
+  const monthly = []
+  let rate = ytdRate
+  for (let i = MONTHS.length - 1; i >= 0; i--) {
+    monthly[i] = Math.round(rate * 100) / 100
+    rate -= 1.1 + rand() * 1.4
+  }
+  return [...monthly.map((rate, i) => ({ bulan: MONTHS[i], rate })), { bulan: 'Mei (YTD)', rate: ytdRate }]
+}
+
+// Baseline exports kept for components that only need option lists (names
+// don't vary by year) or a non-reactive default snapshot.
+export const kecamatanList = getKecamatanListForYear(BASELINE_TAX_YEAR)
+export const kecamatanSummary = getKecamatanSummaryForYear(BASELINE_TAX_YEAR)
+export const trendCollectionRate = getTrendCollectionRateForYear(BASELINE_TAX_YEAR)

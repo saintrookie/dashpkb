@@ -12,11 +12,15 @@ import VehicleYearChart from '../components/kendaraan/VehicleYearChart.jsx'
 import TopBrandChart from '../components/kendaraan/TopBrandChart.jsx'
 import VehicleFilterPanel, { DEFAULT_VEHICLE_FILTERS } from '../components/kendaraan/VehicleFilterPanel.jsx'
 import VehicleTable from '../components/kendaraan/VehicleTable.jsx'
-import { kendaraanList, summarizeKendaraan } from '../data/kendaraan.js'
+import { useDataFilters } from '../hooks/useDataFilters.js'
+import { useKendaraanListForActiveYear } from '../hooks/useYearlyLocalData.js'
+import { summarizeKendaraan } from '../data/kendaraan.js'
 
 export default function DataKendaraanPage() {
   const [dataLoading, setDataLoading] = useState(true)
   const [filters, setFilters] = useState(DEFAULT_VEHICLE_FILTERS)
+  const dataFilters = useDataFilters()
+  const kendaraanList = useKendaraanListForActiveYear()
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDataLoading(false), 900)
@@ -31,15 +35,31 @@ export default function DataKendaraanPage() {
       if (filters.status !== 'Semua' && row.statusBayar !== filters.status) return false
       return true
     })
-  }, [filters])
+  }, [filters, kendaraanList])
 
   const summary = useMemo(() => summarizeKendaraan(filteredRows), [filteredRows])
 
   return (
     <>
       <PageHeader title="Data Kendaraan" subtitle="Informasi Data Kendaraan Berdasarkan Wilayah">
-        <FilterCard icon={Calendar} label="Tahun Pajak" value="2025" />
-        <FilterCard icon={Calendar} label="Periode Data" value="s.d. 20 Mei 2026" />
+        <FilterCard
+          icon={Calendar}
+          label="Tahun Pajak"
+          value={dataFilters.taxYearLabel || '—'}
+          options={dataFilters.taxYearOptions}
+          onChange={dataFilters.setTaxYear}
+          showReset={!dataFilters.isTaxYearDefault}
+          onReset={dataFilters.resetTaxYear}
+        />
+        <FilterCard
+          icon={Calendar}
+          label="Periode Data"
+          value={dataFilters.periodLabel || '—'}
+          options={dataFilters.periodOptions}
+          onChange={dataFilters.setPeriodByLabel}
+          showReset={!dataFilters.isPeriodDefault}
+          onReset={dataFilters.resetPeriod}
+        />
       </PageHeader>
 
       {dataLoading ? <KpiRowSkeleton /> : <KendaraanKpiRow summary={summary} />}

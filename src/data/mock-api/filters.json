@@ -1,11 +1,17 @@
 {
-  "taxYears": [2024, 2025, 2026],
+  "taxYears": [2020, 2021, 2022, 2023, 2024, 2025, 2026],
   "periods": [
     { "id": "2026-05-20", "label": "s.d. 20 Mei 2026", "date": "2026-05-20" },
     { "id": "2026-04-30", "label": "s.d. 30 April 2026", "date": "2026-04-30" },
     { "id": "2026-03-31", "label": "s.d. 31 Maret 2026", "date": "2026-03-31" },
     { "id": "2026-02-28", "label": "s.d. 28 Februari 2026", "date": "2026-02-28" },
-    { "id": "2026-01-31", "label": "s.d. 31 Januari 2026", "date": "2026-01-31" }
+    { "id": "2026-01-31", "label": "s.d. 31 Januari 2026", "date": "2026-01-31" },
+    { "id": "2025-12-31", "label": "s.d. 31 Desember 2025", "date": "2025-12-31" },
+    { "id": "2024-12-31", "label": "s.d. 31 Desember 2024", "date": "2024-12-31" },
+    { "id": "2023-12-31", "label": "s.d. 31 Desember 2023", "date": "2023-12-31" },
+    { "id": "2022-12-31", "label": "s.d. 31 Desember 2022", "date": "2022-12-31" },
+    { "id": "2021-12-31", "label": "s.d. 31 Desember 2021", "date": "2021-12-31" },
+    { "id": "2020-12-31", "label": "s.d. 31 Desember 2020", "date": "2020-12-31" }
   ],
   "complianceStatuses": [
     { "value": "very_good", "label": "Sangat Baik" },

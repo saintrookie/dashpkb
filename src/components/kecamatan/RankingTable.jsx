@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import Card from '../ui/Card.jsx'
-import { kecamatanList } from '../../data/kecamatan.js'
+import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
 import { formatNumberID, formatPercent, formatRupiahAuto } from '../../lib/format.js'
 import { useMapStore } from '../../store/mapStore.js'
 import { kecamatanGeoByName } from '../../lib/regionLookup.js'
@@ -29,6 +29,7 @@ const COLUMNS = [
 ]
 
 export default function RankingTable() {
+  const { list: kecamatanList } = useKecamatanData()
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)

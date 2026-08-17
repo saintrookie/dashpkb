@@ -1,10 +1,10 @@
 import { TrendingUp, Wallet, Landmark, AlertTriangle, Car } from 'lucide-react'
 import KpiCard from '../kpi/KpiCard.jsx'
-import { kecamatanSummary } from '../../data/kecamatan.js'
+import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
 import { formatNumberID, formatPercent, formatRupiahCompact } from '../../lib/format.js'
 
 export default function KecamatanKpiRow() {
-  const s = kecamatanSummary
+  const { summary: s } = useKecamatanData()
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
@@ -44,9 +44,6 @@ export default function KecamatanKpiRow() {
         label="POTENSI BELUM BAYAR"
         value={`Rp ${formatRupiahCompact(s.potensiBelumBayar, 2)}`}
         target={`${formatNumberID(s.totalBelumBayar)} kendaraan`}
-        delta="-1,92%"
-        deltaLabel="dari bulan lalu"
-        negative
       />
       <KpiCard
         icon={Car}

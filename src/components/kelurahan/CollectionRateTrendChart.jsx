@@ -1,7 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Dot } from 'recharts'
 import { Info } from 'lucide-react'
 import Card from '../ui/Card.jsx'
-import { trendCollectionRate } from '../../data/kecamatan.js'
+import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
 import { formatPercent } from '../../lib/format.js'
 import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
@@ -20,15 +20,15 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 function EndDot(props) {
-  const { cx, cy, index } = props
-  const isLast = index === trendCollectionRate.length - 1
+  const { cx, cy, index, payload, total } = props
+  const isLast = index === total - 1
   if (!isLast) return <Dot {...props} r={3} fill="#1668e3" strokeWidth={0} />
   return (
     <g>
       <circle cx={cx} cy={cy} r={4} fill="#1668e3" stroke="#fff" strokeWidth={2} />
       <rect x={cx - 22} y={cy - 28} width={44} height={18} rx={9} fill="#1668e3" />
       <text x={cx} y={cy - 16} textAnchor="middle" fontSize={10.5} fontWeight={700} fill="#fff">
-        {formatPercent(trendCollectionRate[index].rate)}
+        {formatPercent(payload.rate)}
       </text>
     </g>
   )
@@ -37,6 +37,7 @@ function EndDot(props) {
 export default function CollectionRateTrendChart() {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
+  const { trend: trendCollectionRate } = useKecamatanData()
 
   return (
     <Card className="p-4 flex flex-col h-full">
@@ -73,7 +74,7 @@ export default function CollectionRateTrendChart() {
               dataKey="rate"
               stroke="#1668e3"
               strokeWidth={2.5}
-              dot={<EndDot />}
+              dot={<EndDot total={trendCollectionRate.length} />}
               isAnimationActive={false}
             />
           </LineChart>

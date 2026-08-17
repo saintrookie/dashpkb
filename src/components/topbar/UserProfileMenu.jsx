@@ -16,10 +16,10 @@ import LogoutConfirmDialog from './LogoutConfirmDialog.jsx'
 
 const MENU_ITEMS = [
   { label: 'Profil Pengguna', icon: User, path: '/akun/profil' },
-  { label: 'Pengaturan Akun', icon: Settings, path: '/akun/pengaturan' },
-  { label: 'Preferensi', icon: SlidersHorizontal, path: '/akun/preferensi' },
-  { label: 'Aktivitas', icon: Activity, path: '/akun/aktivitas' },
-  { label: 'Bantuan & Dukungan', icon: HelpCircle, path: '/bantuan' },
+  // { label: 'Pengaturan Akun', icon: Settings, path: '/akun/pengaturan' },
+  // { label: 'Preferensi', icon: SlidersHorizontal, path: '/akun/preferensi' },
+  // { label: 'Aktivitas', icon: Activity, path: '/akun/aktivitas' },
+  // { label: 'Bantuan & Dukungan', icon: HelpCircle, path: '/bantuan' },
 ]
 
 const TRIGGER_CLASS = {

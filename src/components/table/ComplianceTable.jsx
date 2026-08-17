@@ -37,7 +37,7 @@ function SkeletonRow() {
   )
 }
 
-export default function ComplianceTable() {
+export default function ComplianceTable({ taxYear }) {
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
 
@@ -47,6 +47,7 @@ export default function ComplianceTable() {
     search: query,
     sortBy: 'collectionRate',
     sortDirection: 'desc',
+    taxYear,
   })
 
   function handleSearch(v) {

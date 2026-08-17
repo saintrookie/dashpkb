@@ -1,28 +1,7 @@
 import kelurahanGeo from './geo/pangkalpinang-kelurahan.json'
-import { kecamatanList } from './kecamatan.js'
+import { getKecamatanListForYear, BASELINE_TAX_YEAR } from './kecamatan.js'
+import { seededRandom, mulberry32, seedFromString } from '../lib/yearlyTrend.js'
 import { complianceStatusFromRate } from '../lib/complianceStatus.js'
-
-// Deterministic PRNG (mulberry32) seeded from a string, so kelurahan-level
-// stats are stable across reloads without shipping a giant hand-authored table.
-function seedFromString(str) {
-  let h = 1779033703 ^ str.length
-  for (let i = 0; i < str.length; i++) {
-    h = Math.imul(h ^ str.charCodeAt(i), 3432918353)
-    h = (h << 13) | (h >>> 19)
-  }
-  return h >>> 0
-}
-
-function mulberry32(seed) {
-  let a = seed
-  return function random() {
-    a |= 0
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 const villagesByKecamatan = new Map()
 for (const feature of kelurahanGeo.features) {
@@ -33,7 +12,7 @@ for (const feature of kelurahanGeo.features) {
 
 const SWDKLLJ_PER_VEHICLE = 35_000
 
-function buildKelurahanRows() {
+function buildKelurahanRows(kecamatanList, year) {
   const rows = []
 
   for (const kec of kecamatanList) {
@@ -44,7 +23,10 @@ function buildKelurahanRows() {
     const totalWeight = weights.reduce((a, b) => a + b, 0)
 
     villages.forEach((village, i) => {
-      const rand = mulberry32(seedFromString(village.id + ':stats'))
+      // Baseline year keeps its exact original (unsuffixed) seed so the
+      // default view stays byte-identical to before this was year-aware.
+      const seedKey = year === BASELINE_TAX_YEAR ? `${village.id}:stats` : `${village.id}:stats:${year}`
+      const rand = seededRandom(seedKey)
       const share = weights[i] / totalWeight
       const jumlahKendaraan = Math.max(180, Math.round(kec.jumlahKendaraan * share))
       const rateJitter = (rand() - 0.5) * 16 // +/- 8 points around parent kecamatan
@@ -80,14 +62,17 @@ function buildKelurahanRows() {
   return rows.sort((a, b) => b.collectionRate - a.collectionRate).map((row, index) => ({ ...row, no: index + 1 }))
 }
 
-export const kelurahanList = buildKelurahanRows()
+const kelurahanListByYear = new Map()
 
-export function kelurahanByKecamatan(kecamatanName) {
-  return kelurahanList.filter((row) => row.kecamatan === kecamatanName)
+export function getKelurahanListForYear(year = BASELINE_TAX_YEAR) {
+  if (!kelurahanListByYear.has(year)) {
+    kelurahanListByYear.set(year, buildKelurahanRows(getKecamatanListForYear(year), year))
+  }
+  return kelurahanListByYear.get(year)
 }
 
-export const kelurahanSummary = {
-  totalKelurahan: kelurahanList.length,
+export function kelurahanByKecamatanForYear(kecamatanName, year = BASELINE_TAX_YEAR) {
+  return getKelurahanListForYear(year).filter((row) => row.kecamatan === kecamatanName)
 }
 
 const RATE_RANGES = [
@@ -101,11 +86,28 @@ function rangeForRate(rate) {
   return RATE_RANGES.find((band) => rate >= band.min)
 }
 
-export const rateRangeDistribution = RATE_RANGES.map((band) => {
-  const rows = kelurahanList.filter((row) => rangeForRate(row.collectionRate).key === band.key)
-  return {
-    ...band,
-    kelurahanCount: rows.length,
-    vehicleCount: rows.reduce((a, row) => a + row.jumlahKendaraan, 0),
-  }
-})
+export function getRateRangeDistributionForYear(year = BASELINE_TAX_YEAR) {
+  const list = getKelurahanListForYear(year)
+  return RATE_RANGES.map((band) => {
+    const rows = list.filter((row) => rangeForRate(row.collectionRate).key === band.key)
+    return {
+      ...band,
+      kelurahanCount: rows.length,
+      vehicleCount: rows.reduce((a, row) => a + row.jumlahKendaraan, 0),
+    }
+  })
+}
+
+// Baseline exports kept for components that only need option lists (names
+// don't vary by year) or a non-reactive default snapshot.
+export const kelurahanList = getKelurahanListForYear(BASELINE_TAX_YEAR)
+
+export function kelurahanByKecamatan(kecamatanName) {
+  return kelurahanList.filter((row) => row.kecamatan === kecamatanName)
+}
+
+export const kelurahanSummary = {
+  totalKelurahan: kelurahanList.length,
+}
+
+export const rateRangeDistribution = getRateRangeDistributionForYear(BASELINE_TAX_YEAR)

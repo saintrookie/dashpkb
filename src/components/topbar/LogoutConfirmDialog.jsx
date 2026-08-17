@@ -5,8 +5,8 @@ export default function LogoutConfirmDialog({ open, onOpenChange, onConfirm }) {
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-navy-950/60 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[380px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 shadow-card p-5 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
+        <AlertDialog.Overlay className="fixed inset-0 z-[1300] bg-navy-950/60 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[1300] w-[380px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 shadow-card p-5 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
           <div className="flex items-center gap-3 mb-3">
             <span className="flex items-center justify-center w-10 h-10 rounded-full bg-status-redBg dark:bg-status-red/15 text-status-red dark:text-red-400 shrink-0">
               <LogOut size={18} strokeWidth={2} />

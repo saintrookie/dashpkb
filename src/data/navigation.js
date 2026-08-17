@@ -1,7 +1,7 @@
 import { Grid3x3, Landmark, BarChart3, Car, CircleX, Building2, Download, MapPinned } from 'lucide-react'
 
 export const NAV_ITEMS = [
-  { label: 'Peta Wilayah', icon: MapPinned, path: '/peta-wilayah' },
+  // { label: 'Peta Wilayah', icon: MapPinned, path: '/peta-wilayah' },
   { label: 'Ringkasan Kelurahan', icon: Grid3x3, path: '/ringkasan-kelurahan' },
   { label: 'Ringkasan Kecamatan', icon: Landmark, path: '/ringkasan-kecamatan' },
   { label: 'Perbandingan Kelurahan', icon: BarChart3, path: '/perbandingan-kelurahan' },

@@ -3,7 +3,6 @@ import { Menu, ChevronLeft, ChevronRight } from 'lucide-react'
 import Sidebar from './Sidebar.jsx'
 import TopBarActions from '../topbar/TopBarActions.jsx'
 import { usePageTitleStore } from '../../store/pageTitleStore.js'
-import bgMaps from '../../assets/bg-maps-transparent.webp'
 
 function useCollapsedState() {
   const [collapsed, setCollapsed] = useState(() => {
@@ -76,20 +75,11 @@ export default function DashboardLayout({ children }) {
       </div>
 
       <main
-        className={`relative pt-14 lg:pt-0 transition-[padding] duration-200 ${
+        className={`pt-14 lg:pt-0 transition-[padding] duration-200 ${
           collapsed ? 'lg:pl-[76px]' : 'lg:pl-[238px]'
         }`}
       >
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none select-none opacity-10 dark:opacity-20"
-          style={{
-            backgroundImage: `url(${bgMaps})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: '180% 80%',
-          }}
-        />
-        <div className="relative z-10 px-4 sm:px-6 lg:px-7 py-4 max-w-[1440px] mx-auto">
+        <div className="px-4 sm:px-6 lg:px-7 py-4 max-w-[1440px] mx-auto">
           {children}
         </div>
       </main>
