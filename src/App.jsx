@@ -15,6 +15,7 @@ import DataKendaraanPage from './pages/DataKendaraanPage.jsx'
 import PotensiPenagihanPage from './pages/PotensiPenagihanPage.jsx'
 import UnduhLaporanPage from './pages/UnduhLaporanPage.jsx'
 import ComingSoonPage from './pages/ComingSoonPage.jsx'
+import ProfilPenggunaPage from './pages/ProfilPenggunaPage.jsx'
 import MapPageSkeleton from './components/map/MapPageSkeleton.jsx'
 
 const PetaWilayahPage = lazy(() => import('./pages/PetaWilayahPage.jsx'))
@@ -77,15 +78,7 @@ function App() {
                       </RequirePermission>
                     }
                   />
-                  <Route
-                    path="/akun/profil"
-                    element={
-                      <ComingSoonPage
-                        title="Profil Pengguna"
-                        subtitle="Kelola informasi profil akun Anda"
-                      />
-                    }
-                  />
+                  <Route path="/akun/profil" element={<ProfilPenggunaPage />} />
                   <Route
                     path="/akun/pengaturan"
                     element={
