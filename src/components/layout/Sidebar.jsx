@@ -82,9 +82,9 @@ export default function Sidebar({ collapsed = false, onClose }) {
           type="button"
           onClick={onClose}
           aria-label="Tutup menu navigasi"
-          className="lg:hidden absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors"
+          className="lg:hidden absolute top-2 right-2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 active:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 transition-colors"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M6 6L18 18M18 6L6 18"
               stroke="currentColor"

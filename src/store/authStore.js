@@ -22,6 +22,16 @@ export const useAuthStore = create(
         mockApi.logout()
       },
 
+      updateProfile: async (updates) => {
+        const currentUser = get().user
+        const res = await mockApi.updateProfile(currentUser.id, updates)
+        if (!res.success) {
+          throw new Error(res.message)
+        }
+        set({ user: res.data })
+        return res.data
+      },
+
       hasPermission: (permission) => get().user?.permissions?.includes(permission) ?? false,
     }),
     {

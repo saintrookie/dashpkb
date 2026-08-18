@@ -115,7 +115,7 @@ export default function InteractiveMap({
   }
 
   return (
-    <div ref={wrapperRef} className={`relative overflow-hidden rounded-card ${className}`} style={{ height }}>
+    <div ref={wrapperRef} className={`relative isolate overflow-hidden rounded-card ${className}`} style={{ height }}>
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}

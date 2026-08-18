@@ -450,6 +450,15 @@ export async function getCurrentUser(id) {
   })
 }
 
+export async function updateProfile(id, updates) {
+  return request(() => {
+    const match = usersList.find((u) => u.id === id)
+    if (!match) return failure('Pengguna tidak ditemukan', 'USER_NOT_FOUND', 404)
+    Object.assign(match, updates)
+    return success(toSafeUser(match), 'Profil berhasil diperbarui')
+  })
+}
+
 export async function getDemoAccounts() {
   return request(() => {
     const accounts = usersList.map((u) => ({ name: u.name, username: u.username, password: u.password, role: u.role }))
