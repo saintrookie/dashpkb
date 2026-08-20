@@ -16,7 +16,7 @@
     "username": "user",
     "email": "user@dashpkb.local",
     "password": "User123!",
-    "role": "User",
+    "role": "Pemkot",
     "department": "Badan Pendapatan Daerah",
     "avatar": "/avatars/user.png",
     "permissions": ["view"]

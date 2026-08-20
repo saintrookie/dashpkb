@@ -79,7 +79,7 @@ export default function RevenueChart({ data: revenueChartData }) {
               axisLine={{ stroke: ct.axisLine }}
               tickLine={false}
               interval={0}
-              height={30}
+              height={38}
             />
             <YAxis
               ticks={TICKS}

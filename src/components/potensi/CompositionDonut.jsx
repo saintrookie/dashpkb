@@ -60,7 +60,10 @@ export default function CompositionDonut({ summary }) {
                   <Cell key={d.key} fill={d.color} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip
+                content={<CustomTooltip />}
+                wrapperStyle={{ zIndex: 20, top: '100%', left: '50%', transform: 'translate(-50%, 6px)' }}
+              />
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

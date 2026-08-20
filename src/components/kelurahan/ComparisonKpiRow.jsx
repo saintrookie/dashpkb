@@ -1,10 +1,21 @@
-import { TrendingUp, Wallet, Landmark, AlertTriangle, Car } from 'lucide-react'
+import { TrendingUp, Wallet, Landmark, ShieldCheck, Car } from 'lucide-react'
 import KpiCard from '../kpi/KpiCard.jsx'
 import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
-import { formatNumberID, formatPercent, formatRupiahCompact } from '../../lib/format.js'
+import { formatNumberID, formatPercent, formatRupiahCompact, formatSignedPercent } from '../../lib/format.js'
+
+function potensiFooter(label, value) {
+  return (
+    <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+      <div>
+        Potensi Belum Bayar {label} :{' '}
+        <span className="font-semibold text-navy-900 dark:text-white">Rp {formatRupiahCompact(value, 2)}</span>
+      </div>
+    </div>
+  )
+}
 
 export default function ComparisonKpiRow() {
-  const { summary: s } = useKecamatanData()
+  const { summary: s, summaryDelta: d } = useKecamatanData()
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
@@ -15,38 +26,36 @@ export default function ComparisonKpiRow() {
         value={formatPercent(s.collectionRate, 2)}
         target={`Target : ${formatPercent(s.collectionRateTarget, 2)}`}
         progress={(s.collectionRate / s.collectionRateTarget) * 100}
-        delta="+2,35%"
+        delta={formatSignedPercent(d.collectionRate.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative={false}
+        negative={d.collectionRate.negative}
       />
       <KpiCard
         icon={Wallet}
         color="green"
         label="PENERIMAAN PKB"
         value={`Rp ${formatRupiahCompact(s.penerimaanPkb, 2)}`}
-        target={`Target : Rp ${formatRupiahCompact(s.penerimaanPkbTarget, 2)}`}
+        target={`Target PKB : Rp ${formatRupiahCompact(s.penerimaanPkbTarget, 2)}`}
         progress={(s.penerimaanPkb / s.penerimaanPkbTarget) * 100}
-        delta="+4,16%"
-        deltaLabel="dari bulan lalu"
-        negative={false}
+        footer={potensiFooter('PKB', s.potensiBelumBayarPkb)}
       />
       <KpiCard
         icon={Landmark}
         color="purple"
-        label="OPSEN PKB DITERIMA"
+        label="PENERIMAAN OPSEN PKB"
         value={`Rp ${formatRupiahCompact(s.opsenPkb, 2)}`}
-        target={`Target : Rp ${formatRupiahCompact(s.opsenPkbTarget, 2)}`}
+        target={`Target Opsen PKB : Rp ${formatRupiahCompact(s.opsenPkbTarget, 2)}`}
         progress={(s.opsenPkb / s.opsenPkbTarget) * 100}
-        delta="+4,03%"
-        deltaLabel="dari bulan lalu"
-        negative={false}
+        footer={potensiFooter('Opsen PKB', s.potensiBelumBayarOpsen)}
       />
       <KpiCard
-        icon={AlertTriangle}
+        icon={ShieldCheck}
         color="orange"
-        label="POTENSI BELUM BAYAR"
-        value={`Rp ${formatRupiahCompact(s.potensiBelumBayar, 2)}`}
-        target={`${formatNumberID(s.totalBelumBayar)} kendaraan`}
+        label="PENERIMAAN SWDKLLJ"
+        value={`Rp ${formatRupiahCompact(s.penerimaanSwdkllj, 2)}`}
+        target={`Target SWDKLLJ : Rp ${formatRupiahCompact(s.penerimaanSwdklljTarget, 2)}`}
+        progress={(s.penerimaanSwdkllj / s.penerimaanSwdklljTarget) * 100}
+        footer={potensiFooter('SWDKLLJ', s.potensiBelumBayarSwdkllj)}
       />
       <KpiCard
         icon={Car}
@@ -54,13 +63,18 @@ export default function ComparisonKpiRow() {
         label="JUMLAH KENDARAAN"
         value={`${formatNumberID(s.totalKendaraan)} unit`}
         footer={
-          <div className="text-[11px] text-slate-500 leading-relaxed">
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
             <div>
-              Lunas : <span className="font-semibold text-navy-900">{formatNumberID(s.totalSudahBayar)} unit</span>
+              Lunas :{' '}
+              <span className="font-semibold text-navy-900 dark:text-white">
+                {formatNumberID(s.totalSudahBayar)} unit
+              </span>
             </div>
             <div>
               Belum Lunas :{' '}
-              <span className="font-semibold text-navy-900">{formatNumberID(s.totalBelumBayar)} unit</span>
+              <span className="font-semibold text-navy-900 dark:text-white">
+                {formatNumberID(s.totalBelumBayar)} unit
+              </span>
             </div>
           </div>
         }

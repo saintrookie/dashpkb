@@ -62,17 +62,18 @@ function buildKelurahanRows(kecamatanList, year) {
   return rows.sort((a, b) => b.collectionRate - a.collectionRate).map((row, index) => ({ ...row, no: index + 1 }))
 }
 
-const kelurahanListByYear = new Map()
+const kelurahanListByYearPeriod = new Map()
 
-export function getKelurahanListForYear(year = BASELINE_TAX_YEAR) {
-  if (!kelurahanListByYear.has(year)) {
-    kelurahanListByYear.set(year, buildKelurahanRows(getKecamatanListForYear(year), year))
+export function getKelurahanListForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const key = `${year}:${periodId ?? ''}`
+  if (!kelurahanListByYearPeriod.has(key)) {
+    kelurahanListByYearPeriod.set(key, buildKelurahanRows(getKecamatanListForYear(year, periodId), year))
   }
-  return kelurahanListByYear.get(year)
+  return kelurahanListByYearPeriod.get(key)
 }
 
-export function kelurahanByKecamatanForYear(kecamatanName, year = BASELINE_TAX_YEAR) {
-  return getKelurahanListForYear(year).filter((row) => row.kecamatan === kecamatanName)
+export function kelurahanByKecamatanForYear(kecamatanName, year = BASELINE_TAX_YEAR, periodId = undefined) {
+  return getKelurahanListForYear(year, periodId).filter((row) => row.kecamatan === kecamatanName)
 }
 
 const RATE_RANGES = [
@@ -86,8 +87,8 @@ function rangeForRate(rate) {
   return RATE_RANGES.find((band) => rate >= band.min)
 }
 
-export function getRateRangeDistributionForYear(year = BASELINE_TAX_YEAR) {
-  const list = getKelurahanListForYear(year)
+export function getRateRangeDistributionForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const list = getKelurahanListForYear(year, periodId)
   return RATE_RANGES.map((band) => {
     const rows = list.filter((row) => rangeForRate(row.collectionRate).key === band.key)
     return {
