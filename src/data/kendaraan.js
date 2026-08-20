@@ -142,13 +142,14 @@ function buildKendaraanList(kelurahanList, taxYear) {
   return rows
 }
 
-const kendaraanListByYear = new Map()
+const kendaraanListByYearPeriod = new Map()
 
-export function getKendaraanListForYear(year = BASELINE_TAX_YEAR) {
-  if (!kendaraanListByYear.has(year)) {
-    kendaraanListByYear.set(year, buildKendaraanList(getKelurahanListForYear(year), year))
+export function getKendaraanListForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const key = `${year}:${periodId ?? ''}`
+  if (!kendaraanListByYearPeriod.has(key)) {
+    kendaraanListByYearPeriod.set(key, buildKendaraanList(getKelurahanListForYear(year, periodId), year))
   }
-  return kendaraanListByYear.get(year)
+  return kendaraanListByYearPeriod.get(key)
 }
 
 export const kendaraanList = getKendaraanListForYear(BASELINE_TAX_YEAR)

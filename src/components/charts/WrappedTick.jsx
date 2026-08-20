@@ -1,4 +1,4 @@
-export default function WrappedTick({ x, y, payload, fontSize = 10, fill = '#334155' }) {
+export default function WrappedTick({ x, y, payload, fontSize = 10, fill = '#334155', maxLines = 2 }) {
   const words = String(payload.value).split(' ')
   const lines = []
   let current = ''
@@ -13,11 +13,16 @@ export default function WrappedTick({ x, y, payload, fontSize = 10, fill = '#334
   })
   if (current) lines.push(current)
 
+  // Longer labels can wrap past what the reserved axis height fits; cap the
+  // rendered lines so the last one never runs off the bottom of the chart.
+  const visibleLines =
+    lines.length > maxLines ? [...lines.slice(0, maxLines - 1), `${lines[maxLines - 1]}…`] : lines
+
   return (
     <g transform={`translate(${x},${y})`}>
-      {lines.map((line, i) => (
+      {visibleLines.map((line, i) => (
         <text
-          key={line}
+          key={i}
           x={0}
           y={0}
           dy={12 + i * 12}

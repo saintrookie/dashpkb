@@ -34,6 +34,14 @@ export function formatPercent(n, decimals = 1) {
   })}%`
 }
 
+export function formatSignedPercent(n, decimals = 2) {
+  const sign = n >= 0 ? '+' : '-'
+  return `${sign}${Math.abs(n).toLocaleString('id-ID', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}%`
+}
+
 export function formatDateLongID(isoDate) {
   return new Date(isoDate).toLocaleDateString('id-ID', {
     day: 'numeric',

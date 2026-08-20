@@ -1,9 +1,10 @@
 import { DollarSign, Wallet, Landmark, Users, Car } from 'lucide-react'
 import KpiCard from '../kpi/KpiCard.jsx'
-import { formatNumberID, formatPercent, formatRupiahAuto, formatRupiahFull } from '../../lib/format.js'
+import { formatNumberID, formatPercent, formatRupiahAuto, formatRupiahFull, formatSignedPercent } from '../../lib/format.js'
 
-export default function PotensiKpiRow({ summary }) {
+export default function PotensiKpiRow({ summary, delta }) {
   const s = summary
+  const d = delta
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
@@ -13,9 +14,9 @@ export default function PotensiKpiRow({ summary }) {
         label="TOTAL POTENSI"
         value={formatRupiahAuto(s.totalPotensi)}
         target={`${formatNumberID(s.total)} kendaraan`}
-        delta="-1,92%"
+        delta={formatSignedPercent(d.totalPotensi.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative
+        negative={d.totalPotensi.negative}
       />
       <KpiCard
         icon={Wallet}
@@ -23,9 +24,9 @@ export default function PotensiKpiRow({ summary }) {
         label="POTENSI PKB"
         value={formatRupiahAuto(s.potensiPkb)}
         target={`${formatPercent(s.potensiPkbPercent)} dari total potensi`}
-        delta="-1,75%"
+        delta={formatSignedPercent(d.potensiPkb.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative
+        negative={d.potensiPkb.negative}
       />
       <KpiCard
         icon={Landmark}
@@ -33,9 +34,9 @@ export default function PotensiKpiRow({ summary }) {
         label="POTENSI OPSEN PKB"
         value={formatRupiahAuto(s.potensiOpsenPkb)}
         target={`${formatPercent(s.potensiOpsenPkbPercent)} dari total potensi`}
-        delta="-2,08%"
+        delta={formatSignedPercent(d.potensiOpsenPkb.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative
+        negative={d.potensiOpsenPkb.negative}
       />
       <KpiCard
         icon={Users}
@@ -43,18 +44,18 @@ export default function PotensiKpiRow({ summary }) {
         label="POTENSI SWDKLLJ"
         value={formatRupiahAuto(s.potensiSwdkllj)}
         target={`${formatPercent(s.potensiSwdklljPercent)} dari total potensi`}
-        delta="-1,63%"
+        delta={formatSignedPercent(d.potensiSwdkllj.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative
+        negative={d.potensiSwdkllj.negative}
       />
       <KpiCard
         icon={Car}
         color="cyan"
         label="RATA-RATA TUNGGAKAN PER KENDARAAN"
         value={formatRupiahFull(s.avgPotensiPerKendaraan)}
-        delta="-0,87%"
+        delta={formatSignedPercent(d.avgPotensiPerKendaraan.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative
+        negative={d.avgPotensiPerKendaraan.negative}
       />
     </div>
   )

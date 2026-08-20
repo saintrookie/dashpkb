@@ -64,7 +64,7 @@ export default function UnpaidPotentialChart({ data: unpaidPotentialChartData })
               axisLine={{ stroke: ct.axisLine }}
               tickLine={false}
               interval={0}
-              height={30}
+              height={38}
             />
             <YAxis
               ticks={TICKS}

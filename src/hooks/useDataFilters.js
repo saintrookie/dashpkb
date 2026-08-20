@@ -28,11 +28,22 @@ export function useDataFilters() {
     }
   }, [initialized, initializeDefaults])
 
+  // Periods are year-scoped (e.g. "2026-04-30" only makes sense while
+  // "Tahun Pajak" is 2026), so once a tax year is picked, only offer that
+  // year's own periods and snap the selection onto one of them.
+  useEffect(() => {
+    if (!initialized || taxYear == null || !filtersData) return
+    const validPeriods = filtersData.periods.filter((p) => p.id.startsWith(`${taxYear}-`))
+    if (validPeriods.length === 0 || validPeriods.some((p) => p.id === periodId)) return
+    setPeriodId(validPeriods[0].id)
+  }, [initialized, taxYear, filtersData, periodId, setPeriodId])
+
   const periods = filtersData?.periods ?? []
+  const periodsForYear = taxYear != null ? periods.filter((p) => p.id.startsWith(`${taxYear}-`)) : periods
   const taxYearOptions = filtersData ? [...filtersData.taxYears].sort((a, b) => b - a).map(String) : []
-  const periodOptions = periods.map((p) => p.label)
-  const periodLabel = periods.find((p) => p.id === periodId)?.label ?? ''
-  const periodIdByLabel = Object.fromEntries(periods.map((p) => [p.label, p.id]))
+  const periodOptions = periodsForYear.map((p) => p.label)
+  const periodLabel = periodsForYear.find((p) => p.id === periodId)?.label ?? ''
+  const periodIdByLabel = Object.fromEntries(periodsForYear.map((p) => [p.label, p.id]))
 
   return {
     ready: initialized && !!filtersData,

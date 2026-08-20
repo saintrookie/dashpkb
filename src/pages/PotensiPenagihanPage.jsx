@@ -5,19 +5,36 @@ import FilterCard from '../components/filters/FilterCard.jsx'
 import KpiRowSkeleton from '../components/kpi/KpiRowSkeleton.jsx'
 import ChartCardSkeleton from '../components/charts/ChartCardSkeleton.jsx'
 import PotensiKpiRow from '../components/potensi/PotensiKpiRow.jsx'
-import PotensiFilterBar, { DEFAULT_POTENSI_FILTERS } from '../components/potensi/PotensiFilterBar.jsx'
+import PotensiFilterBar, { getDefaultPotensiFilters } from '../components/potensi/PotensiFilterBar.jsx'
 import RegionPotensiTable from '../components/potensi/RegionPotensiTable.jsx'
 import CompositionDonut from '../components/potensi/CompositionDonut.jsx'
 import TunggakanSummaryCard from '../components/potensi/TunggakanSummaryCard.jsx'
 import PriorityDetailTable from '../components/potensi/PriorityDetailTable.jsx'
 import PotensiInsightPanel from '../components/potensi/PotensiInsightPanel.jsx'
+import { useAuthStore } from '../store/authStore.js'
 import { useDataFilters } from '../hooks/useDataFilters.js'
 import { usePotensiRowsForActiveYear } from '../hooks/useYearlyLocalData.js'
-import { summarizePotensi, bucketForTunggakan } from '../data/potensiPenagihan.js'
+import { getPreviousMonthPeriod } from '../data/kecamatan.js'
+import {
+  getPotensiRowsForYear,
+  summarizePotensi,
+  bucketForTunggakan,
+  getPotensiSummaryDelta,
+} from '../data/potensiPenagihan.js'
+
+function matchesPotensiFilters(row, filters) {
+  if (filters.kecamatan !== 'Semua' && row.kecamatan !== filters.kecamatan) return false
+  if (filters.kelurahan !== 'Semua' && row.kelurahan !== filters.kelurahan) return false
+  if (filters.jenis !== 'Semua' && row.jenisLabel !== filters.jenis) return false
+  if (filters.tunggakan !== 'Semua' && bucketForTunggakan(row.tunggakanTahun)?.label !== filters.tunggakan)
+    return false
+  return true
+}
 
 export default function PotensiPenagihanPage() {
+  const role = useAuthStore((s) => s.user?.role)
   const [dataLoading, setDataLoading] = useState(true)
-  const [filters, setFilters] = useState(DEFAULT_POTENSI_FILTERS)
+  const [filters, setFilters] = useState(() => getDefaultPotensiFilters(role))
   const dataFilters = useDataFilters()
   const potensiRows = usePotensiRowsForActiveYear()
 
@@ -26,18 +43,27 @@ export default function PotensiPenagihanPage() {
     return () => window.clearTimeout(timer)
   }, [])
 
-  const filteredRows = useMemo(() => {
-    return potensiRows.filter((row) => {
-      if (filters.kecamatan !== 'Semua' && row.kecamatan !== filters.kecamatan) return false
-      if (filters.kelurahan !== 'Semua' && row.kelurahan !== filters.kelurahan) return false
-      if (filters.jenis !== 'Semua' && row.jenisLabel !== filters.jenis) return false
-      if (filters.tunggakan !== 'Semua' && bucketForTunggakan(row.tunggakanTahun)?.label !== filters.tunggakan)
-        return false
-      return true
-    })
-  }, [filters, potensiRows])
+  const filteredRows = useMemo(
+    () => potensiRows.filter((row) => matchesPotensiFilters(row, filters)),
+    [filters, potensiRows],
+  )
 
-  const summary = useMemo(() => summarizePotensi(filteredRows), [filteredRows])
+  const summary = useMemo(
+    () => summarizePotensi(filteredRows, filters.jenisPendapatan),
+    [filteredRows, filters.jenisPendapatan],
+  )
+
+  const summaryDelta = useMemo(() => {
+    if (dataFilters.taxYear == null) return getPotensiSummaryDelta(summary, summary)
+    const { year: prevYear, periodId: prevPeriodId } = getPreviousMonthPeriod(
+      dataFilters.taxYear,
+      dataFilters.periodId ?? undefined,
+    )
+    const prevRows = getPotensiRowsForYear(prevYear, prevPeriodId).filter((row) =>
+      matchesPotensiFilters(row, filters),
+    )
+    return getPotensiSummaryDelta(summary, summarizePotensi(prevRows, filters.jenisPendapatan))
+  }, [summary, filters, dataFilters.taxYear, dataFilters.periodId])
 
   return (
     <>
@@ -65,7 +91,7 @@ export default function PotensiPenagihanPage() {
         />
       </PageHeader>
 
-      {dataLoading ? <KpiRowSkeleton /> : <PotensiKpiRow summary={summary} />}
+      {dataLoading ? <KpiRowSkeleton /> : <PotensiKpiRow summary={summary} delta={summaryDelta} />}
 
       {dataLoading ? <ChartCardSkeleton /> : <PotensiFilterBar onApply={setFilters} />}
 

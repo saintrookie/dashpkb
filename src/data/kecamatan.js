@@ -123,35 +123,164 @@ function buildKecamatanListForYear(year) {
 
 const kecamatanListByYear = new Map()
 
-export function getKecamatanListForYear(year = BASELINE_TAX_YEAR) {
+function getBaseKecamatanListForYear(year) {
   if (!kecamatanListByYear.has(year)) {
     kecamatanListByYear.set(year, buildKecamatanListForYear(year))
   }
   return kecamatanListByYear.get(year)
 }
 
+// "Periode Data" picks an as-of cutoff *within* the tax year (only the
+// current tax year has more than one — every earlier year's only period is
+// its own Dec 31). We scale each row's collection-rate-derived figures down
+// to that cutoff using the shape of the year's own monthly trend, anchored
+// so the year's default period reproduces today's unscaled numbers exactly.
+function monthFromPeriodId(periodId) {
+  if (typeof periodId !== 'string' || periodId.length < 7) return null
+  const month = Number(periodId.slice(5, 7))
+  return Number.isInteger(month) && month >= 1 && month <= 12 ? month : null
+}
+
+function defaultPeriodMonth(year) {
+  return year === BASELINE_TAX_YEAR ? Number(dashboardMeta.period.id.slice(5, 7)) : 12
+}
+
+function getPeriodRatio(year, periodId) {
+  if (!periodId || !periodId.startsWith(String(year))) return 1
+  const month = monthFromPeriodId(periodId)
+  const defaultMonth = defaultPeriodMonth(year)
+  if (month == null || month === defaultMonth) return 1
+
+  const trend = getTrendCollectionRateForYear(year)
+  const monthRate = trend[month - 1]?.rate
+  const defaultRate = trend[defaultMonth - 1]?.rate
+  if (!monthRate || !defaultRate) return 1
+  return monthRate / defaultRate
+}
+
+function applyPeriodRatio(rows, ratio) {
+  return rows.map((row) => {
+    const collectionRate = Math.round(Math.min(99.5, Math.max(10, row.collectionRate * ratio)) * 10) / 10
+    const sudahBayar = Math.round((row.jumlahKendaraan * collectionRate) / 100)
+    const belumBayar = row.jumlahKendaraan - sudahBayar
+    const paidRatio = row.sudahBayar > 0 ? sudahBayar / row.sudahBayar : 0
+    const unpaidRatio = row.belumBayar > 0 ? belumBayar / row.belumBayar : 1
+
+    return {
+      ...row,
+      collectionRate,
+      sudahBayar,
+      belumBayar,
+      penerimaanPkb: Math.round(row.penerimaanPkb * paidRatio),
+      opsenPkb: Math.round(row.opsenPkb * paidRatio),
+      potensiBelumBayar: Math.round(row.potensiBelumBayar * unpaidRatio),
+      penerimaanSwdkllj: sudahBayar * SWDKLLJ_PER_VEHICLE,
+    }
+  })
+}
+
+const kecamatanListByYearPeriod = new Map()
+
+export function getKecamatanListForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const baseList = getBaseKecamatanListForYear(year)
+  const ratio = getPeriodRatio(year, periodId)
+  if (ratio === 1) return baseList
+
+  const key = `${year}:${periodId}`
+  if (!kecamatanListByYearPeriod.has(key)) {
+    kecamatanListByYearPeriod.set(key, finalizeList(applyPeriodRatio(baseList, ratio)))
+  }
+  return kecamatanListByYearPeriod.get(key)
+}
+
 function sum(list, key) {
   return list.reduce((acc, row) => acc + row[key], 0)
 }
 
-export function getKecamatanSummaryForYear(year = BASELINE_TAX_YEAR) {
-  const list = getKecamatanListForYear(year)
+export function getKecamatanSummaryForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const list = getKecamatanListForYear(year, periodId)
   const totalKendaraan = sum(list, 'jumlahKendaraan')
   const totalSudahBayar = sum(list, 'sudahBayar')
   const totalBelumBayar = sum(list, 'belumBayar')
+  const penerimaanPkb = sum(list, 'penerimaanPkb')
+  const opsenPkb = sum(list, 'opsenPkb')
+  const potensiBelumBayar = sum(list, 'potensiBelumBayar')
+  const collectionRateTarget = 90
+
+  // Potensi belum bayar isn't tracked per tax type at the source, so it's
+  // split back out here: the SWDKLLJ share uses the same fixed per-vehicle
+  // rate as penerimaanSwdkllj, and the remainder is split PKB/Opsen in
+  // proportion to each type's own share of what's already been collected.
+  const potensiBelumBayarSwdkllj = totalBelumBayar * SWDKLLJ_PER_VEHICLE
+  const potensiBelumBayarPkbOpsen = Math.max(0, potensiBelumBayar - potensiBelumBayarSwdkllj)
+  const pkbShare = penerimaanPkb + opsenPkb > 0 ? penerimaanPkb / (penerimaanPkb + opsenPkb) : 0.5
+  const potensiBelumBayarPkb = Math.round(potensiBelumBayarPkbOpsen * pkbShare)
+  const potensiBelumBayarOpsen = potensiBelumBayarPkbOpsen - potensiBelumBayarPkb
 
   return {
     collectionRate: Math.round((totalSudahBayar / totalKendaraan) * 1000) / 10,
-    collectionRateTarget: 90,
+    collectionRateTarget,
     totalKendaraan,
     totalSudahBayar,
     totalBelumBayar,
-    penerimaanPkb: sum(list, 'penerimaanPkb'),
+    penerimaanPkb,
     penerimaanPkbTarget: 23_250_000_000,
-    opsenPkb: sum(list, 'opsenPkb'),
+    opsenPkb,
     opsenPkbTarget: 14_250_000_000,
-    potensiBelumBayar: sum(list, 'potensiBelumBayar'),
+    potensiBelumBayar,
+    potensiBelumBayarPkb,
+    potensiBelumBayarOpsen,
+    potensiBelumBayarSwdkllj,
     penerimaanSwdkllj: sum(list, 'penerimaanSwdkllj'),
+    // TODO: placeholder pending a confirmed SWDKLLJ budget target from the
+    // city — derived from the fleet size and the existing collection-rate
+    // target so it scales sensibly with the current data instead of a
+    // hardcoded guess.
+    penerimaanSwdklljTarget: Math.round(totalKendaraan * (collectionRateTarget / 100) * SWDKLLJ_PER_VEHICLE),
+  }
+}
+
+// The period one calendar month before the given one, wrapping into the
+// prior tax year when it falls before January (only reachable from 2026's
+// earliest period, since every other year has just a single Dec 31 period).
+export function getPreviousMonthPeriod(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const month = monthFromPeriodId(periodId) ?? defaultPeriodMonth(year)
+  let prevMonth = month - 1
+  let prevYear = year
+  if (prevMonth < 1) {
+    prevMonth = 12
+    prevYear = year - 1
+  }
+  return { year: prevYear, periodId: `${prevYear}-${String(prevMonth).padStart(2, '0')}-01` }
+}
+
+function percentDelta(curr, prev) {
+  if (!prev) return 0
+  return Math.round(((curr - prev) / prev) * 1000) / 10
+}
+
+export function getKecamatanSummaryDelta(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const { year: prevYear, periodId: prevPeriodId } = getPreviousMonthPeriod(year, periodId)
+  const current = getKecamatanSummaryForYear(year, periodId)
+  const previous = getKecamatanSummaryForYear(prevYear, prevPeriodId)
+
+  return {
+    collectionRate: {
+      deltaPercent: percentDelta(current.collectionRate, previous.collectionRate),
+      negative: current.collectionRate < previous.collectionRate,
+    },
+    penerimaanPkb: {
+      deltaPercent: percentDelta(current.penerimaanPkb, previous.penerimaanPkb),
+      negative: current.penerimaanPkb < previous.penerimaanPkb,
+    },
+    opsenPkb: {
+      deltaPercent: percentDelta(current.opsenPkb, previous.opsenPkb),
+      negative: current.opsenPkb < previous.opsenPkb,
+    },
+    potensiBelumBayar: {
+      deltaPercent: percentDelta(current.potensiBelumBayar, previous.potensiBelumBayar),
+      negative: current.potensiBelumBayar > previous.potensiBelumBayar,
+    },
   }
 }
 

@@ -3,8 +3,8 @@ import { BASELINE_TAX_YEAR } from './kecamatan.js'
 
 export const potensiRows = kendaraanList.filter((row) => row.statusBayar === 'Belum Lunas')
 
-export function getPotensiRowsForYear(year = BASELINE_TAX_YEAR) {
-  return getKendaraanListForYear(year).filter((row) => row.statusBayar === 'Belum Lunas')
+export function getPotensiRowsForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  return getKendaraanListForYear(year, periodId).filter((row) => row.statusBayar === 'Belum Lunas')
 }
 
 export const TUNGGAKAN_BUCKETS = [
@@ -17,11 +17,25 @@ export function bucketForTunggakan(years) {
   return TUNGGAKAN_BUCKETS.find((b) => years >= b.min && years <= b.max)
 }
 
-function rowPotensi(row) {
-  return row.pkb + row.opsenPkb + row.swdkllj
+export const REVENUE_TYPES = ['Semua', 'PKB', 'Opsen PKB', 'SWDKLLJ']
+
+// Selecting a revenue type doesn't drop any rows (every unpaid vehicle owes
+// all three at once) — it changes which of the three amounts counts toward
+// "potensi" everywhere below, so e.g. filtering to "Opsen PKB" zeroes out
+// the PKB/SWDKLLJ shares rather than filtering out vehicles.
+function revenueAmounts(row, revenueType) {
+  if (revenueType === 'PKB') return { pkb: row.pkb, opsenPkb: 0, swdkllj: 0 }
+  if (revenueType === 'Opsen PKB') return { pkb: 0, opsenPkb: row.opsenPkb, swdkllj: 0 }
+  if (revenueType === 'SWDKLLJ') return { pkb: 0, opsenPkb: 0, swdkllj: row.swdkllj }
+  return { pkb: row.pkb, opsenPkb: row.opsenPkb, swdkllj: row.swdkllj }
 }
 
-function groupByRegion(rows, keyFn, labelFields) {
+function rowPotensi(row, revenueType) {
+  const amt = revenueAmounts(row, revenueType)
+  return amt.pkb + amt.opsenPkb + amt.swdkllj
+}
+
+function groupByRegion(rows, revenueType, keyFn, labelFields) {
   const groups = new Map()
   for (const row of rows) {
     const key = keyFn(row)
@@ -29,7 +43,7 @@ function groupByRegion(rows, keyFn, labelFields) {
       groups.set(key, { ...labelFields(row), potensi: 0, kendaraan: 0, tunggakanTotal: 0 })
     }
     const g = groups.get(key)
-    g.potensi += rowPotensi(row)
+    g.potensi += rowPotensi(row, revenueType)
     g.kendaraan += 1
     g.tunggakanTotal += row.tunggakanTahun
   }
@@ -42,35 +56,38 @@ function groupByRegion(rows, keyFn, labelFields) {
     .sort((a, b) => b.potensi - a.potensi)
 }
 
-export function summarizePotensi(rows) {
+export function summarizePotensi(rows, revenueType = 'Semua') {
   const total = rows.length
   let potensiPkb = 0
   let potensiOpsenPkb = 0
   let potensiSwdkllj = 0
 
   for (const row of rows) {
-    potensiPkb += row.pkb
-    potensiOpsenPkb += row.opsenPkb
-    potensiSwdkllj += row.swdkllj
+    const amt = revenueAmounts(row, revenueType)
+    potensiPkb += amt.pkb
+    potensiOpsenPkb += amt.opsenPkb
+    potensiSwdkllj += amt.swdkllj
   }
 
   const totalPotensi = potensiPkb + potensiOpsenPkb + potensiSwdkllj
 
   const byKecamatan = groupByRegion(
     rows,
+    revenueType,
     (row) => row.kecamatan,
     (row) => ({ kecamatan: row.kecamatan }),
   )
 
   const byKelurahan = groupByRegion(
     rows,
+    revenueType,
     (row) => `${row.kecamatan}::${row.kelurahan}`,
     (row) => ({ kelurahan: row.kelurahan, kecamatan: row.kecamatan }),
   )
 
   const byTunggakanBucket = TUNGGAKAN_BUCKETS.map((bucket) => {
     const rowsInBucket = rows.filter((row) => bucketForTunggakan(row.tunggakanTahun)?.key === bucket.key)
-    const potensi = rowsInBucket.reduce((a, row) => a + rowPotensi(row), 0)
+    const potensi = rowsInBucket.reduce((a, row) => a + rowPotensi(row, revenueType), 0)
     return {
       ...bucket,
       count: rowsInBucket.length,
@@ -93,4 +110,22 @@ export function summarizePotensi(rows) {
     byKelurahan,
     byTunggakanBucket,
   }
+}
+
+const DELTA_FIELDS = ['totalPotensi', 'potensiPkb', 'potensiOpsenPkb', 'potensiSwdkllj', 'avgPotensiPerKendaraan']
+
+function percentDelta(curr, prev) {
+  if (!prev) return 0
+  return Math.round(((curr - prev) / prev) * 1000) / 10
+}
+
+// Potensi (unpaid) figures are the "bad" direction, so a rise vs the prior
+// month is always flagged negative, unlike collection-rate/revenue metrics.
+export function getPotensiSummaryDelta(current, previous) {
+  return Object.fromEntries(
+    DELTA_FIELDS.map((key) => [
+      key,
+      { deltaPercent: percentDelta(current[key], previous[key]), negative: current[key] > previous[key] },
+    ]),
+  )
 }
