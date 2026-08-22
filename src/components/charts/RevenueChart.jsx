@@ -13,6 +13,7 @@ import WrappedTick from './WrappedTick.jsx'
 import { formatRupiahFull } from '../../lib/format.js'
 import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 
 const TICKS = [0, 5e8, 1e9, 1.5e9, 2e9, 2.5e9]
 
@@ -57,23 +58,28 @@ function CustomTooltip({ active, payload, label }) {
 export default function RevenueChart({ data: revenueChartData }) {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
+  const { opsenOnly } = useRevenueVisibility()
 
   return (
     <Card className="p-4 flex flex-col h-full">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide">
-          PENERIMAAN PKB, OPSEN &amp; SWDKLLJ (Rp)
+          {opsenOnly ? 'PENERIMAAN OPSEN PKB (Rp)' : 'PENERIMAAN PKB, OPSEN & SWDKLLJ (Rp)'}
         </h2>
         <div className="flex items-center gap-3 text-[10.5px] text-slate-500 dark:text-slate-400">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-brand-blue" /> PKB
-          </span>
+          {!opsenOnly && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-brand-blue" /> PKB
+            </span>
+          )}
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm bg-status-green" /> Opsen PKB
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-status-orange" /> SWDKLLJ
-          </span>
+          {!opsenOnly && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-status-orange" /> SWDKLLJ
+            </span>
+          )}
         </div>
       </div>
       <div className="flex-1 min-h-[205px] max-h-[205px]">
@@ -102,14 +108,16 @@ export default function RevenueChart({ data: revenueChartData }) {
               width={54}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: ct.cursorFill }} />
-            <Bar dataKey="pkb" name="PKB" fill="#1668e3" radius={[3, 3, 0, 0]} barSize={16} isAnimationActive={false}>
-              <LabelList
-                dataKey="pkb"
-                position="top"
-                formatter={barLabelFormatter}
-                style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
-              />
-            </Bar>
+            {!opsenOnly && (
+              <Bar dataKey="pkb" name="PKB" fill="#1668e3" radius={[3, 3, 0, 0]} barSize={16} isAnimationActive={false}>
+                <LabelList
+                  dataKey="pkb"
+                  position="top"
+                  formatter={barLabelFormatter}
+                  style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
+                />
+              </Bar>
+            )}
             <Bar dataKey="opsenPkb" name="Opsen PKB" fill="#16a34a" radius={[3, 3, 0, 0]} barSize={16} isAnimationActive={false}>
               <LabelList
                 dataKey="opsenPkb"
@@ -118,14 +126,16 @@ export default function RevenueChart({ data: revenueChartData }) {
                 style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
               />
             </Bar>
-            <Bar dataKey="swdkllj" name="SWDKLLJ" fill="#f2760c" radius={[3, 3, 0, 0]} barSize={16} isAnimationActive={false}>
-              <LabelList
-                dataKey="swdkllj"
-                position="top"
-                formatter={swdklljLabelFormatter}
-                style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
-              />
-            </Bar>
+            {!opsenOnly && (
+              <Bar dataKey="swdkllj" name="SWDKLLJ" fill="#f2760c" radius={[3, 3, 0, 0]} barSize={16} isAnimationActive={false}>
+                <LabelList
+                  dataKey="swdkllj"
+                  position="top"
+                  formatter={swdklljLabelFormatter}
+                  style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
+                />
+              </Bar>
+            )}
           </BarChart>
         </ResponsiveContainer>
       </div>

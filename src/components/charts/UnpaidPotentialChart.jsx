@@ -14,6 +14,7 @@ import WrappedTick from './WrappedTick.jsx'
 import { formatRupiahFull } from '../../lib/format.js'
 import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 
 const TICKS = [0, 1e9, 2e9, 3e9, 4e9]
 
@@ -45,11 +46,13 @@ function CustomTooltip({ active, payload, label }) {
 export default function UnpaidPotentialChart({ data: unpaidPotentialChartData }) {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
+  const { opsenOnly } = useRevenueVisibility()
+  const dataKey = opsenOnly ? 'potentialOpsenPkb' : 'potential'
 
   return (
     <Card className="p-4 flex flex-col h-full">
       <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide mb-2">
-        POTENSI BELUM BAYAR (Rp)
+        {opsenOnly ? 'POTENSI BELUM BAYAR OPSEN PKB (Rp)' : 'POTENSI BELUM BAYAR (Rp)'}
       </h2>
       <div className="flex-1 min-h-[205px] max-h-[205px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -76,9 +79,9 @@ export default function UnpaidPotentialChart({ data: unpaidPotentialChartData })
               width={40}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: ct.cursorFill }} />
-            <Bar dataKey="potential" fill="#7c3aed" radius={[3, 3, 0, 0]} barSize={26} isAnimationActive={false}>
+            <Bar dataKey={dataKey} fill="#7c3aed" radius={[3, 3, 0, 0]} barSize={26} isAnimationActive={false}>
               <LabelList
-                dataKey="potential"
+                dataKey={dataKey}
                 position="top"
                 formatter={barLabelFormatter}
                 style={{ fontSize: 10.5, fontWeight: 600, fill: ct.labelText }}
@@ -90,8 +93,9 @@ export default function UnpaidPotentialChart({ data: unpaidPotentialChartData })
       <div className="flex items-start gap-1.5 mt-2 pt-2 border-t border-surface-border dark:border-white/10 text-[10px] text-slate-500 dark:text-slate-400 leading-snug">
         <Info size={13} className="shrink-0 mt-0.5 text-slate-400 dark:text-slate-500" />
         <span>
-          Potensi belum bayar adalah total PKB + Opsen PKB + SWDKLLJ yang belum
-          dibayarkan.
+          {opsenOnly
+            ? 'Potensi belum bayar adalah Opsen PKB yang belum dibayarkan.'
+            : 'Potensi belum bayar adalah total PKB + Opsen PKB + SWDKLLJ yang belum dibayarkan.'}
         </span>
       </div>
     </Card>

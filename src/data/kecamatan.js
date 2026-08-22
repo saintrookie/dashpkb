@@ -13,10 +13,25 @@ const SWDKLLJ_PER_VEHICLE = 35_000
 // every other year is generated relative to it.
 export const BASELINE_TAX_YEAR = dashboardMeta.taxYear
 
+// Potensi belum bayar isn't tracked per tax type at the source, so it's
+// split back out here: the SWDKLLJ share uses the same fixed per-vehicle
+// rate as penerimaanSwdkllj (capped at the row's own total so it can never
+// exceed it), and the remainder is split PKB/Opsen in proportion to each
+// type's own share of what's already been collected. Exported so any
+// per-row consumer (tables, role-based revenue filtering) can read a type's
+// unpaid share without re-deriving this formula.
+export function splitPotensiByType(row) {
+  const swdkllj = Math.min(row.potensiBelumBayar, row.belumBayar * SWDKLLJ_PER_VEHICLE)
+  const remainder = Math.max(0, row.potensiBelumBayar - swdkllj)
+  const pkbShare = row.penerimaanPkb + row.opsenPkb > 0 ? row.penerimaanPkb / (row.penerimaanPkb + row.opsenPkb) : 0.5
+  const pkb = Math.round(remainder * pkbShare)
+  return { potensiBelumBayarPkb: pkb, potensiBelumBayarOpsen: remainder - pkb, potensiBelumBayarSwdkllj: swdkllj }
+}
+
 function finalizeList(rows) {
   return rows
     .sort((a, b) => b.collectionRate - a.collectionRate)
-    .map((row, index) => ({ ...row, no: index + 1 }))
+    .map((row, index) => ({ ...row, no: index + 1, ...splitPotensiByType(row) }))
 }
 
 const baselineRows = realKecamatanData
@@ -146,15 +161,12 @@ export function getKecamatanSummaryForYear(year = BASELINE_TAX_YEAR, periodId = 
   const potensiBelumBayar = sum(list, 'potensiBelumBayar')
   const collectionRateTarget = 90
 
-  // Potensi belum bayar isn't tracked per tax type at the source, so it's
-  // split back out here: the SWDKLLJ share uses the same fixed per-vehicle
-  // rate as penerimaanSwdkllj, and the remainder is split PKB/Opsen in
-  // proportion to each type's own share of what's already been collected.
-  const potensiBelumBayarSwdkllj = totalBelumBayar * SWDKLLJ_PER_VEHICLE
-  const potensiBelumBayarPkbOpsen = Math.max(0, potensiBelumBayar - potensiBelumBayarSwdkllj)
-  const pkbShare = penerimaanPkb + opsenPkb > 0 ? penerimaanPkb / (penerimaanPkb + opsenPkb) : 0.5
-  const potensiBelumBayarPkb = Math.round(potensiBelumBayarPkbOpsen * pkbShare)
-  const potensiBelumBayarOpsen = potensiBelumBayarPkbOpsen - potensiBelumBayarPkb
+  // Each row already carries its own PKB/Opsen/SWDKLLJ potensi split
+  // (finalizeList), so the aggregate is just their sum — keeps the
+  // city-wide split exactly consistent with what any per-row table shows.
+  const potensiBelumBayarPkb = sum(list, 'potensiBelumBayarPkb')
+  const potensiBelumBayarOpsen = sum(list, 'potensiBelumBayarOpsen')
+  const potensiBelumBayarSwdkllj = sum(list, 'potensiBelumBayarSwdkllj')
 
   return {
     collectionRate: Math.round((totalSudahBayar / totalKendaraan) * 1000) / 10,

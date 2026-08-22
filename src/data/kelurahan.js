@@ -1,5 +1,11 @@
 import kelurahanGeo from './geo/pangkalpinang-kelurahan.json'
-import { getKecamatanListForYear, BASELINE_TAX_YEAR, getPeriodRatio, applyPeriodRatio } from './kecamatan.js'
+import {
+  getKecamatanListForYear,
+  BASELINE_TAX_YEAR,
+  getPeriodRatio,
+  applyPeriodRatio,
+  splitPotensiByType,
+} from './kecamatan.js'
 import realKelurahanData from './mock-api/kelurahan-real-2026.json'
 import { seededRandom, mulberry32, seedFromString } from '../lib/yearlyTrend.js'
 import { complianceStatusFromRate } from '../lib/complianceStatus.js'
@@ -18,7 +24,12 @@ const SWDKLLJ_PER_VEHICLE = 35_000
 function finalizeKelurahanList(rows) {
   return rows
     .sort((a, b) => b.collectionRate - a.collectionRate)
-    .map((row, index) => ({ ...row, no: index + 1, status: complianceStatusFromRate(row.collectionRate) }))
+    .map((row, index) => ({
+      ...row,
+      no: index + 1,
+      status: complianceStatusFromRate(row.collectionRate),
+      ...splitPotensiByType(row),
+    }))
 }
 
 // The baseline tax year's per-kelurahan figures are real aggregates (summed

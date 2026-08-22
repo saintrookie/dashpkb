@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Inbox } from 'lucide-react'
 import Card from '../ui/Card.jsx'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatNumberID, formatPercent, formatRupiahAuto } from '../../lib/format.js'
 import { kecamatanSlug, kelurahanSlug } from '../../lib/regionLookup.js'
 
@@ -21,6 +22,7 @@ const TONE = {
 }
 
 export default function TopKelurahanRankTable({ title, rows, tone = 'positive', showMoreLink = true }) {
+  const { opsenOnly } = useRevenueVisibility()
   return (
     <Card className="p-4 flex flex-col h-full min-w-0">
       <h2 className={`text-[12.5px] font-bold tracking-wide mb-3 ${TONE[tone]}`}>{title}</h2>
@@ -42,10 +44,10 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
                 Collection Rate (PKB)
               </th>
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
-                Penerimaan PKB
+                {opsenOnly ? 'Penerimaan Opsen PKB' : 'Penerimaan PKB'}
               </th>
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
-                Potensi Belum Bayar
+                {opsenOnly ? 'Potensi Belum Bayar Opsen PKB' : 'Potensi Belum Bayar'}
               </th>
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
                 Jumlah Kendaraan
@@ -90,10 +92,10 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
                   </div>
                 </td>
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatRupiahAuto(row.penerimaanPkb)}
+                  {formatRupiahAuto(opsenOnly ? row.opsenPkb : row.penerimaanPkb)}
                 </td>
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatRupiahAuto(row.potensiBelumBayar)}
+                  {formatRupiahAuto(opsenOnly ? row.potensiBelumBayarOpsen : row.potensiBelumBayar)}
                 </td>
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
                   {formatNumberID(row.jumlahKendaraan)}

@@ -1,13 +1,15 @@
 import { DollarSign, Wallet, Landmark, Users, Car } from 'lucide-react'
 import KpiCard from '../kpi/KpiCard.jsx'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatNumberID, formatPercent, formatRupiahAuto, formatRupiahFull, formatSignedPercent } from '../../lib/format.js'
 
 export default function PotensiKpiRow({ summary, delta }) {
   const s = summary
   const d = delta
+  const { opsenOnly } = useRevenueVisibility()
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+    <div className={`grid grid-cols-2 ${opsenOnly ? 'sm:grid-cols-3' : 'sm:grid-cols-3 lg:grid-cols-5'} gap-3 mb-4`}>
       <KpiCard
         icon={DollarSign}
         color="blue"
@@ -18,16 +20,18 @@ export default function PotensiKpiRow({ summary, delta }) {
         deltaLabel="dari bulan lalu"
         negative={d.totalPotensi.negative}
       />
-      <KpiCard
-        icon={Wallet}
-        color="green"
-        label="POTENSI PKB"
-        value={formatRupiahAuto(s.potensiPkb)}
-        target={`${formatPercent(s.potensiPkbPercent)} dari total potensi`}
-        delta={formatSignedPercent(d.potensiPkb.deltaPercent)}
-        deltaLabel="dari bulan lalu"
-        negative={d.potensiPkb.negative}
-      />
+      {!opsenOnly && (
+        <KpiCard
+          icon={Wallet}
+          color="green"
+          label="POTENSI PKB"
+          value={formatRupiahAuto(s.potensiPkb)}
+          target={`${formatPercent(s.potensiPkbPercent)} dari total potensi`}
+          delta={formatSignedPercent(d.potensiPkb.deltaPercent)}
+          deltaLabel="dari bulan lalu"
+          negative={d.potensiPkb.negative}
+        />
+      )}
       <KpiCard
         icon={Landmark}
         color="purple"
@@ -38,16 +42,18 @@ export default function PotensiKpiRow({ summary, delta }) {
         deltaLabel="dari bulan lalu"
         negative={d.potensiOpsenPkb.negative}
       />
-      <KpiCard
-        icon={Users}
-        color="orange"
-        label="POTENSI SWDKLLJ"
-        value={formatRupiahAuto(s.potensiSwdkllj)}
-        target={`${formatPercent(s.potensiSwdklljPercent)} dari total potensi`}
-        delta={formatSignedPercent(d.potensiSwdkllj.deltaPercent)}
-        deltaLabel="dari bulan lalu"
-        negative={d.potensiSwdkllj.negative}
-      />
+      {!opsenOnly && (
+        <KpiCard
+          icon={Users}
+          color="orange"
+          label="POTENSI SWDKLLJ"
+          value={formatRupiahAuto(s.potensiSwdkllj)}
+          target={`${formatPercent(s.potensiSwdklljPercent)} dari total potensi`}
+          delta={formatSignedPercent(d.potensiSwdkllj.deltaPercent)}
+          deltaLabel="dari bulan lalu"
+          negative={d.potensiSwdkllj.negative}
+        />
+      )}
       <KpiCard
         icon={Car}
         color="cyan"

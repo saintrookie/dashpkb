@@ -323,7 +323,11 @@ function buildCharts(list) {
   const unpaidPotential = [...list]
     .sort((a, b) => b.unpaidPotential - a.unpaidPotential)
     .slice(0, 5)
-    .map((o) => ({ opd: o.name, potential: o.unpaidPotential }))
+    .map((o) => ({
+      opd: o.name,
+      potential: o.unpaidPotential,
+      potentialOpsenPkb: o.billing.opsenPkb - o.payment.opsenPkb,
+    }))
 
   return { collectionRate, revenue, unpaidPotential }
 }

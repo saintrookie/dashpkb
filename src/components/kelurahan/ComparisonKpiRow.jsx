@@ -1,6 +1,7 @@
 import { TrendingUp, Wallet, Landmark, ShieldCheck, Car } from 'lucide-react'
 import KpiCard from '../kpi/KpiCard.jsx'
 import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatNumberID, formatPercent, formatRupiahCompact, formatSignedPercent } from '../../lib/format.js'
 
 function potensiFooter(label, value) {
@@ -16,9 +17,10 @@ function potensiFooter(label, value) {
 
 export default function ComparisonKpiRow() {
   const { summary: s, summaryDelta: d } = useKecamatanData()
+  const { opsenOnly } = useRevenueVisibility()
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+    <div className={`grid grid-cols-2 ${opsenOnly ? 'sm:grid-cols-3' : 'sm:grid-cols-3 lg:grid-cols-5'} gap-3 mb-4`}>
       <KpiCard
         icon={TrendingUp}
         color="blue"
@@ -30,15 +32,17 @@ export default function ComparisonKpiRow() {
         deltaLabel="dari bulan lalu"
         negative={d.collectionRate.negative}
       />
-      <KpiCard
-        icon={Wallet}
-        color="green"
-        label="PENERIMAAN PKB"
-        value={`Rp ${formatRupiahCompact(s.penerimaanPkb, 2)}`}
-        target={`Target PKB : Rp ${formatRupiahCompact(s.penerimaanPkbTarget, 2)}`}
-        progress={(s.penerimaanPkb / s.penerimaanPkbTarget) * 100}
-        footer={potensiFooter('PKB', s.potensiBelumBayarPkb)}
-      />
+      {!opsenOnly && (
+        <KpiCard
+          icon={Wallet}
+          color="green"
+          label="PENERIMAAN PKB"
+          value={`Rp ${formatRupiahCompact(s.penerimaanPkb, 2)}`}
+          target={`Target PKB : Rp ${formatRupiahCompact(s.penerimaanPkbTarget, 2)}`}
+          progress={(s.penerimaanPkb / s.penerimaanPkbTarget) * 100}
+          footer={potensiFooter('PKB', s.potensiBelumBayarPkb)}
+        />
+      )}
       <KpiCard
         icon={Landmark}
         color="purple"
@@ -48,15 +52,17 @@ export default function ComparisonKpiRow() {
         progress={(s.opsenPkb / s.opsenPkbTarget) * 100}
         footer={potensiFooter('Opsen PKB', s.potensiBelumBayarOpsen)}
       />
-      <KpiCard
-        icon={ShieldCheck}
-        color="orange"
-        label="PENERIMAAN SWDKLLJ"
-        value={`Rp ${formatRupiahCompact(s.penerimaanSwdkllj, 2)}`}
-        target={`Target SWDKLLJ : Rp ${formatRupiahCompact(s.penerimaanSwdklljTarget, 2)}`}
-        progress={(s.penerimaanSwdkllj / s.penerimaanSwdklljTarget) * 100}
-        footer={potensiFooter('SWDKLLJ', s.potensiBelumBayarSwdkllj)}
-      />
+      {!opsenOnly && (
+        <KpiCard
+          icon={ShieldCheck}
+          color="orange"
+          label="PENERIMAAN SWDKLLJ"
+          value={`Rp ${formatRupiahCompact(s.penerimaanSwdkllj, 2)}`}
+          target={`Target SWDKLLJ : Rp ${formatRupiahCompact(s.penerimaanSwdklljTarget, 2)}`}
+          progress={(s.penerimaanSwdkllj / s.penerimaanSwdklljTarget) * 100}
+          footer={potensiFooter('SWDKLLJ', s.potensiBelumBayarSwdkllj)}
+        />
+      )}
       <KpiCard
         icon={Car}
         color="cyan"

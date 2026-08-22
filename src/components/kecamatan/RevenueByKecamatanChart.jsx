@@ -18,6 +18,7 @@ import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
 import { useMapStore } from '../../store/mapStore.js'
 import { kecamatanGeoByName } from '../../lib/regionLookup.js'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 
 const TICKS = [0, 1e9, 2e9, 3e9, 4e9, 5e9]
 
@@ -51,6 +52,7 @@ export default function RevenueByKecamatanChart() {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
   const { list: kecamatanList } = useKecamatanData()
+  const { opsenOnly } = useRevenueVisibility()
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)
@@ -74,12 +76,14 @@ export default function RevenueByKecamatanChart() {
     <Card className="p-4 flex flex-col h-full">
       <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
         <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide">
-          REKAP KEUANGAN (PKB &amp; OPSEN PKB)
+          {opsenOnly ? 'REKAP KEUANGAN (OPSEN PKB)' : 'REKAP KEUANGAN (PKB & OPSEN PKB)'}
         </h2>
         <div className="flex items-center gap-3 text-[10.5px] text-slate-500 dark:text-slate-400">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-brand-blue" /> Penerimaan PKB
-          </span>
+          {!opsenOnly && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-brand-blue" /> Penerimaan PKB
+            </span>
+          )}
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm bg-status-purple" /> Opsen PKB
           </span>
@@ -107,31 +111,33 @@ export default function RevenueByKecamatanChart() {
               width={56}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: ct.cursorFill }} />
-            <Bar
-              dataKey="pkb"
-              name="Penerimaan PKB"
-              radius={[3, 3, 0, 0]}
-              barSize={16}
-              isAnimationActive={false}
-              onClick={handleBarClick}
-              cursor="pointer"
-            >
-              {data.map((entry) => (
-                <Cell
-                  key={entry.regionId}
-                  fill="#1668e3"
-                  fillOpacity={selectedEntityId && selectedEntityId !== entry.regionId ? 0.35 : 1}
-                  stroke={selectedEntityId === entry.regionId ? '#0b1c4a' : 'transparent'}
-                  strokeWidth={selectedEntityId === entry.regionId ? 1.5 : 0}
-                />
-              ))}
-              <LabelList
+            {!opsenOnly && (
+              <Bar
                 dataKey="pkb"
-                position="top"
-                formatter={barLabelFormatter}
-                style={{ fontSize: 9.5, fontWeight: 600, fill: ct.labelText }}
-              />
-            </Bar>
+                name="Penerimaan PKB"
+                radius={[3, 3, 0, 0]}
+                barSize={16}
+                isAnimationActive={false}
+                onClick={handleBarClick}
+                cursor="pointer"
+              >
+                {data.map((entry) => (
+                  <Cell
+                    key={entry.regionId}
+                    fill="#1668e3"
+                    fillOpacity={selectedEntityId && selectedEntityId !== entry.regionId ? 0.35 : 1}
+                    stroke={selectedEntityId === entry.regionId ? '#0b1c4a' : 'transparent'}
+                    strokeWidth={selectedEntityId === entry.regionId ? 1.5 : 0}
+                  />
+                ))}
+                <LabelList
+                  dataKey="pkb"
+                  position="top"
+                  formatter={barLabelFormatter}
+                  style={{ fontSize: 9.5, fontWeight: 600, fill: ct.labelText }}
+                />
+              </Bar>
+            )}
             <Bar
               dataKey="opsen"
               name="Opsen PKB"

@@ -16,7 +16,11 @@ const REPORTING_STATUS_LABELS = { on_time: 'Tepat Waktu', late: 'Terlambat' }
 // capped to a representative slice rather than every synthetic record.
 const MAX_DETAIL_ROWS = 1000
 
-function col(label, value, { numeric = false, format } = {}) {
+// Exported for callers that build their own column list against data
+// they've already fetched/filtered (e.g. a table's own "Export Excel"
+// button) rather than going through generateReportFile()'s report-type
+// switch, which always re-fetches its own copy of the data.
+export function col(label, value, { numeric = false, format } = {}) {
   return { label, value, numeric, format: format ?? ((v) => (v == null ? '' : String(v))) }
 }
 
@@ -25,7 +29,7 @@ async function getOpdRows(taxYear) {
   return res.success ? res.data : []
 }
 
-async function getReportData(reportType, taxYear, periodId) {
+async function getReportData(reportType, taxYear, periodId, opsenOnly = false) {
   switch (reportType) {
     case 'Ringkasan Kepatuhan OPD': {
       const rows = await getOpdRows(taxYear)
@@ -40,12 +44,16 @@ async function getReportData(reportType, taxYear, periodId) {
           col('Sudah Bayar', (r) => r.paidVehicleCount, { numeric: true, format: formatNumberID }),
           col('Belum Bayar', (r) => r.unpaidVehicleCount, { numeric: true, format: formatNumberID }),
           col('Collection Rate (%)', (r) => r.collectionRate, { numeric: true, format: (v) => formatPercent(v, 1) }),
-          col('Penerimaan PKB', (r) => r.payment.pkb, { numeric: true, format: formatRupiahFull }),
+          !opsenOnly && col('Penerimaan PKB', (r) => r.payment.pkb, { numeric: true, format: formatRupiahFull }),
           col('Opsen PKB', (r) => r.payment.opsenPkb, { numeric: true, format: formatRupiahFull }),
-          col('Potensi Belum Bayar', (r) => r.unpaidPotential, { numeric: true, format: formatRupiahFull }),
+          col(
+            opsenOnly ? 'Potensi Belum Bayar Opsen PKB' : 'Potensi Belum Bayar',
+            (r) => (opsenOnly ? r.billing.opsenPkb - r.payment.opsenPkb : r.unpaidPotential),
+            { numeric: true, format: formatRupiahFull },
+          ),
           col('Status Kepatuhan', (r) => complianceStatusLabel(r.complianceStatus)),
           col('Status Lapor', (r) => REPORTING_STATUS_LABELS[r.reportingStatus] ?? r.reportingStatus),
-        ],
+        ].filter(Boolean),
       }
     }
 
@@ -61,11 +69,16 @@ async function getReportData(reportType, taxYear, periodId) {
           col('Sudah Bayar', (r) => r.sudahBayar, { numeric: true, format: formatNumberID }),
           col('Belum Bayar', (r) => r.belumBayar, { numeric: true, format: formatNumberID }),
           col('Collection Rate (%)', (r) => r.collectionRate, { numeric: true, format: (v) => formatPercent(v, 1) }),
-          col('Penerimaan PKB', (r) => r.penerimaanPkb, { numeric: true, format: formatRupiahFull }),
+          !opsenOnly && col('Penerimaan PKB', (r) => r.penerimaanPkb, { numeric: true, format: formatRupiahFull }),
           col('Opsen PKB', (r) => r.opsenPkb, { numeric: true, format: formatRupiahFull }),
-          col('Potensi Belum Bayar', (r) => r.potensiBelumBayar, { numeric: true, format: formatRupiahFull }),
-          col('Penerimaan SWDKLLJ', (r) => r.penerimaanSwdkllj, { numeric: true, format: formatRupiahFull }),
-        ],
+          col(
+            opsenOnly ? 'Potensi Belum Bayar Opsen PKB' : 'Potensi Belum Bayar',
+            (r) => (opsenOnly ? r.potensiBelumBayarOpsen : r.potensiBelumBayar),
+            { numeric: true, format: formatRupiahFull },
+          ),
+          !opsenOnly &&
+            col('Penerimaan SWDKLLJ', (r) => r.penerimaanSwdkllj, { numeric: true, format: formatRupiahFull }),
+        ].filter(Boolean),
       }
     }
 
@@ -82,11 +95,15 @@ async function getReportData(reportType, taxYear, periodId) {
           col('Sudah Bayar', (r) => r.sudahBayar, { numeric: true, format: formatNumberID }),
           col('Belum Bayar', (r) => r.belumBayar, { numeric: true, format: formatNumberID }),
           col('Collection Rate (%)', (r) => r.collectionRate, { numeric: true, format: (v) => formatPercent(v, 1) }),
-          col('Penerimaan PKB', (r) => r.penerimaanPkb, { numeric: true, format: formatRupiahFull }),
+          !opsenOnly && col('Penerimaan PKB', (r) => r.penerimaanPkb, { numeric: true, format: formatRupiahFull }),
           col('Opsen PKB', (r) => r.opsenPkb, { numeric: true, format: formatRupiahFull }),
-          col('Potensi Belum Bayar', (r) => r.potensiBelumBayar, { numeric: true, format: formatRupiahFull }),
+          col(
+            opsenOnly ? 'Potensi Belum Bayar Opsen PKB' : 'Potensi Belum Bayar',
+            (r) => (opsenOnly ? r.potensiBelumBayarOpsen : r.potensiBelumBayar),
+            { numeric: true, format: formatRupiahFull },
+          ),
           col('Status', (r) => complianceStatusLabel(r.status)),
-        ],
+        ].filter(Boolean),
       }
     }
 
@@ -157,7 +174,7 @@ function toCsv(columns, rows) {
   return '﻿' + [header, ...lines].join('\r\n')
 }
 
-async function toXlsxBlob(title, columns, rows) {
+export async function toXlsxBlob(title, columns, rows) {
   const workbook = new ExcelJS.Workbook()
   const sheet = workbook.addWorksheet(title.slice(0, 31) || 'Laporan')
   sheet.columns = columns.map((c) => ({ header: c.label, key: c.label, width: Math.max(12, c.label.length + 4) }))
@@ -193,15 +210,15 @@ function toPdfBlob({ title, meta, columns, rows }) {
 
 const FORMAT_EXT = { pdf: 'pdf', xlsx: 'xlsx', csv: 'csv' }
 
-function slugify(text) {
+export function slugify(text) {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 }
 
-export async function generateReportFile({ reportType, format, taxYear, periodId, periodLabel }) {
-  const { title, columns, rows, note } = await getReportData(reportType, taxYear, periodId)
+export async function generateReportFile({ reportType, format, taxYear, periodId, periodLabel, opsenOnly = false }) {
+  const { title, columns, rows, note } = await getReportData(reportType, taxYear, periodId, opsenOnly)
   const meta = [`Tahun Pajak: ${taxYear}`, `Periode Data: ${periodLabel ?? '-'}`, note].filter(Boolean)
 
   let blob

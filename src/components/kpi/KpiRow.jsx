@@ -1,6 +1,7 @@
 import { TrendingUp, Wallet, Landmark, ShieldCheck, Users } from 'lucide-react'
 import KpiCard from './KpiCard.jsx'
 import KpiRowSkeleton from './KpiRowSkeleton.jsx'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatPercent, formatRupiahCompact } from '../../lib/format.js'
 
 const CARDS = [
@@ -22,6 +23,7 @@ const CARDS = [
     formatTarget: (t) => `Target Rp ${formatRupiahCompact(t, 2)}`,
     potensiLabel: 'PKB',
     potensiKey: 'unpaidPkb',
+    revenue: true,
   },
   {
     key: 'totalOpsen',
@@ -42,6 +44,7 @@ const CARDS = [
     formatTarget: (t) => `Target Rp ${formatRupiahCompact(t, 2)}`,
     potensiLabel: 'SWDKLLJ',
     potensiKey: 'unpaidSwdkllj',
+    revenue: true,
   },
   {
     key: 'onTimeReporting',
@@ -55,6 +58,8 @@ const CARDS = [
 ]
 
 export default function KpiRow({ data, loading, error }) {
+  const { opsenOnly } = useRevenueVisibility()
+
   if (loading) return <KpiRowSkeleton />
 
   if (error || !data) {
@@ -65,9 +70,11 @@ export default function KpiRow({ data, loading, error }) {
     )
   }
 
+  const cards = CARDS.filter((c) => !opsenOnly || !c.revenue)
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
-      {CARDS.map(({ key, icon, color, label, deltaLabel, formatValue, formatTarget, potensiLabel, potensiKey }) => {
+    <div className={`grid grid-cols-2 ${opsenOnly ? 'sm:grid-cols-3' : 'sm:grid-cols-3 lg:grid-cols-5'} gap-3 mb-4`}>
+      {cards.map(({ key, icon, color, label, deltaLabel, formatValue, formatTarget, potensiLabel, potensiKey }) => {
         const kpi = data.kpi[key]
         const sign = kpi.deltaPercent >= 0 ? '+' : '-'
         const delta = `${sign}${formatPercent(Math.abs(kpi.deltaPercent), 2)}`
