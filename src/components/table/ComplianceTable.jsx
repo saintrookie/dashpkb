@@ -21,6 +21,7 @@ const COLUMNS = [
   { key: 'collectionRate', label: 'Collection Rate (%)', align: 'right' },
   { key: 'penerimaanPkb', label: 'Penerimaan PKB (Rp)', align: 'right' },
   { key: 'opsenPkb', label: 'Opsen PKB (Rp)', align: 'right' },
+  { key: 'swdkllj', label: 'SWDKLLJ (Rp)', align: 'right' },
   { key: 'potensiBelumBayar', label: 'Potensi Belum Bayar (Rp)', align: 'right' },
   { key: 'status', label: 'Status Kepatuhan', align: 'center' },
 ]
@@ -81,7 +82,7 @@ export default function ComplianceTable({ taxYear }) {
       )}
 
       <div className="overflow-x-auto -mx-4 px-4">
-        <table className="w-full min-w-[960px] border-collapse text-left">
+        <table className="w-full min-w-[1080px] border-collapse text-left">
           <caption className="sr-only">
             Daftar kepatuhan pembayaran PKB, Opsen PKB, dan SWDKLLJ per OPD
           </caption>
@@ -149,6 +150,9 @@ export default function ComplianceTable({ taxYear }) {
                   </td>
                   <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right">
                     {formatNumberID(row.payment.opsenPkb)}
+                  </td>
+                  <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right">
+                    {formatNumberID(row.payment.swdkllj)}
                   </td>
                   <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right">
                     {formatNumberID(row.unpaidPotential)}

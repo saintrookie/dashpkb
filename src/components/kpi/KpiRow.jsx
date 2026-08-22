@@ -1,4 +1,4 @@
-import { TrendingUp, Wallet, Landmark, AlertTriangle, Users } from 'lucide-react'
+import { TrendingUp, Wallet, Landmark, ShieldCheck, Users } from 'lucide-react'
 import KpiCard from './KpiCard.jsx'
 import KpiRowSkeleton from './KpiRowSkeleton.jsx'
 import { formatPercent, formatRupiahCompact } from '../../lib/format.js'
@@ -18,27 +18,30 @@ const CARDS = [
     icon: Wallet,
     color: 'green',
     label: 'TOTAL PENERIMAAN PKB OPD',
-    deltaLabel: 'dari target',
     formatValue: (v) => `Rp ${formatRupiahCompact(v, 2)}`,
     formatTarget: (t) => `Target Rp ${formatRupiahCompact(t, 2)}`,
+    potensiLabel: 'PKB',
+    potensiKey: 'unpaidPkb',
   },
   {
     key: 'totalOpsen',
     icon: Landmark,
     color: 'purple',
     label: 'TOTAL OPSEN PKB OPD',
-    deltaLabel: 'dari target',
     formatValue: (v) => `Rp ${formatRupiahCompact(v, 2)}`,
     formatTarget: (t) => `Target Rp ${formatRupiahCompact(t, 2)}`,
+    potensiLabel: 'Opsen PKB',
+    potensiKey: 'unpaidOpsenPkb',
   },
   {
-    key: 'unpaidPotential',
-    icon: AlertTriangle,
+    key: 'totalSwdkllj',
+    icon: ShieldCheck,
     color: 'orange',
-    label: 'POTENSI BELUM BAYAR OPD',
-    deltaLabel: 'dari target',
+    label: 'TOTAL PENERIMAAN SWDKLLJ',
     formatValue: (v) => `Rp ${formatRupiahCompact(v, 2)}`,
-    formatTarget: (t) => `Target < Rp ${formatRupiahCompact(t, 2)}`,
+    formatTarget: (t) => `Target Rp ${formatRupiahCompact(t, 2)}`,
+    potensiLabel: 'SWDKLLJ',
+    potensiKey: 'unpaidSwdkllj',
   },
   {
     key: 'onTimeReporting',
@@ -64,7 +67,7 @@ export default function KpiRow({ data, loading, error }) {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
-      {CARDS.map(({ key, icon, color, label, deltaLabel, formatValue, formatTarget }) => {
+      {CARDS.map(({ key, icon, color, label, deltaLabel, formatValue, formatTarget, potensiLabel, potensiKey }) => {
         const kpi = data.kpi[key]
         const sign = kpi.deltaPercent >= 0 ? '+' : '-'
         const delta = `${sign}${formatPercent(Math.abs(kpi.deltaPercent), 2)}`
@@ -76,9 +79,21 @@ export default function KpiRow({ data, loading, error }) {
             label={label}
             value={formatValue(kpi.value)}
             target={formatTarget(kpi.target, kpi)}
-            delta={delta}
-            deltaLabel={deltaLabel}
+            delta={potensiKey ? undefined : delta}
+            deltaLabel={potensiKey ? undefined : deltaLabel}
             negative={kpi.negative}
+            footer={
+              potensiKey ? (
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <div>
+                    Potensi Belum Bayar {potensiLabel} :{' '}
+                    <span className="font-semibold text-navy-900 dark:text-white">
+                      Rp {formatRupiahCompact(data.summary[potensiKey], 2)}
+                    </span>
+                  </div>
+                </div>
+              ) : undefined
+            }
           />
         )
       })}

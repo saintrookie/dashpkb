@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Calendar } from 'lucide-react'
 import PageHeader from '../components/layout/PageHeader.jsx'
 import FilterCard from '../components/filters/FilterCard.jsx'
@@ -17,15 +17,9 @@ import { useKendaraanListForActiveYear } from '../hooks/useYearlyLocalData.js'
 import { summarizeKendaraan } from '../data/kendaraan.js'
 
 export default function DataKendaraanPage() {
-  const [dataLoading, setDataLoading] = useState(true)
   const [filters, setFilters] = useState(DEFAULT_VEHICLE_FILTERS)
   const dataFilters = useDataFilters()
-  const kendaraanList = useKendaraanListForActiveYear()
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDataLoading(false), 900)
-    return () => window.clearTimeout(timer)
-  }, [])
+  const { list: kendaraanList, loading: dataLoading } = useKendaraanListForActiveYear()
 
   const filteredRows = useMemo(() => {
     return kendaraanList.filter((row) => {

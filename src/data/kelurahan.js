@@ -1,17 +1,64 @@
 import kelurahanGeo from './geo/pangkalpinang-kelurahan.json'
-import { getKecamatanListForYear, BASELINE_TAX_YEAR } from './kecamatan.js'
+import { getKecamatanListForYear, BASELINE_TAX_YEAR, getPeriodRatio, applyPeriodRatio } from './kecamatan.js'
+import realKelurahanData from './mock-api/kelurahan-real-2026.json'
 import { seededRandom, mulberry32, seedFromString } from '../lib/yearlyTrend.js'
 import { complianceStatusFromRate } from '../lib/complianceStatus.js'
 
 const villagesByKecamatan = new Map()
+const villagesByName = new Map()
 for (const feature of kelurahanGeo.features) {
-  const { kecamatanName } = feature.properties
+  const { kecamatanName, name } = feature.properties
   if (!villagesByKecamatan.has(kecamatanName)) villagesByKecamatan.set(kecamatanName, [])
   villagesByKecamatan.get(kecamatanName).push(feature.properties)
+  villagesByName.set(name, feature.properties)
 }
 
 const SWDKLLJ_PER_VEHICLE = 35_000
 
+function finalizeKelurahanList(rows) {
+  return rows
+    .sort((a, b) => b.collectionRate - a.collectionRate)
+    .map((row, index) => ({ ...row, no: index + 1, status: complianceStatusFromRate(row.collectionRate) }))
+}
+
+// The baseline tax year's per-kelurahan figures are real aggregates (summed
+// from data-kendaraan.csv, joined against the real GeoJSON boundaries by
+// name — see scripts/build-real-kendaraan.mjs), not derived by splitting the
+// parent kecamatan's total across villages with random jitter.
+function buildRealKelurahanBaseRows() {
+  return realKelurahanData.map((row) => {
+    const village = villagesByName.get(row.kelurahan)
+    return {
+      id: village?.id ?? `${row.kecamatan}-${row.kelurahan}`,
+      kelurahan: row.kelurahan,
+      kecamatan: row.kecamatan,
+      kecamatanId: village?.kecamatanId,
+      latitude: village?.centroid?.[0],
+      longitude: village?.centroid?.[1],
+      bbox: village?.bbox,
+      jumlahKendaraan: row.jumlahKendaraan,
+      collectionRate: row.collectionRate,
+      sudahBayar: row.sudahBayar,
+      belumBayar: row.belumBayar,
+      penerimaanPkb: row.penerimaanPkb,
+      opsenPkb: row.opsenPkb,
+      potensiBelumBayar: row.potensiBelumBayar,
+      penerimaanSwdkllj: row.penerimaanSwdkllj,
+    }
+  })
+}
+
+let realKelurahanBaseRows = null
+function getRealKelurahanBaseRows() {
+  if (!realKelurahanBaseRows) {
+    realKelurahanBaseRows = buildRealKelurahanBaseRows()
+  }
+  return realKelurahanBaseRows
+}
+
+// Every other tax year still splits that year's synthetic kecamatan totals
+// across villages with deterministic jitter — there's no real historical
+// per-kelurahan data to anchor them to.
 function buildKelurahanRows(kecamatanList, year) {
   const rows = []
 
@@ -23,9 +70,7 @@ function buildKelurahanRows(kecamatanList, year) {
     const totalWeight = weights.reduce((a, b) => a + b, 0)
 
     villages.forEach((village, i) => {
-      // Baseline year keeps its exact original (unsuffixed) seed so the
-      // default view stays byte-identical to before this was year-aware.
-      const seedKey = year === BASELINE_TAX_YEAR ? `${village.id}:stats` : `${village.id}:stats:${year}`
+      const seedKey = `${village.id}:stats:${year}`
       const rand = seededRandom(seedKey)
       const share = weights[i] / totalWeight
       const jumlahKendaraan = Math.max(180, Math.round(kec.jumlahKendaraan * share))
@@ -54,12 +99,11 @@ function buildKelurahanRows(kecamatanList, year) {
         opsenPkb,
         potensiBelumBayar,
         penerimaanSwdkllj,
-        status: complianceStatusFromRate(collectionRate),
       })
     })
   }
 
-  return rows.sort((a, b) => b.collectionRate - a.collectionRate).map((row, index) => ({ ...row, no: index + 1 }))
+  return rows
 }
 
 const kelurahanListByYearPeriod = new Map()
@@ -67,7 +111,16 @@ const kelurahanListByYearPeriod = new Map()
 export function getKelurahanListForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
   const key = `${year}:${periodId ?? ''}`
   if (!kelurahanListByYearPeriod.has(key)) {
-    kelurahanListByYearPeriod.set(key, buildKelurahanRows(getKecamatanListForYear(year, periodId), year))
+    if (year === BASELINE_TAX_YEAR) {
+      const ratio = getPeriodRatio(year, periodId)
+      const base = getRealKelurahanBaseRows()
+      kelurahanListByYearPeriod.set(key, finalizeKelurahanList(ratio === 1 ? base : applyPeriodRatio(base, ratio)))
+    } else {
+      kelurahanListByYearPeriod.set(
+        key,
+        finalizeKelurahanList(buildKelurahanRows(getKecamatanListForYear(year, periodId), year)),
+      )
+    }
   }
   return kelurahanListByYearPeriod.get(key)
 }

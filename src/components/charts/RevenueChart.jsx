@@ -29,6 +29,14 @@ function barLabelFormatter(v) {
   return `${m.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} M`
 }
 
+// SWDKLLJ revenue is a couple of orders of magnitude smaller than PKB/Opsen
+// (a flat per-vehicle fee vs. a tax base), so it gets the same jt/M
+// switching the Y-axis ticks use instead of always rendering "0,0 M".
+function swdklljLabelFormatter(v) {
+  if (v <= 0) return ''
+  return tickFormatter(v)
+}
+
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
@@ -54,7 +62,7 @@ export default function RevenueChart({ data: revenueChartData }) {
     <Card className="p-4 flex flex-col h-full">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide">
-          PENERIMAAN PKB &amp; OPSEN (Rp)
+          PENERIMAAN PKB, OPSEN &amp; SWDKLLJ (Rp)
         </h2>
         <div className="flex items-center gap-3 text-[10.5px] text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
@@ -62,6 +70,9 @@ export default function RevenueChart({ data: revenueChartData }) {
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm bg-status-green" /> Opsen PKB
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-status-orange" /> SWDKLLJ
           </span>
         </div>
       </div>
@@ -104,6 +115,14 @@ export default function RevenueChart({ data: revenueChartData }) {
                 dataKey="opsenPkb"
                 position="top"
                 formatter={barLabelFormatter}
+                style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
+              />
+            </Bar>
+            <Bar dataKey="swdkllj" name="SWDKLLJ" fill="#f2760c" radius={[3, 3, 0, 0]} barSize={16} isAnimationActive={false}>
+              <LabelList
+                dataKey="swdkllj"
+                position="top"
+                formatter={swdklljLabelFormatter}
                 style={{ fontSize: 10, fontWeight: 600, fill: ct.labelText }}
               />
             </Bar>

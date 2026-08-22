@@ -1,5 +1,5 @@
 import { getKelurahanListForYear } from './kelurahan.js'
-import { BASELINE_TAX_YEAR } from './kecamatan.js'
+import { BASELINE_TAX_YEAR, getPeriodRatio } from './kecamatan.js'
 import { mulberry32, seedFromString } from '../lib/yearlyTrend.js'
 
 function weightedPick(rand, items, weightKey = 'weight') {
@@ -33,6 +33,11 @@ const BRANDS = [
   { merk: 'Toyota', weight: 6.63, color: '#7c3aed' },
   { merk: 'Daihatsu', weight: 5.99, color: '#f2760c' },
 ]
+
+// Used only to color the "top 5 by actual count" breakdown below — real data
+// has far more distinct brands than the synthetic generator's fixed BRANDS
+// list above, so which 5 end up on top isn't fixed.
+const BRAND_CHART_COLORS = ['#1668e3', '#16a34a', '#eab308', '#7c3aed', '#f2760c']
 
 const YEAR_WEIGHTS = [
   { year: 2025, weight: 38.58 },
@@ -142,17 +147,87 @@ function buildKendaraanList(kelurahanList, taxYear) {
   return rows
 }
 
+// The baseline tax year (2026) uses the real vehicle-tax export instead of
+// the synthetic generator below; every other year keeps the synthetic model
+// (there's no real historical data to fall back to for them). The export is
+// a ~16MB JSON file, so it's loaded via a dynamic import — a separate chunk
+// fetched only when a baseline-year vehicle list is actually requested —
+// instead of shipping it in every page's bundle.
+function expandRealRow(values, fields, jenisLabels) {
+  const row = {}
+  fields.forEach((key, i) => {
+    row[key] = values[i]
+  })
+  row.id = row.noPolisi
+  row.jenisLabel = jenisLabels[row.jenisKey] ?? 'Lainnya'
+  row.total = row.pkb + row.opsenPkb + row.swdkllj
+  return row
+}
+
+let realKendaraanBaseListPromise = null
+function getRealKendaraanBaseListAsync() {
+  if (!realKendaraanBaseListPromise) {
+    realKendaraanBaseListPromise = import('./mock-api/kendaraan-real-2026.json').then(({ default: data }) =>
+      data.rows.map((values) => expandRealRow(values, data.fields, data.jenisLabels)),
+    )
+  }
+  return realKendaraanBaseListPromise
+}
+
+// Real data is a single point-in-time snapshot with no per-vehicle payment
+// date, so earlier "Periode Data" cutoffs are simulated the same way the
+// kecamatan/kelurahan aggregates are: scale down how many vehicles count as
+// paid using the shared trend-derived ratio, walking a stable per-vehicle
+// score so an earlier period's paid set is always a subset of a later one's.
+function realRowPeriodScore(row) {
+  return mulberry32(seedFromString(`${row.id}:real-period`))()
+}
+
+function applyPeriodToRealRows(rows, ratio) {
+  if (ratio >= 1) return rows
+  const paidRows = rows.filter((r) => r.statusBayar === 'Lunas')
+  const targetPaidCount = Math.round(paidRows.length * ratio)
+  if (targetPaidCount >= paidRows.length) return rows
+
+  const keepPaid = new Set(
+    paidRows
+      .map((row) => ({ row, score: realRowPeriodScore(row) }))
+      .sort((a, b) => a.score - b.score)
+      .slice(0, targetPaidCount)
+      .map((s) => s.row.id),
+  )
+  return rows.map((row) => {
+    if (row.statusBayar !== 'Lunas' || keepPaid.has(row.id)) return row
+    return { ...row, statusBayar: 'Belum Lunas', tunggakanTahun: row.tunggakanTahun || 1 }
+  })
+}
+
+const realKendaraanByPeriod = new Map()
+
+async function getRealKendaraanForPeriodAsync(periodId) {
+  const ratio = getPeriodRatio(BASELINE_TAX_YEAR, periodId)
+  const base = await getRealKendaraanBaseListAsync()
+  if (ratio >= 1) return base
+  const key = periodId ?? ''
+  if (!realKendaraanByPeriod.has(key)) {
+    realKendaraanByPeriod.set(key, applyPeriodToRealRows(base, ratio))
+  }
+  return realKendaraanByPeriod.get(key)
+}
+
 const kendaraanListByYearPeriod = new Map()
 
-export function getKendaraanListForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+// Always async — even the synthetic-year path, which has no real work to
+// await — so every caller uses one consistent API regardless of year.
+export async function getKendaraanListForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  if (year === BASELINE_TAX_YEAR) return getRealKendaraanForPeriodAsync(periodId)
+
   const key = `${year}:${periodId ?? ''}`
   if (!kendaraanListByYearPeriod.has(key)) {
     kendaraanListByYearPeriod.set(key, buildKendaraanList(getKelurahanListForYear(year, periodId), year))
   }
   return kendaraanListByYearPeriod.get(key)
 }
-
-export const kendaraanList = getKendaraanListForYear(BASELINE_TAX_YEAR)
 
 export function summarizeKendaraan(rows) {
   const total = rows.length
@@ -195,12 +270,15 @@ export function summarizeKendaraan(rows) {
     count: yearCounts.get(y.year) ?? 0,
   }))
 
-  const brandBreakdown = BRANDS.map((b) => ({
-    merk: b.merk,
-    color: b.color,
-    count: brandCounts.get(b.merk) ?? 0,
-    percent: total ? ((brandCounts.get(b.merk) ?? 0) / total) * 100 : 0,
-  })).sort((a, b) => b.count - a.count)
+  const brandBreakdown = [...brandCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([merk, count], i) => ({
+      merk,
+      color: BRAND_CHART_COLORS[i],
+      count,
+      percent: total ? (count / total) * 100 : 0,
+    }))
 
   return {
     total,

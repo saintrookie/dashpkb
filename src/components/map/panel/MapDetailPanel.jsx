@@ -10,13 +10,18 @@ import { complianceStatusLabel } from '../../../lib/complianceStatus.js'
 import { formatNumberID, formatPercent, formatRupiahAuto } from '../../../lib/format.js'
 import { colorForRate, colorForEntityStatus, bandForRate } from '../../../lib/mapMetrics.js'
 import { kelurahanByKecamatan } from '../../../data/kelurahan.js'
+import { kecamatanSlug, kelurahanSlug } from '../../../lib/regionLookup.js'
 
 const ENTITY_META = {
   opd: { icon: Building2, label: 'OPD', routeTo: '/tingkat-kepatuhan-opd' },
   tax_service_point: { icon: Landmark, label: 'Layanan Pajak', routeTo: null },
   collection_point: { icon: Wallet, label: 'Titik Penagihan', routeTo: null },
-  kecamatan: { icon: MapPinned, label: 'Kecamatan', routeTo: '/ringkasan-kecamatan' },
-  kelurahan: { icon: MapPinned, label: 'Kelurahan', routeTo: '/ringkasan-kecamatan' },
+  kecamatan: { icon: MapPinned, label: 'Kecamatan', routeTo: (data) => `/kecamatan/${kecamatanSlug(data.name)}` },
+  kelurahan: {
+    icon: MapPinned,
+    label: 'Kelurahan',
+    routeTo: (data) => `/kecamatan/${kecamatanSlug(data.kecamatanName)}/${kelurahanSlug(data.name)}`,
+  },
 }
 
 const STATUS_LABEL = { active: 'Aktif', maintenance: 'Perbaikan', planned: 'Direncanakan' }
@@ -209,7 +214,7 @@ export default function MapDetailPanel() {
               {meta.routeTo && (
                 <button
                   type="button"
-                  onClick={() => navigate(meta.routeTo)}
+                  onClick={() => navigate(typeof meta.routeTo === 'function' ? meta.routeTo(data) : meta.routeTo)}
                   className="flex items-center justify-center gap-1.5 w-full h-9 rounded-lg bg-brand-blue text-white text-[12.5px] font-semibold hover:bg-blue-600 transition-colors"
                 >
                   Lihat Detail

@@ -1,84 +1,17 @@
 import { seededRandom, scaleCountForYear, shiftRateForYear } from '../lib/yearlyTrend.js'
 import dashboardMeta from './mock-api/dashboard.json'
+import realKecamatanData from './mock-api/kecamatan-real-2026.json'
 
-const BASE = [
-  {
-    kecamatan: 'Gerunggang',
-    jumlahKendaraan: 12542,
-    collectionRate: 85.92,
-    penerimaanPkb: 4_520_000_000,
-    opsenPkb: 2_120_000_000,
-    potensiBelumBayar: 1_120_000_000,
-  },
-  {
-    kecamatan: 'Rangkui',
-    jumlahKendaraan: 10321,
-    collectionRate: 81.23,
-    penerimaanPkb: 3_860_000_000,
-    opsenPkb: 1_900_000_000,
-    potensiBelumBayar: 890_450_000,
-  },
-  {
-    kecamatan: 'Taman Sari',
-    jumlahKendaraan: 8762,
-    collectionRate: 78.73,
-    penerimaanPkb: 3_240_000_000,
-    opsenPkb: 1_600_000_000,
-    potensiBelumBayar: 905_210_000,
-  },
-  {
-    kecamatan: 'Bukit Intan',
-    jumlahKendaraan: 7654,
-    collectionRate: 76.84,
-    penerimaanPkb: 2_880_000_000,
-    opsenPkb: 1_500_000_000,
-    potensiBelumBayar: 960_330_000,
-  },
-  {
-    kecamatan: 'Gabek',
-    jumlahKendaraan: 5200,
-    collectionRate: 73.5,
-    penerimaanPkb: 1_520_000_000,
-    opsenPkb: 760_000_000,
-    potensiBelumBayar: 420_000_000,
-  },
-  {
-    kecamatan: 'Girimaya',
-    jumlahKendaraan: 4200,
-    collectionRate: 68.9,
-    penerimaanPkb: 1_220_000_000,
-    opsenPkb: 610_000_000,
-    potensiBelumBayar: 300_000_000,
-  },
-  {
-    kecamatan: 'Pangkal Balam',
-    jumlahKendaraan: 3464,
-    collectionRate: 58.3,
-    penerimaanPkb: 1_010_000_000,
-    opsenPkb: 505_000_000,
-    potensiBelumBayar: 224_000_000,
-  },
-]
-
+// The baseline tax year's per-kecamatan figures are real aggregates (summed
+// from data-kendaraan.csv, see scripts/build-real-kendaraan.mjs) rather than
+// hand-tuned numbers — already in full row shape, no derivation needed.
+// Every other year is still generated synthetically, scaled relative to
+// this real baseline.
 const SWDKLLJ_PER_VEHICLE = 35_000
 // Single source of truth shared with mockApi.js — whichever tax year the
 // dashboard treats as "current" is also the exact, hand-tuned year here;
 // every other year is generated relative to it.
 export const BASELINE_TAX_YEAR = dashboardMeta.taxYear
-
-function deriveRow(row, index) {
-  const sudahBayar = Math.round((row.jumlahKendaraan * row.collectionRate) / 100)
-  const belumBayar = row.jumlahKendaraan - sudahBayar
-  const penerimaanSwdkllj = sudahBayar * SWDKLLJ_PER_VEHICLE
-  return {
-    no: index + 1,
-    ...row,
-    collectionRate: Math.round((sudahBayar / row.jumlahKendaraan) * 1000) / 10,
-    sudahBayar,
-    belumBayar,
-    penerimaanSwdkllj,
-  }
-}
 
 function finalizeList(rows) {
   return rows
@@ -86,7 +19,7 @@ function finalizeList(rows) {
     .map((row, index) => ({ ...row, no: index + 1 }))
 }
 
-const baselineRows = BASE.map(deriveRow)
+const baselineRows = realKecamatanData
 
 function buildKecamatanListForYear(year) {
   if (year === BASELINE_TAX_YEAR) return finalizeList(baselineRows)
@@ -100,9 +33,12 @@ function buildKecamatanListForYear(year) {
     const belumBayar = jumlahKendaraan - sudahBayar
 
     // Per-unit rates derived from the baseline keep money figures internally
-    // consistent as the underlying vehicle/payment counts scale per year.
+    // consistent as the underlying vehicle/payment counts scale per year —
+    // including SWDKLLJ, whose real per-vehicle rate varies by vehicle type
+    // (motorcycles vs. cars) rather than being a flat Rp35.000 everywhere.
     const pkbPerPaid = base.penerimaanPkb / base.sudahBayar
     const opsenPerPaid = base.opsenPkb / base.sudahBayar
+    const swdklljPerPaid = base.penerimaanSwdkllj / base.sudahBayar
     const potensiPerUnpaid = base.belumBayar > 0 ? base.potensiBelumBayar / base.belumBayar : 0
 
     return {
@@ -114,7 +50,7 @@ function buildKecamatanListForYear(year) {
       penerimaanPkb: Math.round(pkbPerPaid * sudahBayar),
       opsenPkb: Math.round(opsenPerPaid * sudahBayar),
       potensiBelumBayar: Math.round(potensiPerUnpaid * belumBayar),
-      penerimaanSwdkllj: sudahBayar * SWDKLLJ_PER_VEHICLE,
+      penerimaanSwdkllj: Math.round(swdklljPerPaid * sudahBayar),
     }
   })
 
@@ -145,7 +81,7 @@ function defaultPeriodMonth(year) {
   return year === BASELINE_TAX_YEAR ? Number(dashboardMeta.period.id.slice(5, 7)) : 12
 }
 
-function getPeriodRatio(year, periodId) {
+export function getPeriodRatio(year, periodId) {
   if (!periodId || !periodId.startsWith(String(year))) return 1
   const month = monthFromPeriodId(periodId)
   const defaultMonth = defaultPeriodMonth(year)
@@ -158,7 +94,10 @@ function getPeriodRatio(year, periodId) {
   return monthRate / defaultRate
 }
 
-function applyPeriodRatio(rows, ratio) {
+// Exported for kelurahan.js — the real per-kelurahan baseline rows need the
+// exact same period-cutoff scaling as the kecamatan rows do, applied
+// directly rather than re-derived from the (already-scaled) parent kecamatan.
+export function applyPeriodRatio(rows, ratio) {
   return rows.map((row) => {
     const collectionRate = Math.round(Math.min(99.5, Math.max(10, row.collectionRate * ratio)) * 10) / 10
     const sudahBayar = Math.round((row.jumlahKendaraan * collectionRate) / 100)
@@ -174,7 +113,7 @@ function applyPeriodRatio(rows, ratio) {
       penerimaanPkb: Math.round(row.penerimaanPkb * paidRatio),
       opsenPkb: Math.round(row.opsenPkb * paidRatio),
       potensiBelumBayar: Math.round(row.potensiBelumBayar * unpaidRatio),
-      penerimaanSwdkllj: sudahBayar * SWDKLLJ_PER_VEHICLE,
+      penerimaanSwdkllj: Math.round(row.penerimaanSwdkllj * paidRatio),
     }
   })
 }
@@ -305,7 +244,17 @@ export function getTrendCollectionRateForYear(year = BASELINE_TAX_YEAR) {
   const ytdRate = getKecamatanSummaryForYear(year).collectionRate
 
   if (year === BASELINE_TAX_YEAR) {
-    return [...BASELINE_TREND, { bulan: 'Mei (YTD)', rate: ytdRate }]
+    // BASELINE_TREND is a pacing *shape* (how collection typically ramps up
+    // across the year), not an absolute level — it's rescaled here so the
+    // curve actually ends on the real baseline's current rate instead of a
+    // hand-tuned one. getPeriodRatio() only ever divides two of these
+    // points, so this rescale doesn't change any period-cutoff ratio.
+    const anchorRate = BASELINE_TREND[defaultPeriodMonth(year) - 1].rate
+    const scaled = BASELINE_TREND.map((point) => ({
+      ...point,
+      rate: Math.round(((point.rate / anchorRate) * ytdRate) * 100) / 100,
+    }))
+    return [...scaled, { bulan: 'Mei (YTD)', rate: ytdRate }]
   }
 
   // Walk backward from the year's current rate so the trend line still ends

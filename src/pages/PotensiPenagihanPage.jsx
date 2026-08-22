@@ -33,15 +33,10 @@ function matchesPotensiFilters(row, filters) {
 
 export default function PotensiPenagihanPage() {
   const role = useAuthStore((s) => s.user?.role)
-  const [dataLoading, setDataLoading] = useState(true)
   const [filters, setFilters] = useState(() => getDefaultPotensiFilters(role))
   const dataFilters = useDataFilters()
-  const potensiRows = usePotensiRowsForActiveYear()
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDataLoading(false), 900)
-    return () => window.clearTimeout(timer)
-  }, [])
+  const { list: potensiRows, loading: rowsLoading } = usePotensiRowsForActiveYear()
+  const [summaryDelta, setSummaryDelta] = useState(null)
 
   const filteredRows = useMemo(
     () => potensiRows.filter((row) => matchesPotensiFilters(row, filters)),
@@ -53,17 +48,25 @@ export default function PotensiPenagihanPage() {
     [filteredRows, filters.jenisPendapatan],
   )
 
-  const summaryDelta = useMemo(() => {
-    if (dataFilters.taxYear == null) return getPotensiSummaryDelta(summary, summary)
+  useEffect(() => {
+    if (dataFilters.taxYear == null) return
+    let cancelled = false
+    setSummaryDelta(null)
     const { year: prevYear, periodId: prevPeriodId } = getPreviousMonthPeriod(
       dataFilters.taxYear,
       dataFilters.periodId ?? undefined,
     )
-    const prevRows = getPotensiRowsForYear(prevYear, prevPeriodId).filter((row) =>
-      matchesPotensiFilters(row, filters),
-    )
-    return getPotensiSummaryDelta(summary, summarizePotensi(prevRows, filters.jenisPendapatan))
+    getPotensiRowsForYear(prevYear, prevPeriodId).then((prevRowsAll) => {
+      if (cancelled) return
+      const prevRows = prevRowsAll.filter((row) => matchesPotensiFilters(row, filters))
+      setSummaryDelta(getPotensiSummaryDelta(summary, summarizePotensi(prevRows, filters.jenisPendapatan)))
+    })
+    return () => {
+      cancelled = true
+    }
   }, [summary, filters, dataFilters.taxYear, dataFilters.periodId])
+
+  const dataLoading = rowsLoading || summaryDelta == null
 
   return (
     <>

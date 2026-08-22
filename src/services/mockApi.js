@@ -233,6 +233,10 @@ function computeSummary(list) {
   const totalSudahBayar = list.reduce((a, o) => a + o.payment.pkb + o.payment.opsenPkb + o.payment.swdkllj, 0)
   const totalPenerimaanPkb = list.reduce((a, o) => a + o.payment.pkb, 0)
   const totalOpsenPkb = list.reduce((a, o) => a + o.payment.opsenPkb, 0)
+  const totalPenerimaanSwdkllj = list.reduce((a, o) => a + o.payment.swdkllj, 0)
+  const totalBillingPkb = list.reduce((a, o) => a + o.billing.pkb, 0)
+  const totalBillingOpsenPkb = list.reduce((a, o) => a + o.billing.opsenPkb, 0)
+  const totalBillingSwdkllj = list.reduce((a, o) => a + o.billing.swdkllj, 0)
   return {
     totalOpd: list.length,
     opdOnTime: list.filter((o) => o.reportingStatus === 'on_time').length,
@@ -241,7 +245,15 @@ function computeSummary(list) {
     totalSudahBayar,
     totalPenerimaanPkb,
     totalOpsenPkb,
+    totalPenerimaanSwdkllj,
     totalPotensiBelumBayar: totalTagihan - totalSudahBayar,
+    unpaidPkb: totalBillingPkb - totalPenerimaanPkb,
+    unpaidOpsenPkb: totalBillingOpsenPkb - totalOpsenPkb,
+    unpaidSwdkllj: totalBillingSwdkllj - totalPenerimaanSwdkllj,
+    // No confirmed SWDKLLJ budget target exists yet, so it's approximated by
+    // applying this dataset's own SWDKLLJ-to-PKB billing ratio to the
+    // (confirmed) PKB target — see the TODO on the target itself below.
+    swdklljTargetRatio: totalBillingPkb > 0 ? totalBillingSwdkllj / totalBillingPkb : 0,
   }
 }
 
@@ -253,7 +265,10 @@ function buildKpi(summary, targets) {
   const avgCollectionRateDelta = deltaPercent(summary.avgCollectionRate, targets.avgCollectionRatePercent)
   const totalPkbDelta = deltaPercent(summary.totalPenerimaanPkb, targets.totalPenerimaanPkb)
   const totalOpsenDelta = deltaPercent(summary.totalOpsenPkb, targets.totalOpsenPkb)
-  const unpaidPotentialDelta = deltaPercent(summary.totalPotensiBelumBayar, targets.maxPotensiBelumBayar)
+  // TODO: placeholder pending a confirmed SWDKLLJ budget target from the
+  // city — see summary.swdklljTargetRatio above for how it's derived.
+  const swdklljTarget = Math.round(targets.totalPenerimaanPkb * summary.swdklljTargetRatio)
+  const totalSwdklljDelta = deltaPercent(summary.totalPenerimaanSwdkllj, swdklljTarget)
   const onTimeDelta = deltaPercent(summary.opdOnTime, summary.totalOpd)
 
   return {
@@ -275,11 +290,11 @@ function buildKpi(summary, targets) {
       deltaPercent: totalOpsenDelta,
       negative: totalOpsenDelta < 0,
     },
-    unpaidPotential: {
-      value: summary.totalPotensiBelumBayar,
-      target: targets.maxPotensiBelumBayar,
-      deltaPercent: unpaidPotentialDelta,
-      negative: unpaidPotentialDelta > 0,
+    totalSwdkllj: {
+      value: summary.totalPenerimaanSwdkllj,
+      target: swdklljTarget,
+      deltaPercent: totalSwdklljDelta,
+      negative: totalSwdklljDelta < 0,
     },
     onTimeReporting: {
       value: summary.opdOnTime,
@@ -298,9 +313,12 @@ function buildCharts(list) {
     .map((o) => ({ opd: o.name, value: o.collectionRate, status: o.complianceStatus }))
 
   const revenue = [...list]
-    .sort((a, b) => b.payment.pkb + b.payment.opsenPkb - (a.payment.pkb + a.payment.opsenPkb))
+    .sort(
+      (a, b) =>
+        b.payment.pkb + b.payment.opsenPkb + b.payment.swdkllj - (a.payment.pkb + a.payment.opsenPkb + a.payment.swdkllj),
+    )
     .slice(0, 5)
-    .map((o) => ({ opd: o.name, pkb: o.payment.pkb, opsenPkb: o.payment.opsenPkb }))
+    .map((o) => ({ opd: o.name, pkb: o.payment.pkb, opsenPkb: o.payment.opsenPkb, swdkllj: o.payment.swdkllj }))
 
   const unpaidPotential = [...list]
     .sort((a, b) => b.unpaidPotential - a.unpaidPotential)

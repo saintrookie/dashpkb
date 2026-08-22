@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Inbox } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import { formatNumberID, formatPercent, formatRupiahAuto } from '../../lib/format.js'
+import { kecamatanSlug, kelurahanSlug } from '../../lib/regionLookup.js'
 
 const LEGEND = [
   { min: 90, color: '#16a34a' },
@@ -49,12 +50,13 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
                 Jumlah Kendaraan
               </th>
+              <th className="py-2 pl-1.5 w-8" aria-hidden="true" />
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-10">
+                <td colSpan={8} className="py-10">
                   <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
                     <Inbox size={22} strokeWidth={1.5} />
                     <p className="text-xs">Tidak ada kelurahan yang cocok dengan filter.</p>
@@ -95,6 +97,15 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
                 </td>
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
                   {formatNumberID(row.jumlahKendaraan)}
+                </td>
+                <td className="py-2 pl-1.5 text-right">
+                  <Link
+                    to={`/kecamatan/${kecamatanSlug(row.kecamatan)}/${kelurahanSlug(row.kelurahan)}`}
+                    aria-label={`Detail Kelurahan ${row.kelurahan}`}
+                    className="inline-flex items-center justify-center w-6 h-6 rounded-full text-slate-400 dark:text-slate-500 hover:text-brand-blue hover:bg-brand-blue/10 transition-colors"
+                  >
+                    <ArrowRight size={13} />
+                  </Link>
                 </td>
               </tr>
             ))}

@@ -91,7 +91,7 @@ async function getReportData(reportType, taxYear, periodId) {
     }
 
     case 'Data Kendaraan': {
-      const all = getKendaraanListForYear(taxYear, periodId)
+      const all = await getKendaraanListForYear(taxYear, periodId)
       const rows = all.slice(0, MAX_DETAIL_ROWS)
       return {
         title: 'Data Kendaraan',
@@ -105,7 +105,7 @@ async function getReportData(reportType, taxYear, periodId) {
     }
 
     case 'Potensi Penagihan': {
-      const all = getPotensiRowsForYear(taxYear, periodId)
+      const all = await getPotensiRowsForYear(taxYear, periodId)
       const rows = all.slice(0, MAX_DETAIL_ROWS)
       return {
         title: 'Potensi Penagihan',
