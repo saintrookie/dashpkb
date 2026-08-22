@@ -8,12 +8,15 @@ import { useMapStore } from '../../store/mapStore.js'
 import { colorForRate } from '../../lib/mapMetrics.js'
 import ChartCardSkeleton from '../charts/ChartCardSkeleton.jsx'
 
+const ENTITY_TYPE_LABEL = { opd: 'OPD', collection_point: 'Titik Penagihan' }
+
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
-  const { name, value } = payload[0].payload
+  const { name, value, entityType } = payload[0].payload
   return (
     <div className="bg-white dark:bg-navy-800 border border-surface-border dark:border-white/10 rounded-lg shadow-card px-3 py-2 text-xs">
       <div className="font-semibold text-navy-900 dark:text-white">{name}</div>
+      <div className="text-slate-400 dark:text-slate-500">{ENTITY_TYPE_LABEL[entityType] ?? entityType}</div>
       <div className="text-slate-500 dark:text-slate-400">
         Collection rate: <span className="font-semibold text-navy-900 dark:text-white">{value.toString().replace('.', ',')}%</span>
       </div>
@@ -24,14 +27,18 @@ function CustomTooltip({ active, payload }) {
 export default function MapCollectionRateChart() {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
-  const { data: entities, loading } = useMapEntities({ entityType: 'opd' })
+  // No entityType filter: mixes every marker type that actually has a
+  // collection rate (OPD + titik penagihan) instead of only ever showing
+  // OPD, even when other layers are the ones active on the map.
+  const { data: entities, loading } = useMapEntities()
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)
 
   if (loading || !entities) return <ChartCardSkeleton />
 
-  const chartData = [...entities]
+  const chartData = entities
+    .filter((e) => e.collectionRate != null)
     .sort((a, b) => b.collectionRate - a.collectionRate)
     .slice(0, 10)
     .map((e) => ({ id: e.id, name: e.name, value: e.collectionRate, latitude: e.latitude, longitude: e.longitude, entityType: e.entityType }))
@@ -44,7 +51,7 @@ export default function MapCollectionRateChart() {
   return (
     <Card className="p-4 flex flex-col h-full">
       <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide mb-2">
-        COLLECTION RATE OPD (%) &middot; TERKAIT PETA
+        TOP 10 COLLECTION RATE (%) &middot; TERKAIT PETA
       </h2>
       <div className="flex-1 min-h-[240px]">
         <ResponsiveContainer width="100%" height="100%">

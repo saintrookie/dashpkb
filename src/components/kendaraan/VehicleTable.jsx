@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, Download, Inbox } from 'lucide-react'
+import { ChevronDown, Download, Inbox, Loader2 } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import Button from '../ui/Button.jsx'
 import Badge from '../ui/Badge.jsx'
 import Pagination from '../table/Pagination.jsx'
 import { formatNumberID } from '../../lib/format.js'
+import { col, toXlsxBlob, downloadBlob } from '../../lib/reportExport.js'
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50]
+
+// Matches the same cap used for the "Data Kendaraan" report on Unduh
+// Laporan — generating an .xlsx for tens of thousands of rows client-side
+// gets impractically slow, so exports are capped to a representative slice.
+const MAX_EXPORT_ROWS = 1000
 
 const COLUMNS = [
   { key: 'noPolisi', label: 'No Polisi' },
@@ -29,6 +35,8 @@ const COLUMNS = [
 export default function VehicleTable({ rows }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState(null)
 
   useEffect(() => {
     setPage(1)
@@ -36,6 +44,38 @@ export default function VehicleTable({ rows }) {
 
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize))
   const pageRows = rows.slice((page - 1) * pageSize, page * pageSize)
+
+  async function handleExport() {
+    if (exporting) return
+    setExporting(true)
+    setExportError(null)
+    try {
+      const exportRows = rows.slice(0, MAX_EXPORT_ROWS)
+      const exportColumns = [
+        col('No Polisi', (r) => r.noPolisi),
+        col('Nama Pemilik', (r) => r.namaPemilik),
+        col('Alamat', (r) => r.alamat),
+        col('Kelurahan', (r) => r.kelurahan),
+        col('Kecamatan', (r) => r.kecamatan),
+        col('Jenis Kendaraan', (r) => r.jenisLabel),
+        col('Merk', (r) => r.merk),
+        col('Tahun Buat', (r) => r.tahunBuat, { numeric: true }),
+        col('Tgl Jatuh Tempo', (r) => r.tglJatuhTempo),
+        col('Status Bayar', (r) => r.statusBayar),
+        col('Tunggakan (Tahun)', (r) => r.tunggakanTahun, { numeric: true }),
+        col('PKB (Rp)', (r) => r.pkb, { numeric: true }),
+        col('Opsen PKB (Rp)', (r) => r.opsenPkb, { numeric: true }),
+        col('SWDKLLJ (Rp)', (r) => r.swdkllj, { numeric: true }),
+        col('Total (Rp)', (r) => r.total, { numeric: true }),
+      ]
+      const blob = await toXlsxBlob('Daftar Data Kendaraan', exportColumns, exportRows)
+      downloadBlob(blob, 'daftar-data-kendaraan.xlsx')
+    } catch {
+      setExportError('Gagal mengekspor data. Silakan coba lagi.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
     <Card className="p-3.5 flex flex-col h-full">
@@ -65,9 +105,24 @@ export default function VehicleTable({ rows }) {
             </span>
             data
           </label>
-          <Button icon={Download}>Export Excel</Button>
+          <Button icon={exporting ? undefined : Download} onClick={handleExport} disabled={exporting}>
+            {exporting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 size={15} className="animate-spin" />
+                Mengekspor...
+              </span>
+            ) : (
+              'Export Excel'
+            )}
+          </Button>
         </div>
       </div>
+
+      {exportError && (
+        <div className="mb-3 rounded-card border border-status-red/20 bg-status-redBg dark:bg-status-red/10 px-4 py-3 text-[12.5px] text-status-red dark:text-red-400">
+          {exportError}
+        </div>
+      )}
 
       <div className="overflow-x-auto -mx-3.5 px-3.5 flex-1">
         <table className="w-full min-w-[1440px] border-collapse text-left">

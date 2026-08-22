@@ -6,6 +6,7 @@ import Select from '../components/ui/Select.jsx'
 import Button from '../components/ui/Button.jsx'
 import Badge from '../components/ui/Badge.jsx'
 import { useDataFilters } from '../hooks/useDataFilters.js'
+import { useRevenueVisibility } from '../hooks/useRevenueVisibility.js'
 import { formatDateTimeID } from '../lib/format.js'
 import { generateReportFile, downloadBlob } from '../lib/reportExport.js'
 
@@ -63,6 +64,7 @@ function formatBytes(bytes) {
 
 export default function UnduhLaporanPage() {
   const dataFilters = useDataFilters()
+  const { opsenOnly } = useRevenueVisibility()
   const [reportType, setReportType] = useState(REPORT_TYPES[0])
   const [format, setFormat] = useState('xlsx')
   const [generating, setGenerating] = useState(false)
@@ -82,6 +84,7 @@ export default function UnduhLaporanPage() {
         taxYear,
         periodId: dataFilters.periodId,
         periodLabel: dataFilters.periodLabel,
+        opsenOnly,
       })
       downloadBlob(blob, filename)
       setHistory((prev) => [
@@ -115,6 +118,7 @@ export default function UnduhLaporanPage() {
         taxYear: row.taxYear,
         periodId: row.periodId,
         periodLabel: row.period,
+        opsenOnly,
       })
       downloadBlob(blob, filename)
     } catch {

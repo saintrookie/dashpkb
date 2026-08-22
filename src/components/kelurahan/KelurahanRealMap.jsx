@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react'
-import { Info } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Info, Map } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import Skeleton from '../ui/Skeleton.jsx'
 import { useMapRegions } from '../../hooks/useMapData.js'
@@ -30,6 +31,13 @@ export default function KelurahanRealMap() {
           PETA COLLECTION RATE (PKB)
         </h2>
         <Info size={13} className="text-slate-400 dark:text-slate-500" />
+        <Link
+          to="/peta-wilayah"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 px-2.5 py-1.5 text-[11px] font-semibold text-navy-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+        >
+          <Map size={13} />
+          Peta Wilayah
+        </Link>
       </div>
 
       <div className="flex-1 min-h-[500px] -mx-1">

@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatNumberID, formatPercent, formatRupiahAuto } from '../../lib/format.js'
 import { useMapStore } from '../../store/mapStore.js'
-import { kecamatanGeoByName } from '../../lib/regionLookup.js'
+import { kecamatanGeoByName, kecamatanSlug } from '../../lib/regionLookup.js'
 
 const LEGEND = [
   { min: 90, color: '#16a34a' },
@@ -20,9 +21,9 @@ function colorFor(rate) {
 const COLUMNS = [
   { key: 'kecamatan', label: 'Kecamatan', align: 'left' },
   { key: 'collectionRate', label: 'Collection Rate (PKB)', align: 'left' },
-  { key: 'penerimaanPkb', label: 'Penerimaan PKB', align: 'right' },
+  { key: 'penerimaanPkb', label: 'Penerimaan PKB', align: 'right', revenue: true },
   { key: 'opsenPkb', label: 'Opsen PKB', align: 'right' },
-  { key: 'penerimaanSwdkllj', label: 'SWDKLLJ', align: 'right' },
+  { key: 'penerimaanSwdkllj', label: 'SWDKLLJ', align: 'right', revenue: true },
   { key: 'sudahBayar', label: 'Sudah Bayar', align: 'right' },
   { key: 'belumBayar', label: 'Belum Bayar', align: 'right' },
   { key: 'jumlahKendaraan', label: 'Jumlah Kendaraan', align: 'right' },
@@ -30,6 +31,8 @@ const COLUMNS = [
 
 export default function RankingTable() {
   const { list: kecamatanList } = useKecamatanData()
+  const { opsenOnly } = useRevenueVisibility()
+  const columns = COLUMNS.filter((c) => !opsenOnly || !c.revenue)
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)
@@ -55,7 +58,7 @@ export default function RankingTable() {
               <th className="py-2 pr-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 w-5">
                 #
               </th>
-              {COLUMNS.map((c) => (
+              {columns.map((c) => (
                 <th
                   key={c.key}
                   className={`py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 whitespace-nowrap ${
@@ -65,6 +68,7 @@ export default function RankingTable() {
                   {c.label}
                 </th>
               ))}
+              <th className="py-2 pl-1.5 w-8" aria-hidden="true" />
             </tr>
           </thead>
           <tbody>
@@ -98,15 +102,19 @@ export default function RankingTable() {
                     </span>
                   </div>
                 </td>
-                <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatRupiahAuto(row.penerimaanPkb)}
-                </td>
+                {!opsenOnly && (
+                  <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                    {formatRupiahAuto(row.penerimaanPkb)}
+                  </td>
+                )}
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
                   {formatRupiahAuto(row.opsenPkb)}
                 </td>
-                <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatRupiahAuto(row.penerimaanSwdkllj)}
-                </td>
+                {!opsenOnly && (
+                  <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                    {formatRupiahAuto(row.penerimaanSwdkllj)}
+                  </td>
+                )}
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right">
                   {formatNumberID(row.sudahBayar)}
                 </td>
@@ -115,6 +123,16 @@ export default function RankingTable() {
                 </td>
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right">
                   {formatNumberID(row.jumlahKendaraan)}
+                </td>
+                <td className="py-2 pl-1.5 text-right">
+                  <Link
+                    to={`/kecamatan/${kecamatanSlug(row.kecamatan)}`}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Detail Kecamatan ${row.kecamatan}`}
+                    className="inline-flex items-center justify-center w-6 h-6 rounded-full text-slate-400 dark:text-slate-500 hover:text-brand-blue hover:bg-brand-blue/10 transition-colors"
+                  >
+                    <ArrowRight size={13} />
+                  </Link>
                 </td>
               </tr>
               )

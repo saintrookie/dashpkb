@@ -10,6 +10,8 @@ import LoginPage from './pages/LoginPage.jsx'
 import TingkatKepatuhanOpdPage from './pages/TingkatKepatuhanOpdPage.jsx'
 import RingkasanKecamatanPage from './pages/RingkasanKecamatanPage.jsx'
 import RingkasanKelurahanPage from './pages/RingkasanKelurahanPage.jsx'
+import KecamatanDetailPage from './pages/KecamatanDetailPage.jsx'
+import KelurahanDetailPage from './pages/KelurahanDetailPage.jsx'
 import PerbandinganKelurahanPage from './pages/PerbandinganKelurahanPage.jsx'
 import DataKendaraanPage from './pages/DataKendaraanPage.jsx'
 import PotensiPenagihanPage from './pages/PotensiPenagihanPage.jsx'
@@ -58,6 +60,8 @@ function App() {
                   <Route path="/" element={<Navigate to="/tingkat-kepatuhan-opd" replace />} />
                   <Route path="/tingkat-kepatuhan-opd" element={<TingkatKepatuhanOpdPage />} />
                   <Route path="/ringkasan-kecamatan" element={<RingkasanKecamatanPage />} />
+                  <Route path="/kecamatan/:kecamatanSlug" element={<KecamatanDetailPage />} />
+                  <Route path="/kecamatan/:kecamatanSlug/:kelurahanSlug" element={<KelurahanDetailPage />} />
                   <Route
                     path="/peta-wilayah"
                     element={

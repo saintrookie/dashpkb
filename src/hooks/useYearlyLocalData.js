@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDataFilters } from './useDataFilters.js'
 import {
   getKecamatanListForYear,
@@ -42,12 +42,42 @@ export function useKelurahanData() {
   )
 }
 
+// Both getKendaraanListForYear() and getPotensiRowsForYear() are async —
+// the baseline year's real vehicle data is a ~16MB JSON file loaded via a
+// dynamic import, fetched only once one of these hooks is actually mounted
+// (Data Kendaraan / Potensi Penagihan), not on every page.
 export function useKendaraanListForActiveYear() {
   const { year, periodId } = useActivePeriod()
-  return useMemo(() => getKendaraanListForYear(year, periodId), [year, periodId])
+  const [state, setState] = useState({ list: [], loading: true })
+
+  useEffect(() => {
+    let cancelled = false
+    setState((s) => ({ list: s.list, loading: true }))
+    getKendaraanListForYear(year, periodId).then((list) => {
+      if (!cancelled) setState({ list, loading: false })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [year, periodId])
+
+  return state
 }
 
 export function usePotensiRowsForActiveYear() {
   const { year, periodId } = useActivePeriod()
-  return useMemo(() => getPotensiRowsForYear(year, periodId), [year, periodId])
+  const [state, setState] = useState({ list: [], loading: true })
+
+  useEffect(() => {
+    let cancelled = false
+    setState((s) => ({ list: s.list, loading: true }))
+    getPotensiRowsForYear(year, periodId).then((list) => {
+      if (!cancelled) setState({ list, loading: false })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [year, periodId])
+
+  return state
 }

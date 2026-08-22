@@ -1,10 +1,9 @@
-import { kendaraanList, getKendaraanListForYear } from './kendaraan.js'
+import { getKendaraanListForYear } from './kendaraan.js'
 import { BASELINE_TAX_YEAR } from './kecamatan.js'
 
-export const potensiRows = kendaraanList.filter((row) => row.statusBayar === 'Belum Lunas')
-
-export function getPotensiRowsForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
-  return getKendaraanListForYear(year, periodId).filter((row) => row.statusBayar === 'Belum Lunas')
+export async function getPotensiRowsForYear(year = BASELINE_TAX_YEAR, periodId = undefined) {
+  const rows = await getKendaraanListForYear(year, periodId)
+  return rows.filter((row) => row.statusBayar === 'Belum Lunas')
 }
 
 export const TUNGGAKAN_BUCKETS = [
