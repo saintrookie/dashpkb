@@ -1,15 +1,26 @@
-import { TrendingUp, Wallet, Landmark, ShieldCheck, Car } from 'lucide-react'
+import { TrendingUp, Wallet, Landmark, ShieldCheck, Car, ArrowUp, ArrowDown } from 'lucide-react'
 import KpiCard from '../kpi/KpiCard.jsx'
 import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
 import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatNumberID, formatPercent, formatRupiahCompact, formatSignedPercent } from '../../lib/format.js'
 
-function potensiFooter(label, value) {
+function potensiFooter(label, value, delta) {
+  const isUp = delta.deltaPercent >= 0
   return (
     <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-      <div>
-        Potensi Belum Bayar {label} :{' '}
-        <span className="font-semibold text-navy-900 dark:text-white">Rp {formatRupiahCompact(value, 2)}</span>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span>
+          Potensi Belum Bayar {label} :{' '}
+          <span className="font-semibold text-navy-900 dark:text-white">Rp {formatRupiahCompact(value, 2)}</span>
+        </span>
+        <span
+          className={`inline-flex items-center gap-0.5 font-semibold ${
+            isUp ? 'text-status-green' : 'text-status-red'
+          }`}
+        >
+          {isUp ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
+          {formatSignedPercent(delta.deltaPercent)}
+        </span>
       </div>
     </div>
   )
@@ -29,7 +40,6 @@ export default function KecamatanKpiRow() {
         target={`Target : ${formatPercent(s.collectionRateTarget, 2)}`}
         delta={formatSignedPercent(d.collectionRate.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative={d.collectionRate.negative}
       />
       {!opsenOnly && (
         <KpiCard
@@ -38,7 +48,7 @@ export default function KecamatanKpiRow() {
           label="PENERIMAAN PKB"
           value={`Rp ${formatRupiahCompact(s.penerimaanPkb, 2)}`}
           target={`Target PKB : Rp ${formatRupiahCompact(s.penerimaanPkbTarget, 2)}`}
-          footer={potensiFooter('PKB', s.potensiBelumBayarPkb)}
+          footer={potensiFooter('PKB', s.potensiBelumBayarPkb, d.potensiBelumBayarPkb)}
         />
       )}
       <KpiCard
@@ -47,7 +57,7 @@ export default function KecamatanKpiRow() {
         label="PENERIMAAN OPSEN PKB"
         value={`Rp ${formatRupiahCompact(s.opsenPkb, 2)}`}
         target={`Target Opsen PKB : Rp ${formatRupiahCompact(s.opsenPkbTarget, 2)}`}
-        footer={potensiFooter('Opsen PKB', s.potensiBelumBayarOpsen)}
+        footer={potensiFooter('Opsen PKB', s.potensiBelumBayarOpsen, d.potensiBelumBayarOpsen)}
       />
       {!opsenOnly && (
         <KpiCard
@@ -56,7 +66,7 @@ export default function KecamatanKpiRow() {
           label="PENERIMAAN SWDKLLJ"
           value={`Rp ${formatRupiahCompact(s.penerimaanSwdkllj, 2)}`}
           target={`Target SWDKLLJ : Rp ${formatRupiahCompact(s.penerimaanSwdklljTarget, 2)}`}
-          footer={potensiFooter('SWDKLLJ', s.potensiBelumBayarSwdkllj)}
+          footer={potensiFooter('SWDKLLJ', s.potensiBelumBayarSwdkllj, d.potensiBelumBayarSwdkllj)}
         />
       )}
       <KpiCard

@@ -218,19 +218,21 @@ export function getKecamatanSummaryDelta(year = BASELINE_TAX_YEAR, periodId = un
   return {
     collectionRate: {
       deltaPercent: percentDelta(current.collectionRate, previous.collectionRate),
-      negative: current.collectionRate < previous.collectionRate,
     },
     penerimaanPkb: {
       deltaPercent: percentDelta(current.penerimaanPkb, previous.penerimaanPkb),
-      negative: current.penerimaanPkb < previous.penerimaanPkb,
     },
     opsenPkb: {
       deltaPercent: percentDelta(current.opsenPkb, previous.opsenPkb),
-      negative: current.opsenPkb < previous.opsenPkb,
     },
-    potensiBelumBayar: {
-      deltaPercent: percentDelta(current.potensiBelumBayar, previous.potensiBelumBayar),
-      negative: current.potensiBelumBayar > previous.potensiBelumBayar,
+    potensiBelumBayarPkb: {
+      deltaPercent: percentDelta(current.potensiBelumBayarPkb, previous.potensiBelumBayarPkb),
+    },
+    potensiBelumBayarOpsen: {
+      deltaPercent: percentDelta(current.potensiBelumBayarOpsen, previous.potensiBelumBayarOpsen),
+    },
+    potensiBelumBayarSwdkllj: {
+      deltaPercent: percentDelta(current.potensiBelumBayarSwdkllj, previous.potensiBelumBayarSwdkllj),
     },
   }
 }

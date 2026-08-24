@@ -88,7 +88,6 @@ export default function KpiRow({ data, loading, error }) {
             target={formatTarget(kpi.target, kpi)}
             delta={potensiKey ? undefined : delta}
             deltaLabel={potensiKey ? undefined : deltaLabel}
-            negative={kpi.negative}
             footer={
               potensiKey ? (
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">

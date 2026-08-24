@@ -18,7 +18,6 @@ export default function KpiCard({
   progress,
   delta,
   deltaLabel,
-  negative = true,
   footer,
 }) {
   const isUp = delta?.trim().startsWith('+')
@@ -55,7 +54,7 @@ export default function KpiCard({
         ) : delta ? (
           <div
             className={`flex items-center gap-1 text-[11.5px] font-semibold ${
-              negative ? 'text-status-red' : 'text-status-green'
+              isUp ? 'text-status-green' : 'text-status-red'
             }`}
           >
             {isUp ? <ArrowUp size={13} /> : <ArrowDown size={13} />}

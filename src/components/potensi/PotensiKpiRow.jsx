@@ -18,7 +18,6 @@ export default function PotensiKpiRow({ summary, delta }) {
         target={`${formatNumberID(s.total)} kendaraan`}
         delta={formatSignedPercent(d.totalPotensi.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative={d.totalPotensi.negative}
       />
       {!opsenOnly && (
         <KpiCard
@@ -29,7 +28,6 @@ export default function PotensiKpiRow({ summary, delta }) {
           target={`${formatPercent(s.potensiPkbPercent)} dari total potensi`}
           delta={formatSignedPercent(d.potensiPkb.deltaPercent)}
           deltaLabel="dari bulan lalu"
-          negative={d.potensiPkb.negative}
         />
       )}
       <KpiCard
@@ -40,7 +38,6 @@ export default function PotensiKpiRow({ summary, delta }) {
         target={`${formatPercent(s.potensiOpsenPkbPercent)} dari total potensi`}
         delta={formatSignedPercent(d.potensiOpsenPkb.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative={d.potensiOpsenPkb.negative}
       />
       {!opsenOnly && (
         <KpiCard
@@ -51,7 +48,6 @@ export default function PotensiKpiRow({ summary, delta }) {
           target={`${formatPercent(s.potensiSwdklljPercent)} dari total potensi`}
           delta={formatSignedPercent(d.potensiSwdkllj.deltaPercent)}
           deltaLabel="dari bulan lalu"
-          negative={d.potensiSwdkllj.negative}
         />
       )}
       <KpiCard
@@ -61,7 +57,6 @@ export default function PotensiKpiRow({ summary, delta }) {
         value={formatRupiahFull(s.avgPotensiPerKendaraan)}
         delta={formatSignedPercent(d.avgPotensiPerKendaraan.deltaPercent)}
         deltaLabel="dari bulan lalu"
-        negative={d.avgPotensiPerKendaraan.negative}
       />
     </div>
   )
