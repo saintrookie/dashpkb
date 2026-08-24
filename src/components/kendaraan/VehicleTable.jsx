@@ -4,6 +4,7 @@ import Card from '../ui/Card.jsx'
 import Button from '../ui/Button.jsx'
 import Badge from '../ui/Badge.jsx'
 import Pagination from '../table/Pagination.jsx'
+import { useRevenueVisibility } from '../../hooks/useRevenueVisibility.js'
 import { formatNumberID } from '../../lib/format.js'
 import { col, toXlsxBlob, downloadBlob } from '../../lib/reportExport.js'
 
@@ -26,10 +27,10 @@ const COLUMNS = [
   { key: 'tglJatuhTempo', label: 'Tgl Jatuh Tempo', align: 'center' },
   { key: 'statusBayar', label: 'Status Bayar', align: 'center' },
   { key: 'tunggakanTahun', label: 'Tunggakan (Tahun)', align: 'center' },
-  { key: 'pkb', label: 'PKB (Rp)', align: 'right' },
+  { key: 'pkb', label: 'PKB (Rp)', align: 'right', revenue: true },
   { key: 'opsenPkb', label: 'Opsen PKB (Rp)', align: 'right' },
-  { key: 'swdkllj', label: 'SWDKLLJ (Rp)', align: 'right' },
-  { key: 'total', label: 'Total (Rp)', align: 'right' },
+  { key: 'swdkllj', label: 'SWDKLLJ (Rp)', align: 'right', revenue: true },
+  { key: 'total', label: 'Total (Rp)', align: 'right', revenue: true },
 ]
 
 export default function VehicleTable({ rows }) {
@@ -37,6 +38,8 @@ export default function VehicleTable({ rows }) {
   const [pageSize, setPageSize] = useState(10)
   const [exporting, setExporting] = useState(false)
   const [exportError, setExportError] = useState(null)
+  const { opsenOnly } = useRevenueVisibility()
+  const columns = COLUMNS.filter((c) => !opsenOnly || !c.revenue)
 
   useEffect(() => {
     setPage(1)
@@ -63,11 +66,11 @@ export default function VehicleTable({ rows }) {
         col('Tgl Jatuh Tempo', (r) => r.tglJatuhTempo),
         col('Status Bayar', (r) => r.statusBayar),
         col('Tunggakan (Tahun)', (r) => r.tunggakanTahun, { numeric: true }),
-        col('PKB (Rp)', (r) => r.pkb, { numeric: true }),
+        !opsenOnly && col('PKB (Rp)', (r) => r.pkb, { numeric: true }),
         col('Opsen PKB (Rp)', (r) => r.opsenPkb, { numeric: true }),
-        col('SWDKLLJ (Rp)', (r) => r.swdkllj, { numeric: true }),
-        col('Total (Rp)', (r) => r.total, { numeric: true }),
-      ]
+        !opsenOnly && col('SWDKLLJ (Rp)', (r) => r.swdkllj, { numeric: true }),
+        !opsenOnly && col('Total (Rp)', (r) => r.total, { numeric: true }),
+      ].filter(Boolean)
       const blob = await toXlsxBlob('Daftar Data Kendaraan', exportColumns, exportRows)
       downloadBlob(blob, 'daftar-data-kendaraan.xlsx')
     } catch {
@@ -131,7 +134,7 @@ export default function VehicleTable({ rows }) {
               <th className="px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 w-8">
                 No
               </th>
-              {COLUMNS.map((c) => (
+              {columns.map((c) => (
                 <th
                   key={c.key}
                   className={`px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 whitespace-nowrap ${
@@ -146,7 +149,7 @@ export default function VehicleTable({ rows }) {
           <tbody>
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={COLUMNS.length + 1} className="py-14">
+                <td colSpan={columns.length + 1} className="py-14">
                   <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
                     <Inbox size={28} strokeWidth={1.5} />
                     <p className="text-sm">Tidak ada kendaraan yang cocok dengan filter.</p>
@@ -196,18 +199,24 @@ export default function VehicleTable({ rows }) {
                 <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-center">
                   {row.tunggakanTahun > 0 ? row.tunggakanTahun : '-'}
                 </td>
-                <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatNumberID(row.pkb)}
-                </td>
+                {!opsenOnly && (
+                  <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                    {formatNumberID(row.pkb)}
+                  </td>
+                )}
                 <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
                   {formatNumberID(row.opsenPkb)}
                 </td>
-                <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatNumberID(row.swdkllj)}
-                </td>
-                <td className="px-2.5 py-2 text-[12px] font-semibold text-navy-900 dark:text-white text-right whitespace-nowrap">
-                  {formatNumberID(row.total)}
-                </td>
+                {!opsenOnly && (
+                  <td className="px-2.5 py-2 text-[12px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                    {formatNumberID(row.swdkllj)}
+                  </td>
+                )}
+                {!opsenOnly && (
+                  <td className="px-2.5 py-2 text-[12px] font-semibold text-navy-900 dark:text-white text-right whitespace-nowrap">
+                    {formatNumberID(row.total)}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
