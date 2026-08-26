@@ -13,7 +13,7 @@ export default function RegionDetailKpiRow({ row, totalCount, status }) {
       <KpiCard
         icon={TrendingUp}
         color="blue"
-        label="COLLECTION RATE (PKB)"
+        label="COLLECTION RATE"
         value={formatPercent(row.collectionRate, 2)}
         target={
           totalCount

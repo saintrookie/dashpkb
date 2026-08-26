@@ -25,7 +25,7 @@ export default function CollectionRateRangeChart() {
   return (
     <Card className="p-4 flex flex-col h-full">
       <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide mb-1">
-        RANGE COLLECTION RATE (PKB)
+        RANGE COLLECTION RATE
       </h2>
       <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-2">Jumlah Kelurahan</p>
       <div className="flex-1 min-h-[190px]">

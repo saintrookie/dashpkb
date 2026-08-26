@@ -67,7 +67,7 @@ export default function RingkasanKelurahanPage() {
             <ChartCardSkeleton />
           ) : (
             <TopKelurahanRankTable
-              title="RANKING KELURAHAN BERDASARKAN COLLECTION RATE (PKB)"
+              title="RANKING KELURAHAN BERDASARKAN COLLECTION RATE"
               rows={rankedRows}
               showMoreLink={false}
             />

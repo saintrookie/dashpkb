@@ -20,7 +20,7 @@ function colorFor(rate) {
 
 const COLUMNS = [
   { key: 'kecamatan', label: 'Kecamatan', align: 'left' },
-  { key: 'collectionRate', label: 'Collection Rate (PKB)', align: 'left' },
+  { key: 'collectionRate', label: 'Collection Rate', align: 'left' },
   { key: 'penerimaanPkb', label: 'Penerimaan PKB', align: 'right', revenue: true },
   { key: 'opsenPkb', label: 'Opsen PKB', align: 'right' },
   { key: 'penerimaanSwdkllj', label: 'SWDKLLJ', align: 'right', revenue: true },
@@ -48,7 +48,7 @@ export default function RankingTable() {
   return (
     <Card className="p-4 flex flex-col h-full">
       <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide mb-3">
-        RANKING KECAMATAN BERDASARKAN COLLECTION RATE (PKB)
+        RANKING KECAMATAN BERDASARKAN COLLECTION RATE
       </h2>
 
       <div className="overflow-x-auto -mx-4 px-4 flex-1">

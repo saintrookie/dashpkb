@@ -2,26 +2,46 @@
  * OSM-compatible tile providers. All are OpenStreetMap-data-based rasters
  * with the required attribution; swapping the active provider never touches
  * the data layers (markers/regions/heatmap/routes) above it.
+ *
+ * light/dark use MapTiler's raster tiles (MapTiler is the company behind
+ * MapLibre GL JS) instead of CARTO. Unlike CARTO's tiles, these require a
+ * free API key -- set VITE_MAPTILER_KEY in .env.local (see .env.example).
+ * Without a key, light/dark fall back to the key-less OSM standard tiles so
+ * the map still renders, just without the light/dark styling.
  */
+const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY
+
+function maptilerOrFallback(styleId, label) {
+  if (!MAPTILER_KEY) {
+    return {
+      id: styleId,
+      label,
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      subdomains: 'abc',
+      maxZoom: 19,
+    }
+  }
+  return {
+    id: styleId,
+    label,
+    url: `https://api.maptiler.com/maps/${styleId}/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
+    attribution:
+      '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    subdomains: '',
+    maxZoom: 20,
+  }
+}
+
+if (!MAPTILER_KEY && import.meta.env.DEV) {
+  console.warn(
+    '[tileProviders] VITE_MAPTILER_KEY is not set -- light/dark map styles will fall back to plain OSM tiles. See .env.example.',
+  )
+}
+
 export const TILE_PROVIDERS = {
-  light: {
-    id: 'light',
-    label: 'Terang',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20,
-  },
-  dark: {
-    id: 'dark',
-    label: 'Gelap',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_matter/{z}/{x}/{y}{r}.png',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20,
-  },
+  light: maptilerOrFallback('dataviz', 'Terang'),
+  dark: maptilerOrFallback('dataviz-dark', 'Gelap'),
   standard: {
     id: 'standard',
     label: 'OSM Standar',

@@ -23,7 +23,7 @@ export default function CollectionRateDistributionDonut() {
   return (
     <Card className="p-4 flex flex-col h-full">
       <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide mb-3">
-        DISTRIBUSI COLLECTION RATE (PKB)
+        DISTRIBUSI COLLECTION RATE
       </h2>
       <div className="flex-1 flex items-center gap-3 min-h-[190px]">
         <div className="relative w-[128px] h-[128px] shrink-0">
