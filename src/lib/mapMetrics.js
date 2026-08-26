@@ -41,7 +41,7 @@ export const RATE_BAND_LEGEND = BAND_ORDER.map((band) => ({
 // tells the quantile banding below whether high values are good (green) or
 // bad (red) for that particular metric.
 export const MAP_METRICS = {
-  collectionRate: { id: 'collectionRate', label: 'Collection Rate (PKB)', unit: '%', kind: 'percent', direction: 'higher-better' },
+  collectionRate: { id: 'collectionRate', label: 'Collection Rate', unit: '%', kind: 'percent', direction: 'higher-better' },
   vehicleCount: { id: 'vehicleCount', label: 'Jumlah Kendaraan', unit: 'unit', kind: 'count', direction: 'higher-better' },
   unpaidVehicles: { id: 'unpaidVehicles', label: 'Kendaraan Belum Bayar', unit: 'unit', kind: 'count', direction: 'lower-better' },
   unpaidPotential: { id: 'unpaidPotential', label: 'Potensi Belum Bayar', unit: 'Rp', kind: 'currency', direction: 'lower-better' },

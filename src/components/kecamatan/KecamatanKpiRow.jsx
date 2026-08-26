@@ -35,7 +35,7 @@ export default function KecamatanKpiRow() {
       <KpiCard
         icon={TrendingUp}
         color="blue"
-        label="COLLECTION RATE (PKB)"
+        label="COLLECTION RATE"
         value={formatPercent(s.collectionRate, 2)}
         target={`Target : ${formatPercent(s.collectionRateTarget, 2)}`}
         delta={formatSignedPercent(d.collectionRate.deltaPercent)}

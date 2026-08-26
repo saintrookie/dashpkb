@@ -62,7 +62,7 @@ export default function TrendChart() {
     <Card className="p-4 flex flex-col h-full">
       <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
         <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide">
-          TREND COLLECTION RATE (PKB) KOTA
+          TREND COLLECTION RATE KOTA
         </h2>
         {selectedKecamatan && (
           <span className="flex items-center gap-1.5 text-[10.5px] font-semibold text-status-orange">

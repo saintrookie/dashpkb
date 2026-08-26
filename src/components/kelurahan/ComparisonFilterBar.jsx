@@ -11,7 +11,7 @@ export const DEFAULT_COMPARISON_FILTERS = {
 }
 
 const SORT_OPTIONS = [
-  { value: 'rate_desc', label: 'Collection Rate (PKB)' },
+  { value: 'rate_desc', label: 'Collection Rate' },
   { value: 'penerimaan_desc', label: 'Penerimaan PKB' },
   { value: 'potensi_desc', label: 'Potensi Belum Bayar' },
   { value: 'kendaraan_desc', label: 'Jumlah Kendaraan' },

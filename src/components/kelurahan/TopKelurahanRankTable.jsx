@@ -41,7 +41,7 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
                 Kecamatan
               </th>
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                Collection Rate (PKB)
+                Collection Rate
               </th>
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
                 {opsenOnly ? 'Penerimaan Opsen PKB' : 'Penerimaan PKB'}

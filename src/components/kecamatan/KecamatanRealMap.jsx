@@ -30,7 +30,7 @@ export default function KecamatanRealMap() {
     <Card className="p-4 flex flex-col h-full">
       <div className="flex items-center gap-1.5 mb-3">
         <h2 className="text-[12.5px] font-bold text-navy-900 dark:text-white tracking-wide">
-          PETA COLLECTION RATE (PKB)
+          PETA COLLECTION RATE
         </h2>
         <Info size={13} className="text-slate-400 dark:text-slate-500" />
         <Link
@@ -67,7 +67,7 @@ export default function KecamatanRealMap() {
       <div className="flex items-start gap-1.5 pt-3 mt-3 border-t border-surface-border dark:border-white/10 text-[10px] text-slate-500 dark:text-slate-400 leading-snug">
         <Info size={13} className="shrink-0 mt-0.5 text-slate-400 dark:text-slate-500" />
         <span>
-          Warna peta menunjukkan tingkat Collection Rate (PKB). Klik pada wilayah untuk melihat detail kecamatan.
+          Warna peta menunjukkan tingkat Collection Rate. Klik pada wilayah untuk melihat detail kecamatan.
         </span>
       </div>
     </Card>
