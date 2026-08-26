@@ -3,6 +3,7 @@ import { Search } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import { useMapEntities } from '../../hooks/useMapData.js'
 import { useMapStore } from '../../store/mapStore.js'
+import { useDataFilters } from '../../hooks/useDataFilters.js'
 import { colorForRate } from '../../lib/mapMetrics.js'
 import { formatNumberID, formatPercent } from '../../lib/format.js'
 import TableCardSkeleton from '../table/TableCardSkeleton.jsx'
@@ -11,7 +12,8 @@ const ENTITY_TYPE_LABEL = { opd: 'OPD', tax_service_point: 'Layanan Pajak', coll
 
 export default function MapEntityTable() {
   const [query, setQuery] = useState('')
-  const { data: entities, loading } = useMapEntities({ search: query || undefined })
+  const { taxYear } = useDataFilters()
+  const { data: entities, loading } = useMapEntities({ search: query || undefined, taxYear })
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)

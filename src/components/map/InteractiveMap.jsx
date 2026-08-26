@@ -82,6 +82,7 @@ export default function InteractiveMap({
   showToolbar = true,
   showControls = true,
   showLegend = true,
+  layerScope,
   height = '600px',
   className = '',
 }) {
@@ -142,7 +143,7 @@ export default function InteractiveMap({
         <FlyToController />
         <ResizeAwareness />
         {showControls && <MapControlPanel initialCenter={DEFAULT_CENTER} initialZoom={DEFAULT_ZOOM} />}
-        {showToolbar && <MapToolbar />}
+        {showToolbar && <MapToolbar layerScope={layerScope} />}
         {showLegend && <MapLegend metric={metric} />}
       </MapContainer>
     </div>

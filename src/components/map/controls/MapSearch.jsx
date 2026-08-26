@@ -13,11 +13,24 @@ const TYPE_META = {
   kelurahan: { icon: MapPinned, label: 'Kelurahan' },
 }
 
-export default function MapSearch() {
+// Peta Wilayah is split into an OPD page and a Kecamatan/Kelurahan page with
+// non-overlapping data, so search results (and the entity you can jump to)
+// must stay within whichever page is active instead of mixing both scopes.
+const TYPES_BY_SCOPE = {
+  opd: ['opd', 'tax_service_point', 'collection_point'],
+  kecamatan: ['kecamatan', 'kelurahan'],
+}
+
+const PLACEHOLDER_BY_SCOPE = {
+  opd: 'Cari OPD, layanan pajak, titik penagihan...',
+  kecamatan: 'Cari kecamatan, kelurahan...',
+}
+
+export default function MapSearch({ layerScope }) {
   const map = useMap()
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
-  const { results, loading } = useMapSearch(query)
+  const { results, loading } = useMapSearch(query, { types: TYPES_BY_SCOPE[layerScope] })
   const selectEntity = useMapStore((s) => s.selectEntity)
   const containerRef = useRef(null)
   useStopMapEventPropagation(containerRef)
@@ -45,7 +58,7 @@ export default function MapSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => window.setTimeout(() => setFocused(false), 120)}
-          placeholder="Cari OPD, kecamatan, kelurahan..."
+          placeholder={PLACEHOLDER_BY_SCOPE[layerScope] ?? 'Cari OPD, kecamatan, kelurahan...'}
           className="flex-1 min-w-0 bg-transparent text-[12.5px] text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none"
         />
         {loading && <Loader2 size={13} className="animate-spin text-slate-400 shrink-0" />}

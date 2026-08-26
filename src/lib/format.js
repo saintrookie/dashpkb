@@ -28,6 +28,7 @@ export function formatRupiahAuto(n, decimals = 2) {
 }
 
 export function formatPercent(n, decimals = 1) {
+  if (n == null) return '-'
   return `${n.toLocaleString('id-ID', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,

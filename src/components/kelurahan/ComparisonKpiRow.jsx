@@ -19,7 +19,7 @@ function potensiFooter(label, value, delta) {
           }`}
         >
           {isUp ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
-          {formatSignedPercent(delta.deltaPercent)}
+          {formatPercent(Math.abs(delta.deltaPercent), 2)}
         </span>
       </div>
     </div>

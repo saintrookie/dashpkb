@@ -11,7 +11,8 @@ import logoIcon from '../../assets/logo-icon.png'
 // Routes whose region filter drills down to Kecamatan instead of the
 // default Tahun Pajak + Periode Data pair.
 const KECAMATAN_FILTER_ROUTES = new Set([
-  '/peta-wilayah',
+  '/peta-wilayah/opd',
+  '/peta-wilayah/kecamatan',
   '/ringkasan-kecamatan',
   '/perbandingan-kelurahan',
 ])

@@ -5,6 +5,7 @@ import Card from '../ui/Card.jsx'
 import Skeleton from '../ui/Skeleton.jsx'
 import { useMapRegions } from '../../hooks/useMapData.js'
 import { useMapStore } from '../../store/mapStore.js'
+import { useDataFilters } from '../../hooks/useDataFilters.js'
 
 const InteractiveMap = lazy(() => import('../map/InteractiveMap.jsx'))
 
@@ -14,7 +15,8 @@ const InteractiveMap = lazy(() => import('../map/InteractiveMap.jsx'))
  * across pages, and replaces the old hand-drawn SVG wedge map.
  */
 export default function KecamatanRealMap() {
-  const { data: regions, loading } = useMapRegions({ level: 'kecamatan', metric: 'collectionRate' })
+  const { taxYear, periodId } = useDataFilters()
+  const { data: regions, loading } = useMapRegions({ level: 'kecamatan', metric: 'collectionRate', taxYear, periodId })
   const setLayer = useMapStore((s) => s.setLayer)
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function KecamatanRealMap() {
         </h2>
         <Info size={13} className="text-slate-400 dark:text-slate-500" />
         <Link
-          to="/peta-wilayah"
+          to="/peta-wilayah/kecamatan"
           className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 px-2.5 py-1.5 text-[11px] font-semibold text-navy-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
         >
           <Map size={13} />

@@ -48,6 +48,8 @@ export default function KecamatanDetailPage() {
     level: 'kelurahan',
     metric: 'collectionRate',
     kecamatanId: geoProps?.id,
+    taxYear: dataFilters.taxYear,
+    periodId: dataFilters.periodId,
   })
 
   useEffect(() => {

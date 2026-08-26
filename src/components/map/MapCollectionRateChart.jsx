@@ -5,6 +5,7 @@ import { useTheme } from '../../hooks/useTheme.js'
 import { getChartTheme } from '../../lib/chartTheme.js'
 import { useMapEntities } from '../../hooks/useMapData.js'
 import { useMapStore } from '../../store/mapStore.js'
+import { useDataFilters } from '../../hooks/useDataFilters.js'
 import { colorForRate } from '../../lib/mapMetrics.js'
 import ChartCardSkeleton from '../charts/ChartCardSkeleton.jsx'
 
@@ -27,10 +28,11 @@ function CustomTooltip({ active, payload }) {
 export default function MapCollectionRateChart() {
   const { isDark } = useTheme()
   const ct = getChartTheme(isDark)
+  const { taxYear } = useDataFilters()
   // No entityType filter: mixes every marker type that actually has a
   // collection rate (OPD + titik penagihan) instead of only ever showing
   // OPD, even when other layers are the ones active on the map.
-  const { data: entities, loading } = useMapEntities()
+  const { data: entities, loading } = useMapEntities({ taxYear })
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectEntity = useMapStore((s) => s.selectEntity)
   const flyTo = useMapStore((s) => s.flyTo)

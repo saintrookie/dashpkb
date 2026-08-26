@@ -184,7 +184,11 @@ function buildOpdForYear(baseOpd, year) {
 
 const opdByYear = new Map()
 
-function getOpdListForYear(year) {
+// Exported for mapApi.js, which builds OPD markers for Peta Wilayah from
+// this same per-year synthetic list rather than the raw seed, so an OPD's
+// numbers match between the map and the Tingkat Kepatuhan OPD page for
+// whatever Tahun Pajak is selected.
+export function getOpdListForYear(year) {
   const key = year ?? BASELINE_TAX_YEAR
   if (!opdByYear.has(key)) {
     opdByYear.set(key, opdList.map((opd) => buildOpdForYear(opd, key)))
