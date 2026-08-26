@@ -4,6 +4,7 @@ import { X, Building2, Landmark, Wallet, MapPinned, ArrowRight } from 'lucide-re
 import Badge from '../../ui/Badge.jsx'
 import { useMapStore } from '../../../store/mapStore.js'
 import { useMapEntityDetail } from '../../../hooks/useMapData.js'
+import { useDataFilters } from '../../../hooks/useDataFilters.js'
 import { useTheme } from '../../../hooks/useTheme.js'
 import { getChartTheme } from '../../../lib/chartTheme.js'
 import { complianceStatusLabel } from '../../../lib/complianceStatus.js'
@@ -38,26 +39,26 @@ function MiniStat({ label, value }) {
 function buildKpis(type, data) {
   if (type === 'opd') {
     return [
-      { label: 'Kendaraan', value: formatNumberID(data.vehicleCount) },
+      { label: 'Kendaraan', value: formatNumberID(data.metrics.vehicleCount) },
       { label: 'Collection Rate', value: formatPercent(data.collectionRate) },
-      { label: 'Belum Bayar', value: formatNumberID(data.unpaidVehicleCount) },
-      { label: 'Potensi Belum Bayar', value: formatRupiahAuto(data.unpaidPotential) },
+      { label: 'Belum Bayar', value: formatNumberID(data.metrics.unpaidVehicleCount) },
+      { label: 'Potensi Belum Bayar', value: formatRupiahAuto(data.metrics.unpaidPotential) },
     ]
   }
   if (type === 'tax_service_point') {
     return [
-      { label: 'Layanan Hari Ini', value: formatNumberID(data.servicesToday) },
-      { label: 'Rata-rata Antre', value: `${data.avgQueueMinutes} mnt` },
-      { label: 'Transaksi/Bulan', value: formatNumberID(data.monthlyTransactions) },
-      { label: 'Pendapatan/Bulan', value: formatRupiahAuto(data.monthlyRevenue) },
+      { label: 'Layanan Hari Ini', value: formatNumberID(data.metrics.servicesToday) },
+      { label: 'Rata-rata Antre', value: `${data.metrics.avgQueueMinutes} mnt` },
+      { label: 'Transaksi/Bulan', value: formatNumberID(data.metrics.monthlyTransactions) },
+      { label: 'Pendapatan/Bulan', value: formatRupiahAuto(data.metrics.monthlyRevenue) },
     ]
   }
   if (type === 'collection_point') {
     return [
-      { label: 'Target Kendaraan', value: formatNumberID(data.targetVehicles) },
+      { label: 'Target Kendaraan', value: formatNumberID(data.metrics.targetVehicles) },
       { label: 'Collection Rate', value: formatPercent(data.collectionRate) },
-      { label: 'Belum Bayar', value: formatNumberID(data.unpaidVehicles) },
-      { label: 'Realisasi', value: formatRupiahAuto(data.revenueCollected) },
+      { label: 'Belum Bayar', value: formatNumberID(data.metrics.unpaidVehicles) },
+      { label: 'Realisasi', value: formatRupiahAuto(data.metrics.revenueCollected) },
     ]
   }
   // kecamatan / kelurahan region
@@ -124,7 +125,15 @@ export default function MapDetailPanel() {
   const selectedEntityType = useMapStore((s) => s.selectedEntityType)
   const detailPanelOpen = useMapStore((s) => s.detailPanelOpen)
   const closeDetailPanel = useMapStore((s) => s.closeDetailPanel)
-  const { data, loading } = useMapEntityDetail(selectedEntityId, selectedEntityType)
+  const { taxYear, periodId } = useDataFilters()
+  const { data, loading } = useMapEntityDetail(selectedEntityId, selectedEntityType, taxYear, periodId)
+  // useMapEntityDetail keeps the previous entity's data around while the new
+  // one is loading, so right after switching selection there's a render
+  // where selectedEntityType is already the new type but `data` still holds
+  // the old entity's shape (e.g. an OPD's `data.collectionRate` vs a tax
+  // service point's, whose shape has none) -- guard on the id matching too,
+  // not just !data/loading, so buildKpis never runs against a mismatched pair.
+  const isCurrent = data?.id === selectedEntityId
 
   const meta = ENTITY_META[selectedEntityType] ?? ENTITY_META.opd
   const Icon = meta.icon
@@ -147,7 +156,7 @@ export default function MapDetailPanel() {
           <span className="w-9 h-1 rounded-full bg-slate-200 dark:bg-white/15" />
         </div>
 
-        {!data || loading ? (
+        {!isCurrent || loading ? (
           <div className="flex-1 flex items-center justify-center p-8">
             <div className="w-6 h-6 rounded-full border-2 border-slate-200 dark:border-white/10 border-t-brand-blue animate-spin" />
           </div>
@@ -204,8 +213,8 @@ export default function MapDetailPanel() {
                   <RelatedKelurahanChart kecamatanName={data.name} isDark={isDark} />
                 ) : (
                   <PaidUnpaidChart
-                    paid={data.paidVehicleCount ?? data.vehiclesCollected ?? 0}
-                    unpaid={data.unpaidVehicleCount ?? data.unpaidVehicles ?? 0}
+                    paid={data.metrics.paidVehicleCount ?? data.metrics.vehiclesCollected ?? 0}
+                    unpaid={data.metrics.unpaidVehicleCount ?? data.metrics.unpaidVehicles ?? 0}
                     isDark={isDark}
                   />
                 )}

@@ -2,20 +2,30 @@ import * as Popover from '@radix-ui/react-popover'
 import { Layers, Check } from 'lucide-react'
 import { useMapStore } from '../../../store/mapStore.js'
 
-const LAYER_ITEMS = [
-  { key: 'opd', label: 'OPD' },
-  { key: 'taxServicePoints', label: 'Layanan Pajak' },
-  { key: 'collectionPoints', label: 'Titik Penagihan' },
-  { key: 'kecamatan', label: 'Kecamatan' },
-  { key: 'kelurahan', label: 'Kelurahan' },
-  { key: 'heatmap', label: 'Heatmap' },
-  { key: 'routes', label: 'Rute' },
-]
+// Peta Wilayah now runs as two separate pages (OPD & titik layanan vs.
+// Kecamatan/Kelurahan) with their own data, so each only offers the layer
+// toggles relevant to it instead of every layer in one shared list.
+const LAYER_ITEMS_BY_SCOPE = {
+  opd: [
+    { key: 'opd', label: 'OPD' },
+    { key: 'taxServicePoints', label: 'Layanan Pajak' },
+    { key: 'collectionPoints', label: 'Titik Penagihan' },
+    { key: 'heatmap', label: 'Heatmap' },
+    { key: 'routes', label: 'Rute' },
+  ],
+  kecamatan: [
+    { key: 'kecamatan', label: 'Kecamatan' },
+    { key: 'kelurahan', label: 'Kelurahan' },
+    { key: 'heatmap', label: 'Heatmap' },
+    { key: 'routes', label: 'Rute' },
+  ],
+}
 
-export default function LayerSwitcher() {
+export default function LayerSwitcher({ scope }) {
   const activeLayers = useMapStore((s) => s.activeLayers)
   const toggleLayer = useMapStore((s) => s.toggleLayer)
-  const activeCount = Object.values(activeLayers).filter(Boolean).length
+  const items = LAYER_ITEMS_BY_SCOPE[scope] ?? LAYER_ITEMS_BY_SCOPE.opd
+  const activeCount = items.filter((item) => activeLayers[item.key]).length
 
   return (
     <Popover.Root>
@@ -38,7 +48,7 @@ export default function LayerSwitcher() {
           sideOffset={8}
           className="z-[1100] w-[220px] rounded-xl border border-surface-border dark:border-white/10 bg-white dark:bg-navy-800 shadow-card overflow-hidden p-1.5 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
         >
-          {LAYER_ITEMS.map((item) => (
+          {items.map((item) => (
             <button
               key={item.key}
               type="button"

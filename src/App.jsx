@@ -20,7 +20,8 @@ import ComingSoonPage from './pages/ComingSoonPage.jsx'
 import ProfilPenggunaPage from './pages/ProfilPenggunaPage.jsx'
 import MapPageSkeleton from './components/map/MapPageSkeleton.jsx'
 
-const PetaWilayahPage = lazy(() => import('./pages/PetaWilayahPage.jsx'))
+const PetaWilayahOpdPage = lazy(() => import('./pages/PetaWilayahOpdPage.jsx'))
+const PetaWilayahKecamatanPage = lazy(() => import('./pages/PetaWilayahKecamatanPage.jsx'))
 
 function App() {
   const [booting, setBooting] = useState(true)
@@ -62,11 +63,20 @@ function App() {
                   <Route path="/ringkasan-kecamatan" element={<RingkasanKecamatanPage />} />
                   <Route path="/kecamatan/:kecamatanSlug" element={<KecamatanDetailPage />} />
                   <Route path="/kecamatan/:kecamatanSlug/:kelurahanSlug" element={<KelurahanDetailPage />} />
+                  <Route path="/peta-wilayah" element={<Navigate to="/peta-wilayah/opd" replace />} />
                   <Route
-                    path="/peta-wilayah"
+                    path="/peta-wilayah/opd"
                     element={
                       <Suspense fallback={<MapPageSkeleton />}>
-                        <PetaWilayahPage />
+                        <PetaWilayahOpdPage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/peta-wilayah/kecamatan"
+                    element={
+                      <Suspense fallback={<MapPageSkeleton />}>
+                        <PetaWilayahKecamatanPage />
                       </Suspense>
                     }
                   />

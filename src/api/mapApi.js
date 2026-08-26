@@ -1,11 +1,11 @@
-import opdSeed from '../data/mock-api/opd.json'
 import servicePointsSeed from '../data/mock-api/service-points.json'
 import collectionPointsSeed from '../data/mock-api/collection-points.json'
 import routesSeed from '../data/mock-api/routes.json'
 import kecamatanGeo from '../data/geo/pangkalpinang-kecamatan.json'
 import kelurahanGeo from '../data/geo/pangkalpinang-kelurahan.json'
-import { kecamatanList } from '../data/kecamatan.js'
-import { kelurahanList } from '../data/kelurahan.js'
+import { getKecamatanListForYear } from '../data/kecamatan.js'
+import { getKelurahanListForYear } from '../data/kelurahan.js'
+import { getOpdListForYear } from '../services/mockApi.js'
 import { colorForMetricValue, colorForRate, colorForEntityStatus } from '../lib/mapMetrics.js'
 
 /**
@@ -120,20 +120,24 @@ function collectionPointToEntity(cp) {
   }
 }
 
-function buildAllEntities() {
+// OPD markers are built from the same per-year synthetic OPD list used by
+// the Tingkat Kepatuhan OPD page (getOpdListForYear) instead of the raw
+// seed, so figures match between the two instead of the map always showing
+// baseline-year numbers regardless of the selected Tahun Pajak.
+function buildAllEntities(taxYear) {
   return [
-    ...opdSeed.map(opdToEntity),
+    ...getOpdListForYear(taxYear).map(opdToEntity),
     ...servicePointsSeed.map(servicePointToEntity),
     ...collectionPointsSeed.map(collectionPointToEntity),
   ]
 }
 
 /**
- * @param {{ entityType?: string, status?: string, kecamatan?: string, search?: string, bbox?: [number,number,number,number] }} params
+ * @param {{ entityType?: string, status?: string, kecamatan?: string, search?: string, bbox?: [number,number,number,number], taxYear?: number }} params
  */
 export async function getLocations(params = {}) {
   return request(() => {
-    let rows = buildAllEntities()
+    let rows = buildAllEntities(params.taxYear)
     if (params.entityType) rows = rows.filter((r) => r.entityType === params.entityType)
     if (params.status) rows = rows.filter((r) => r.status === params.status)
     if (params.kecamatan) rows = rows.filter((r) => r.kecamatan === params.kecamatan)
@@ -143,9 +147,9 @@ export async function getLocations(params = {}) {
   })
 }
 
-export async function getLocationById(id) {
+export async function getLocationById(id, taxYear) {
   return request(() => {
-    const entity = buildAllEntities().find((r) => r.id === id)
+    const entity = buildAllEntities(taxYear).find((r) => r.id === id)
     return entity ? success(entity) : { success: false, data: null, meta: null }
   })
 }
@@ -160,14 +164,17 @@ function statsRange(list, key) {
 }
 
 /**
- * @param {{ level?: 'kecamatan'|'kelurahan', kecamatanId?: string, metric?: string }} params
+ * @param {{ level?: 'kecamatan'|'kelurahan', kecamatanId?: string, metric?: string, taxYear?: number, periodId?: string }} params
  */
 export async function getRegions(params = {}) {
   return request(() => {
     const level = params.level ?? 'kecamatan'
     const metric = params.metric ?? 'collectionRate'
     const geo = level === 'kelurahan' ? kelurahanGeo : kecamatanGeo
-    const statsList = level === 'kelurahan' ? kelurahanList : kecamatanList
+    const statsList =
+      level === 'kelurahan'
+        ? getKelurahanListForYear(params.taxYear, params.periodId)
+        : getKecamatanListForYear(params.taxYear, params.periodId)
     const nameKey = level === 'kelurahan' ? 'kelurahan' : 'kecamatan'
 
     const metricKeyMap = {
@@ -204,10 +211,11 @@ export async function getRegions(params = {}) {
   })
 }
 
-export async function getRegionById(id, level = 'kecamatan') {
+export async function getRegionById(id, level = 'kecamatan', taxYear, periodId) {
   return request(() => {
     const geo = level === 'kelurahan' ? kelurahanGeo : kecamatanGeo
-    const statsList = level === 'kelurahan' ? kelurahanList : kecamatanList
+    const statsList =
+      level === 'kelurahan' ? getKelurahanListForYear(taxYear, periodId) : getKecamatanListForYear(taxYear, periodId)
     const nameKey = level === 'kelurahan' ? 'kelurahan' : 'kecamatan'
     const feature = geo.features.find((f) => f.properties.id === id)
     if (!feature) return { success: false, data: null, meta: null }
@@ -243,13 +251,13 @@ const HEATMAP_VALUE_GETTERS = {
 }
 
 /**
- * @param {{ metric?: string }} params
+ * @param {{ metric?: string, taxYear?: number }} params
  */
 export async function getHeatmapData(params = {}) {
   return request(() => {
     const metric = params.metric ?? 'unpaidPotential'
     const getValue = HEATMAP_VALUE_GETTERS[metric] ?? HEATMAP_VALUE_GETTERS.unpaidPotential
-    const entities = buildAllEntities().filter((e) => e.latitude && e.longitude)
+    const entities = buildAllEntities(params.taxYear).filter((e) => e.latitude && e.longitude)
     const values = entities.map(getValue)
     const max = Math.max(1, ...values)
 
@@ -269,14 +277,25 @@ export async function getHeatmapData(params = {}) {
 // Search (OPD, kecamatan, kelurahan, service/collection points)
 // ---------------------------------------------------------------------------
 
-export async function searchMapEntities(query) {
+/**
+ * @param {string} query
+ * @param {{ types?: string[] }} [options] - restrict results to these
+ *   entityType/level values, e.g. ['opd','tax_service_point'] on the OPD
+ *   map page so search can't jump you to a kecamatan/kelurahan you have no
+ *   way to see there (Peta Wilayah is split into separate OPD vs.
+ *   Kecamatan/Kelurahan pages -- search must stay within the active page's
+ *   scope instead of mixing both).
+ */
+export async function searchMapEntities(query, { types } = {}) {
   return request(() => {
     const q = query?.trim().toLowerCase()
     if (!q) return success([])
+    const allowed = types ? new Set(types) : null
 
     const results = []
 
     for (const entity of buildAllEntities()) {
+      if (allowed && !allowed.has(entity.entityType)) continue
       if (`${entity.name} ${entity.code}`.toLowerCase().includes(q)) {
         results.push({
           id: entity.id,
@@ -290,31 +309,35 @@ export async function searchMapEntities(query) {
       }
     }
 
-    for (const feature of kecamatanGeo.features) {
-      if (feature.properties.name.toLowerCase().includes(q)) {
-        results.push({
-          id: feature.properties.id,
-          type: 'kecamatan',
-          label: feature.properties.name,
-          sublabel: 'Kecamatan',
-          latitude: feature.properties.centroid[0],
-          longitude: feature.properties.centroid[1],
-          bbox: feature.properties.bbox,
-        })
+    if (!allowed || allowed.has('kecamatan')) {
+      for (const feature of kecamatanGeo.features) {
+        if (feature.properties.name.toLowerCase().includes(q)) {
+          results.push({
+            id: feature.properties.id,
+            type: 'kecamatan',
+            label: feature.properties.name,
+            sublabel: 'Kecamatan',
+            latitude: feature.properties.centroid[0],
+            longitude: feature.properties.centroid[1],
+            bbox: feature.properties.bbox,
+          })
+        }
       }
     }
 
-    for (const feature of kelurahanGeo.features) {
-      if (feature.properties.name.toLowerCase().includes(q)) {
-        results.push({
-          id: feature.properties.id,
-          type: 'kelurahan',
-          label: feature.properties.name,
-          sublabel: `Kelurahan · ${feature.properties.kecamatanName}`,
-          latitude: feature.properties.centroid[0],
-          longitude: feature.properties.centroid[1],
-          bbox: feature.properties.bbox,
-        })
+    if (!allowed || allowed.has('kelurahan')) {
+      for (const feature of kelurahanGeo.features) {
+        if (feature.properties.name.toLowerCase().includes(q)) {
+          results.push({
+            id: feature.properties.id,
+            type: 'kelurahan',
+            label: feature.properties.name,
+            sublabel: `Kelurahan · ${feature.properties.kecamatanName}`,
+            latitude: feature.properties.centroid[0],
+            longitude: feature.properties.centroid[1],
+            bbox: feature.properties.bbox,
+          })
+        }
       }
     }
 

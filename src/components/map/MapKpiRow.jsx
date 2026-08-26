@@ -4,6 +4,7 @@ import KpiRowSkeleton from '../kpi/KpiRowSkeleton.jsx'
 import { useMapStore } from '../../store/mapStore.js'
 import { useMapEntityDetail } from '../../hooks/useMapData.js'
 import { useKecamatanData } from '../../hooks/useYearlyLocalData.js'
+import { useDataFilters } from '../../hooks/useDataFilters.js'
 import { formatNumberID, formatPercent, formatRupiahCompact } from '../../lib/format.js'
 
 function summaryFromCityWide(s) {
@@ -22,19 +23,19 @@ function summaryFromEntity(type, data) {
     return {
       scopeLabel: data.name,
       collectionRate: data.collectionRate,
-      vehicleCount: data.vehicleCount,
-      unpaidCount: data.unpaidVehicleCount,
-      revenue: data.payment.pkb + data.payment.opsenPkb,
-      unpaidPotential: data.unpaidPotential,
+      vehicleCount: data.metrics.vehicleCount,
+      unpaidCount: data.metrics.unpaidVehicleCount,
+      revenue: data.metrics.revenue,
+      unpaidPotential: data.metrics.unpaidPotential,
     }
   }
   if (type === 'collection_point') {
     return {
       scopeLabel: data.name,
       collectionRate: data.collectionRate,
-      vehicleCount: data.targetVehicles,
-      unpaidCount: data.unpaidVehicles,
-      revenue: data.revenueCollected,
+      vehicleCount: data.metrics.targetVehicles,
+      unpaidCount: data.metrics.unpaidVehicles,
+      revenue: data.metrics.revenueCollected,
       unpaidPotential: null,
     }
   }
@@ -42,9 +43,9 @@ function summaryFromEntity(type, data) {
     return {
       scopeLabel: data.name,
       collectionRate: null,
-      vehicleCount: data.monthlyTransactions,
+      vehicleCount: data.metrics.monthlyTransactions,
       unpaidCount: null,
-      revenue: data.monthlyRevenue,
+      revenue: data.metrics.monthlyRevenue,
       unpaidPotential: null,
     }
   }
@@ -63,10 +64,16 @@ function summaryFromEntity(type, data) {
 export default function MapKpiRow() {
   const selectedEntityId = useMapStore((s) => s.selectedEntityId)
   const selectedEntityType = useMapStore((s) => s.selectedEntityType)
-  const { data, loading } = useMapEntityDetail(selectedEntityId, selectedEntityType)
+  const { taxYear, periodId } = useDataFilters()
+  const { data, loading } = useMapEntityDetail(selectedEntityId, selectedEntityType, taxYear, periodId)
   const { summary: kecamatanSummary } = useKecamatanData()
+  // useMapEntityDetail keeps the previous entity's data while the new one
+  // loads, so right after switching selection `data` can briefly still be
+  // the old (mismatched-shape) entity even though selectedEntityType/Id
+  // already point at the new one -- guard on id matching, not just !data.
+  const isCurrent = data?.id === selectedEntityId
 
-  if (selectedEntityId && (loading || !data)) return <KpiRowSkeleton />
+  if (selectedEntityId && (loading || !isCurrent)) return <KpiRowSkeleton />
 
   const summary = selectedEntityId ? summaryFromEntity(selectedEntityType, data) : summaryFromCityWide(kecamatanSummary)
 

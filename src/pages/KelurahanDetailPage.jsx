@@ -35,6 +35,8 @@ export default function KelurahanDetailPage() {
     level: 'kelurahan',
     metric: 'collectionRate',
     kecamatanId: geoProps?.id,
+    taxYear: dataFilters.taxYear,
+    periodId: dataFilters.periodId,
   })
 
   useEffect(() => {
