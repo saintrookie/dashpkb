@@ -1,4 +1,4 @@
-// One-off ETL: converts the real vehicle-tax export (src/data/data-kendaraan.csv)
+// One-off ETL: converts the real vehicle-tax export (src/data/data-fixed-lengkap.csv)
 // into the compact dataset the app loads for the baseline tax year. Re-run
 // this manually whenever the source CSV changes — it is not part of the
 // build or runtime, only its output (kendaraan-real-2026.json) is imported.
@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const CSV_PATH = path.join(__dirname, '../src/data/data-kendaraan.csv')
+const CSV_PATH = path.join(__dirname, '../src/data/data-fixed-lengkap.csv')
 const GEO_PATH = path.join(__dirname, '../src/data/geo/pangkalpinang-kelurahan.json')
 const OUT_PATH = path.join(__dirname, '../src/data/mock-api/kendaraan-real-2026.json')
 const OUT_KECAMATAN_PATH = path.join(__dirname, '../src/data/mock-api/kecamatan-real-2026.json')

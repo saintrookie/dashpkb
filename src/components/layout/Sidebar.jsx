@@ -164,10 +164,10 @@ export default function Sidebar({ collapsed = false, onClose }) {
           <p>Data per : 20 Mei 2026</p>
           <p>Sumber : Bapenda, Jasa Raharja</p>
         </div>
-        <div className={`pointer-events-none ${collapsed ? 'lg:hidden' : ''}`}>
+        <div className={`absolute inset-x-0 bottom-0 pointer-events-none ${collapsed ? 'lg:hidden' : ''}`}>
           <SkylineIllustration />
         </div>
-         <div className="relative flex justify-center px-10 pb-4 top-[-10px]">
+        <div className="relative z-10 flex justify-center px-10 pb-4 top-[-10px]">
           <img src="/logo-sinergi-white.png" alt="Logo Sinergi" className="w-[100%] h-auto object-contain" />
         </div>
       </div>
