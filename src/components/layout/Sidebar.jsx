@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/authStore.js'
 import { useFilters } from '../../hooks/useFilters.js'
 import { useDataFilters } from '../../hooks/useDataFilters.js'
 import bridgeSkyline from '../../assets/illustrations/bridge-skyline.svg'
-import logoIcon from '../../assets/logo-icon.png'
+import { SAMSAT_LOGOS } from '../../data/samsatLogos.js'
 
 // Routes whose region filter drills down to Kecamatan instead of the
 // default Tahun Pajak + Periode Data pair.
@@ -65,18 +65,14 @@ export default function Sidebar({ collapsed = false, onClose }) {
   return (
     <aside className="w-full h-full bg-gradient-to-b from-navy-950 to-navy-900 text-white flex flex-col overflow-hidden">
       <div
-        className={`pt-6 pb-5 flex items-center gap-3 border-b border-white/10 relative ${
-          collapsed ? 'pl-5 pr-12 lg:px-0 lg:justify-center' : 'pl-5 pr-12 lg:px-5'
+        className={`pt-6 pb-5 flex items-center justify-center gap-3 border-b border-white/10 relative ${
+          collapsed ? 'pl-5 pr-12 lg:px-0' : 'pl-5 pr-12 lg:px-5'
         }`}
       >
-        <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-10 h-10 object-contain shrink-0" />
-        <div className={`min-w-0 leading-tight ${collapsed ? 'lg:hidden' : ''}`}>
-          <div className="text-[10px] font-semibold tracking-wide text-slate-300 truncate">
-            PEMERINTAH KOTA
-          </div>
-          <div className="text-[15px] font-bold tracking-wide text-white truncate">
-            PANGKALPINANG
-          </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {SAMSAT_LOGOS.map((logo) => (
+            <img key={logo.src} src={logo.src} alt={logo.alt} className="w-12 h-12 object-contain" />
+          ))}
         </div>
 
         <button
@@ -170,6 +166,9 @@ export default function Sidebar({ collapsed = false, onClose }) {
         </div>
         <div className={`pointer-events-none ${collapsed ? 'lg:hidden' : ''}`}>
           <SkylineIllustration />
+        </div>
+         <div className="relative flex justify-center px-10 pb-4 top-[-10px]">
+          <img src="/logo-sinergi-white.png" alt="Logo Sinergi" className="w-[100%] h-auto object-contain" />
         </div>
       </div>
     </aside>

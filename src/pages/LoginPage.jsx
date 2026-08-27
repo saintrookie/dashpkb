@@ -5,8 +5,10 @@ import * as Yup from 'yup'
 import { Eye, EyeOff, LogIn, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore.js'
 import { useDemoAccounts } from '../hooks/useUsers'
+import { useTheme } from '../hooks/useTheme.js'
 import bridgeSkyline from '../assets/illustrations/bridge-skyline.svg'
 import logoIcon from '../assets/logo-icon.png'
+import { SAMSAT_LOGOS } from '../data/samsatLogos.js'
 
 const validationSchema = Yup.object({
   identifier: Yup.string().trim().required('Username atau email wajib diisi'),
@@ -31,6 +33,7 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login)
   const navigate = useNavigate()
   const location = useLocation()
+  const { isDark } = useTheme()
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState('')
   const [showDemoCreds, setShowDemoCreds] = useState(false)
@@ -63,16 +66,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex bg-surface-canvas dark:bg-navy-950">
       <div className="hidden lg:flex lg:w-[440px] shrink-0 bg-gradient-to-b from-navy-950 to-navy-900 text-white flex-col justify-between relative overflow-hidden">
         <div className="px-10 pt-12">
-          <div className="flex items-center gap-3">
-            <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-12 h-12 object-contain shrink-0" />
-            <div className="leading-tight">
-              <div className="text-[11px] font-semibold tracking-wide text-slate-300">
-                PEMERINTAH KOTA
-              </div>
-              <div className="text-[18px] font-bold tracking-wide text-white">
-                PANGKALPINANG
-              </div>
-            </div>
+          <div className="flex items-center justify-center gap-3">
+            {SAMSAT_LOGOS.map((logo) => (
+              <img key={logo.src} src={logo.src} alt={logo.alt} className="w-20 h-20 object-contain" />
+            ))}
           </div>
 
           <h1 className="text-[26px] font-extrabold leading-tight mt-14">
@@ -84,15 +81,13 @@ export default function LoginPage() {
             Monitoring kepatuhan pembayaran PKB, Opsen PKB &amp; SWDKLLJ secara
             terpusat untuk optimalisasi Pendapatan Asli Daerah.
           </p>
-
-          {/* <div className="flex items-center gap-2 mt-8 text-[12px] text-slate-300">
-            <ShieldCheck size={16} className="text-brand-blue" />
-            Akses aman &mdash; khusus pengguna terverifikasi
-          </div> */}
         </div>
 
         <div className="relative">
           <SkylineIllustration />
+        </div>
+        <div className="relative flex justify-center px-10 pb-4 top-[-100px]">
+          <img src="/logo-sinergi-white.png" alt="Logo Sinergi" className="w-[70%] h-auto object-contain" />
         </div>
       </div>
 
@@ -109,6 +104,15 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
+
+          <div className="w-full h-[160px] flex items-center justify-center mb-2">
+            <img
+              src={isDark ? '/logo-sinergi-white.png' : '/logo-sinergi.png'}
+              alt="Logo Sinergi"
+              className="max-h-full max-w-full object-contain"
+            />
+          </div>
+
 
           <h2 className="text-[22px] font-extrabold text-navy-900 dark:text-white">Masuk</h2>
           <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1 mb-7">
