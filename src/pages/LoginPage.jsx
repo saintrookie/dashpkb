@@ -93,7 +93,7 @@ export default function LoginPage() {
 
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10">
         <div className="w-full max-w-[480px]">
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
+          {/* <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
             <img src={logoIcon} alt="Logo Kota Pangkalpinang" className="w-10 h-10 object-contain shrink-0" />
             <div className="leading-tight">
               <div className="text-[10px] font-semibold tracking-wide text-slate-500 dark:text-slate-400">
@@ -103,7 +103,7 @@ export default function LoginPage() {
                 PANGKALPINANG
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="w-full h-[160px] flex items-center justify-center mb-2">
             <img
