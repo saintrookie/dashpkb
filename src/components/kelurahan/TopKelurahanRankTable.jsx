@@ -21,14 +21,25 @@ const TONE = {
   negative: 'text-status-red',
 }
 
-export default function TopKelurahanRankTable({ title, rows, tone = 'positive', showMoreLink = true }) {
+export default function TopKelurahanRankTable({
+  title,
+  rows,
+  tone = 'positive',
+  showMoreLink = true,
+  // Admin-only variant (Ringkasan Kelurahan): Penerimaan PKB/Opsen PKB/
+  // SWDKLLJ as three separate columns, no Potensi Belum Bayar column —
+  // shown regardless of the opsenOnly revenue-visibility toggle since it
+  // was requested explicitly for the admin role, not the general viewer.
+  showRevenueBreakdown = false,
+}) {
   const { opsenOnly } = useRevenueVisibility()
+  const columnCount = showRevenueBreakdown ? 9 : 8
   return (
     <Card className="p-4 flex flex-col h-full min-w-0">
       <h2 className={`text-[12.5px] font-bold tracking-wide mb-3 ${TONE[tone]}`}>{title}</h2>
 
       <div className="overflow-x-auto -mx-4 px-4 flex-1">
-        <table className="w-full min-w-[560px] border-collapse text-left">
+        <table className={`w-full ${showRevenueBreakdown ? 'min-w-[680px]' : 'min-w-[560px]'} border-collapse text-left`}>
           <thead>
             <tr className="border-b border-surface-border dark:border-white/10">
               <th className="py-2 pr-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 w-5">
@@ -44,11 +55,22 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
                 Collection Rate
               </th>
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
-                {opsenOnly ? 'Penerimaan Opsen PKB' : 'Penerimaan PKB'}
+                {showRevenueBreakdown || !opsenOnly ? 'Penerimaan PKB' : 'Penerimaan Opsen PKB'}
               </th>
-              <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
-                {opsenOnly ? 'Potensi Belum Bayar Opsen PKB' : 'Potensi Belum Bayar'}
-              </th>
+              {showRevenueBreakdown ? (
+                <>
+                  <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
+                    Penerimaan Opsen PKB
+                  </th>
+                  <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
+                    Penerimaan SWDKLLJ
+                  </th>
+                </>
+              ) : (
+                <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
+                  {opsenOnly ? 'Potensi Belum Bayar Opsen PKB' : 'Potensi Belum Bayar'}
+                </th>
+              )}
               <th className="py-2 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right whitespace-nowrap">
                 Jumlah Kendaraan
               </th>
@@ -58,7 +80,7 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-10">
+                <td colSpan={columnCount} className="py-10">
                   <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
                     <Inbox size={22} strokeWidth={1.5} />
                     <p className="text-xs">Tidak ada kelurahan yang cocok dengan filter.</p>
@@ -92,11 +114,22 @@ export default function TopKelurahanRankTable({ title, rows, tone = 'positive', 
                   </div>
                 </td>
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatRupiahAuto(opsenOnly ? row.opsenPkb : row.penerimaanPkb)}
+                  {formatRupiahAuto(showRevenueBreakdown || !opsenOnly ? row.penerimaanPkb : row.opsenPkb)}
                 </td>
-                <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
-                  {formatRupiahAuto(opsenOnly ? row.potensiBelumBayarOpsen : row.potensiBelumBayar)}
-                </td>
+                {showRevenueBreakdown ? (
+                  <>
+                    <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                      {formatRupiahAuto(row.opsenPkb)}
+                    </td>
+                    <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                      {formatRupiahAuto(row.penerimaanSwdkllj)}
+                    </td>
+                  </>
+                ) : (
+                  <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
+                    {formatRupiahAuto(opsenOnly ? row.potensiBelumBayarOpsen : row.potensiBelumBayar)}
+                  </td>
+                )}
                 <td className="py-2 px-1.5 text-[11px] text-slate-600 dark:text-slate-300 text-right whitespace-nowrap">
                   {formatNumberID(row.jumlahKendaraan)}
                 </td>

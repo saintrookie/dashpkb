@@ -76,9 +76,13 @@ export default function PerbandinganKelurahanPage() {
         <FilterCard
           icon={Calendar}
           label="Periode Data"
-          value={dataFilters.periodLabel || '—'}
-          options={dataFilters.periodOptions}
-          onChange={dataFilters.setPeriodByLabel}
+          type="daterange"
+          fromValue={dataFilters.fromDate}
+          toValue={dataFilters.toDate}
+          dateMin={dataFilters.minPeriodDate}
+          dateMax={dataFilters.maxPeriodDate}
+          onFromChange={dataFilters.setFromDate}
+          onToChange={dataFilters.setToDate}
           showReset={!dataFilters.isPeriodDefault}
           onReset={dataFilters.resetPeriod}
         />
