@@ -11,11 +11,13 @@ import CollectionRateDistributionDonut from '../components/kelurahan/CollectionR
 import ChartCardSkeleton from '../components/charts/ChartCardSkeleton.jsx'
 import { useDataFilters } from '../hooks/useDataFilters.js'
 import { useKelurahanData } from '../hooks/useYearlyLocalData.js'
+import { useAuthStore } from '../store/authStore.js'
 
 export default function RingkasanKelurahanPage() {
   const [dataLoading, setDataLoading] = useState(true)
   const dataFilters = useDataFilters()
   const { list: kelurahanList } = useKelurahanData()
+  const isAdmin = useAuthStore((s) => s.user?.role === 'Admin')
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDataLoading(false), 900)
@@ -45,9 +47,13 @@ export default function RingkasanKelurahanPage() {
         <FilterCard
           icon={Calendar}
           label="Periode Data"
-          value={dataFilters.periodLabel || '—'}
-          options={dataFilters.periodOptions}
-          onChange={dataFilters.setPeriodByLabel}
+          type="daterange"
+          fromValue={dataFilters.fromDate}
+          toValue={dataFilters.toDate}
+          dateMin={dataFilters.minPeriodDate}
+          dateMax={dataFilters.maxPeriodDate}
+          onFromChange={dataFilters.setFromDate}
+          onToChange={dataFilters.setToDate}
           showReset={!dataFilters.isPeriodDefault}
           onReset={dataFilters.resetPeriod}
         />

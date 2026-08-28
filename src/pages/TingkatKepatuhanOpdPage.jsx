@@ -34,9 +34,13 @@ export default function TingkatKepatuhanOpdPage() {
         <FilterCard
           icon={Calendar}
           label="Periode Data"
-          value={data?.period.label ?? '—'}
-          options={filters.periodOptions}
-          onChange={filters.setPeriodByLabel}
+          type="daterange"
+          fromValue={filters.fromDate}
+          toValue={filters.toDate}
+          dateMin={filters.minPeriodDate}
+          dateMax={filters.maxPeriodDate}
+          onFromChange={filters.setFromDate}
+          onToChange={filters.setToDate}
           showReset={!filters.isPeriodDefault}
           onReset={filters.resetPeriod}
         />

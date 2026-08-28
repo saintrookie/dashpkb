@@ -3,8 +3,8 @@
     "id": "notification-001",
     "type": "payment_alert",
     "title": "Potensi Belum Bayar Meningkat",
-    "message": "Potensi belum bayar Dinas PUPR meningkat sebesar 8,4% dibandingkan periode sebelumnya.",
-    "relatedOpdId": "opd-035",
+    "message": "Potensi belum bayar Dinas Pangan & Pertanian Kota Pangkalpinang meningkat sebesar 8,4% dibandingkan periode sebelumnya.",
+    "relatedOpdId": "opd-004",
     "isRead": false,
     "createdAt": "2026-05-20T09:15:00+07:00"
   },
@@ -21,8 +21,8 @@
     "id": "notification-003",
     "type": "payment_alert",
     "title": "Pembayaran PKB Terdeteksi",
-    "message": "32 kendaraan dinas Sekretariat Daerah telah menyelesaikan pembayaran PKB dan Opsen PKB periode berjalan.",
-    "relatedOpdId": "opd-001",
+    "message": "4 kendaraan dinas SETWAN telah menyelesaikan pembayaran PKB dan Opsen PKB periode berjalan.",
+    "relatedOpdId": "opd-020",
     "isRead": false,
     "createdAt": "2026-05-20T07:55:00+07:00"
   },
@@ -30,8 +30,8 @@
     "id": "notification-004",
     "type": "reminder",
     "title": "Batas Waktu Pelaporan Mendekat",
-    "message": "Dinas Perhubungan dan Dinas Lingkungan Hidup belum melapor tepat waktu untuk periode s.d. 20 Mei 2026.",
-    "relatedOpdId": "opd-034",
+    "message": "Dinas Parawisata Kota Pangkalpinang dan Dinas Perhubungan Kota Pangkalpinang belum melapor tepat waktu untuk periode s.d. 20 Mei 2026.",
+    "relatedOpdId": "opd-005",
     "isRead": false,
     "createdAt": "2026-05-19T16:20:00+07:00"
   },
@@ -75,8 +75,8 @@
     "id": "notification-009",
     "type": "payment_alert",
     "title": "Potensi Belum Bayar Menurun",
-    "message": "Potensi belum bayar Dinas Kesehatan menurun sebesar 3,2% setelah pelunasan bertahap kendaraan operasional puskesmas.",
-    "relatedOpdId": "opd-020",
+    "message": "Potensi belum bayar Bakeuda Kota Pangkalpinang menurun sebesar 3,2% setelah pelunasan bertahap kendaraan dinas.",
+    "relatedOpdId": "opd-001",
     "isRead": true,
     "createdAt": "2026-05-15T11:00:00+07:00"
   },
