@@ -76,6 +76,7 @@ export default function RingkasanKelurahanPage() {
               title="RANKING KELURAHAN BERDASARKAN COLLECTION RATE"
               rows={rankedRows}
               showMoreLink={false}
+              showRevenueBreakdown={isAdmin}
             />
           )}
         </div>
